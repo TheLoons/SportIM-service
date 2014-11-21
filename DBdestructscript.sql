@@ -1,0 +1,9 @@
+drop table PlayerEvent;
+drop table TeamEvent;
+drop table Event;
+drop table Tournament;
+drop table TeamBelongsTo;
+drop table League;
+drop table PlaysFor;
+drop table Team;
+drop table Player;
