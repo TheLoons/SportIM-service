@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
+ * Connection management for the SportIM APIs.
+ *
  * Created by hannah on 11/22/14.
  */
 public class ConnectionManager {
