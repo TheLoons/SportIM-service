@@ -31,4 +31,26 @@
             <version>2.5</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>            
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>sportim</warName>
+                    <webXml>web\WEB-INF\web.xml</webXml>
+                    <contextXml>web\META-INF\context.xml</contextXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

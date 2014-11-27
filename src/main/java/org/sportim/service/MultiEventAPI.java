@@ -6,7 +6,6 @@ import org.json.JSONObject;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 
-import javax.servlet.annotation.WebServlet;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,7 +17,6 @@ import java.sql.*;
  * Created by hannah on 11/26/14.
  */
 @Path("/events")
-@WebServlet
 public class MultiEventAPI {
 
     @GET

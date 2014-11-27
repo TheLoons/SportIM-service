@@ -3,7 +3,6 @@ package org.sportim.service;
 import org.json.JSONObject;
 import org.sportim.service.util.APIUtils;
 
-import javax.servlet.annotation.WebServlet;
 import javax.ws.rs.*;
 
 /**
@@ -12,7 +11,6 @@ import javax.ws.rs.*;
  * Created by hannah on 11/18/14.
  */
 @Path("/user")
-@WebServlet
 public class UserAPI {
 
     @GET
