@@ -20,12 +20,16 @@ public class ConnectionManager {
             InitialContext ctx = new InitialContext();
             ds = (DataSource) ctx.lookup("java:comp/env/jdbc/SportIMDB");
         } catch (Exception e) {
-            // TODO
+            // TODO remove this - use log4j2
+            e.printStackTrace();
         }
     }
 
     public Connection getConnection() throws SQLException {
         // Set the timezone on the connection
+        if (ds == null)
+            return null;
+
         Connection conn = ds.getConnection();
         Statement stmt = conn.createStatement();
         stmt.execute("SET time_zone='+00:00'");

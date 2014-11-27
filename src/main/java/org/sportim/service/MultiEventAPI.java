@@ -62,6 +62,11 @@ public class MultiEventAPI {
             message = "Unable to retrieve events. SQL error.";
             // TODO log4j 2 log this
             e.printStackTrace();
+        } catch (NullPointerException e) {
+            status = 500;
+            message = "Unable to connect to datasource.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
         } finally {
             boolean ok = APIUtils.closeResource(rs);
             ok = ok && APIUtils.closeResource(stmt);
