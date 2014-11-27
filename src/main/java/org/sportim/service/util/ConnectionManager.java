@@ -4,6 +4,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Connection management for the SportIM APIs.
@@ -24,7 +25,11 @@ public class ConnectionManager {
     }
 
     public Connection getConnection() throws SQLException {
-        return ds.getConnection();
+        // Set the timezone on the connection
+        Connection conn = ds.getConnection();
+        Statement stmt = conn.createStatement();
+        stmt.execute("SET time_zone='+00:00'");
+        return conn;
     }
 
     public static ConnectionManager getInstance() {
