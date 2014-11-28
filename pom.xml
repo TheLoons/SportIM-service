@@ -45,10 +45,11 @@
             <plugin>            
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>2.5</version>
                 <configuration>
                     <warName>sportim</warName>
-                    <webXml>web\WEB-INF\web.xml</webXml>
-                    <contextXml>web\META-INF\context.xml</contextXml>
+                    <webXml>web/WEB-INF/web.xml</webXml>
+                    <containerConfigXML>web/META-INF/context.xml</containerConfigXML>
                 </configuration>
             </plugin>
         </plugins>
