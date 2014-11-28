@@ -37,8 +37,17 @@ public class MultiEventAPI {
             return response.toString();
         }
 
-        DateTime startTime = APIUtils.parseDateTime(start);
-        DateTime endTime = APIUtils.parseDateTime(end);
+        DateTime startTime;
+        DateTime endTime;
+        try {
+            startTime = APIUtils.parseDateTime(start);
+            endTime = APIUtils.parseDateTime(end);
+        } catch (IllegalArgumentException e) {
+            status = 400;
+            message = "Invalid date format.";
+            APIUtils.appendStatus(response, status, message);
+            return response.toString();
+        }
 
         // TODO only return authorized events via auth token
         Connection conn = null;
