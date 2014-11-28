@@ -2,6 +2,6 @@
 <Context>
 <Resource name="jdbc/SportIMDB" auth="Container"
           type="javax.sql.DataSource" username="USER" password="PASSWORD"
-          driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://cs4400-02.eng.utah.edu/sportimdev"
+          driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://DB_HOST:DB_PORT/sportimdev"
           maxActive="8" maxIdle="4"/>
 </Context>
