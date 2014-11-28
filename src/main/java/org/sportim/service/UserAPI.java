@@ -2,8 +2,13 @@ package org.sportim.service;
 
 import org.json.JSONObject;
 import org.sportim.service.util.APIUtils;
+import org.sportim.service.util.ConnectionManager;
 
 import javax.ws.rs.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * API to handle user requests.
@@ -15,10 +20,54 @@ public class UserAPI {
 
     @GET
     @Produces("application/json")
-    public String getUser() {
+    public String getUser(@QueryParam(value = "login") final String login,
+                          @QueryParam(value = "token") final String token) {
         JSONObject response = new JSONObject();
+        int status = 200;
+        String message = "";
 
-        APIUtils.appendStatus(response, 501, "Not Implemented");
+        if (login == null) {
+            status = 400;
+            message = "Missing login parameter";
+        }
+        else {
+            Connection conn = null;
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+            JSONObject user = new JSONObject();
+            // TODO only pull user if authorized by token
+            try {
+                conn = ConnectionManager.getInstance().getConnection();
+                stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone FROM Player " +
+                                             "WHERE Login = ?");
+                stmt.setString(1, login);
+                rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    user.put("email", login);
+                    user.put("firstName", rs.getString(1));
+                    user.put("lastName", rs.getString(2));
+                    user.put("phone", rs.getString(3));
+                }
+                response.put("user", user);
+            } catch (SQLException e) {
+                status = 500;
+                message = "Unable to retrieve events. SQL error.";
+                // TODO log4j 2 log this
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                status = 500;
+                message = "Unable to connect to datasource.";
+                // TODO log4j 2 log this
+                e.printStackTrace();
+            } finally {
+                APIUtils.closeResource(rs);
+                APIUtils.closeResource(stmt);
+                APIUtils.closeResource(conn);
+            }
+        }
+
+        APIUtils.appendStatus(response, status, message);
         return response.toString();
     }
 
