@@ -6,6 +6,7 @@
 
     <groupId>org.sportim.service</groupId>
     <artifactId>service</artifactId>
+    <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
@@ -24,5 +25,38 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.34</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>2.2.3</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>            
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <warName>sportim</warName>
+                    <webXml>web/WEB-INF/web.xml</webXml>
+                    <containerConfigXML>web/META-INF/context.xml</containerConfigXML>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

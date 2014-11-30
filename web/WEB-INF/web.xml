@@ -14,7 +14,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>SportIM Service</servlet-name>
-        <url-pattern>/sportim/rest/*</url-pattern>
+        <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
     
     <filter>

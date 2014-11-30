@@ -4,6 +4,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Connection management for the SportIM APIs.
@@ -19,12 +20,20 @@ public class ConnectionManager {
             InitialContext ctx = new InitialContext();
             ds = (DataSource) ctx.lookup("java:comp/env/jdbc/SportIMDB");
         } catch (Exception e) {
-            // TODO
+            // TODO remove this - use log4j2
+            e.printStackTrace();
         }
     }
 
     public Connection getConnection() throws SQLException {
-        return ds.getConnection();
+        // Set the timezone on the connection
+        if (ds == null)
+            return null;
+
+        Connection conn = ds.getConnection();
+        Statement stmt = conn.createStatement();
+        stmt.execute("SET time_zone='+00:00'");
+        return conn;
     }
 
     public static ConnectionManager getInstance() {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <Context>
 <Resource name="jdbc/SportIMDB" auth="Container"
-          type="javax.sql.DataSource" username="user" password="password"
-          driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://cs4400-02.eng.utah.edu/sportimdev"
-          maxActive="8" maxIdle="4"/>
+          type="javax.sql.DataSource" username="USER" password="PASSWORD"
+          driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://DB_HOST:DB_PORT/sportimdev"
+          maxActive="16" maxIdle="8"/>
 </Context>
