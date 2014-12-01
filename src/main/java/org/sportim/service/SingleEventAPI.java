@@ -6,10 +6,7 @@ import org.json.JSONObject;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 
 import java.sql.*;
 
@@ -17,12 +14,13 @@ import java.sql.*;
  * API to handle single event requests.
  * Created by Doug on 11/29/14.
  */
-@Path("/event/{id}")
+@Path("/event")
 public class SingleEventAPI {
 	
 	@GET
+    @Path("{id}")
     @Produces("application/json")
-    public String getEvent(@QueryParam(value = "id") final String eventId) 
+    public String getEvent(@PathParam("id") final String eventId)
 	{
         int status = 200;
         String message = "";
@@ -33,6 +31,16 @@ public class SingleEventAPI {
         response.put("events", events);
         response.put("teams", teams);
         response.put("players", players);
+
+        int id = 0;
+        try {
+            id =  Integer.parseInt(eventId);
+        } catch (NumberFormatException e) {
+            status = 400;
+            message = "Invalid ID";
+            APIUtils.appendStatus(response, status, message);
+            return response.toString();
+        }
 
         if (eventId == null || eventId.isEmpty()) {
             status = 400;
@@ -49,18 +57,25 @@ public class SingleEventAPI {
         try {
             conn = ConnectionManager.getInstance().getConnection();
             stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId FROM Event " +
-                                         "WHERE Id = " + eventId);
+                                         "WHERE EventId = ?");
+            stmt.setInt(1, id);
             rs = stmt.executeQuery();
 
             while(rs.next()) {
                 events.put(eventToJson(rs));
             }
-            conn.prepareStatement("select t1.TeamId, t1.TeamName, t1.TeamOwner from Team t1 join TeamEvent te where te.EventId = " + eventId + " and te.TeamId = t1.TeamId;");
+            APIUtils.closeResource(stmt);
+
+            stmt = conn.prepareStatement("select t1.TeamId, t1.TeamName, t1.TeamOwner from Team t1 join TeamEvent te where te.EventId = ? and te.TeamId = t1.TeamId");
+            stmt.setInt(1, id);
             rs = stmt.executeQuery();
             while(rs.next()) {
             	teams.put(teamToJson(rs));
             }
-            stmt = conn.prepareStatement("select p.Login, p.FirstName, p.LastName from PlayerEvent pe, Player p where pe.EventId = " + eventId + " and pe.Login = p.Login;");
+            APIUtils.closeResource(stmt);
+
+            stmt = conn.prepareStatement("select p.Login, p.FirstName, p.LastName from PlayerEvent pe, Player p where pe.EventId = ? and pe.Login = p.Login");
+            stmt.setInt(1, id);
             rs = stmt.executeQuery();
             while (rs.next()) {
             	players.put(playerToJson(rs));	
@@ -116,7 +131,7 @@ public class SingleEventAPI {
      * @return The JSON version of the team
      */
     private static JSONObject teamToJson(ResultSet rs) throws SQLException {
-    	int teamId = rs.getInt(1);
+    	int teamId = rs.getInt("t1.TeamId");
     	String teamName = rs.getString(2);
     	String teamOwner = rs.getString(3);
     	JSONObject team = new JSONObject();
