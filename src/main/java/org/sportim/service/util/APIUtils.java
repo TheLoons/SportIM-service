@@ -69,6 +69,16 @@ public class APIUtils {
     }
 
     /**
+     * Turn millis since epoch into a UTC string
+     * @param millis millis since epoch
+     * @return UTC formatted string
+     */
+    public static String millisToUTCString(long millis) {
+        DateTime dt = new DateTime(millis, DateTimeZone.UTC);
+        return dt.toString();
+    }
+
+    /**
      * Get a UTC date from a result set
      * @param rs the result set
      * @param col the column containing the date

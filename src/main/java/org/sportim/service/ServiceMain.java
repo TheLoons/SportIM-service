@@ -25,6 +25,7 @@ public class ServiceMain {
         JSONObject directory = new JSONObject();
         directory.put("users", "/rest/user");
         directory.put("bulk events", "/rest/events");
+        directory.put("single events", "/rest/event");
 
         json.put("directory", directory);
 
