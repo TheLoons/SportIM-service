@@ -227,7 +227,7 @@ public class SingleEventAPI {
     private boolean verifyPlayers(List<String> players, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(Login) FROM Player WHERE Login IN(" +
                 generateArgs(players.size()) + ")");
-        for (int i = 0; i <= players.size(); i++) {
+        for (int i = 1; i <= players.size(); i++) {
             stmt.setString(i, players.get(i - 1));
         }
         ResultSet rs = stmt.executeQuery();

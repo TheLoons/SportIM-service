@@ -55,7 +55,7 @@ public class MultiEventAPI {
         ResultSet rs = null;
         try {
             conn = ConnectionManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId FROM Event " +
+            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
                                          "WHERE StartDate < ? AND EndDate > ?");
             stmt.setLong(1, endTime.getMillis());
             stmt.setLong(2, startTime.getMillis());
@@ -97,8 +97,10 @@ public class MultiEventAPI {
         DateTime start = APIUtils.getUTCDateFromResultSet(rs, 2);
         DateTime end = APIUtils.getUTCDateFromResultSet(rs, 3);
         int tourId = rs.getInt(4);
+        int id = rs.getInt(5);
 
         JSONObject event = new JSONObject();
+        event.put("id", id);
         event.put("title", title);
         event.put("start", start.toString());
         event.put("end", end.toString());
