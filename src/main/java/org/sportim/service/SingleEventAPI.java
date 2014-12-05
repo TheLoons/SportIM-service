@@ -1,15 +1,16 @@
 package org.sportim.service;
 
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.sportim.service.beans.EventBean;
+import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.TeamBean;
+import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 
 import javax.ws.rs.*;
 
 import java.sql.*;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -22,31 +23,31 @@ public class SingleEventAPI {
 	@GET
     @Path("{id}")
     @Produces("application/json")
-    public String getEvent(@PathParam("id") final int id)
+    public ResponseBean getEvent(@PathParam("id") final int id)
 	{
         int status = 200;
         String message = "";
-        JSONObject response = new JSONObject();
-        JSONArray events = new JSONArray();
-        JSONArray teams = new JSONArray();
-        JSONArray players = new JSONArray();
-        response.put("events", events);
-        response.put("teams", teams);
-        response.put("players", players);
 
         // TODO only return authorized events via auth token
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        EventBean event = null;
+        List<TeamBean> teams = new LinkedList<>();
+        List<UserBean> players = new LinkedList<>();
         try {
             conn = ConnectionManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId FROM Event " +
+            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
                                          "WHERE EventId = ?");
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
 
-            while(rs.next()) {
-                events.put(eventToJson(rs));
+            if(rs.next()) {
+                event = new EventBean(rs);
+            }
+            else {
+                status = 404;
+                message = "Event not found";
             }
             APIUtils.closeResource(stmt);
 
@@ -54,7 +55,7 @@ public class SingleEventAPI {
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
             while(rs.next()) {
-            	teams.put(teamToJson(rs));
+            	teams.add(new TeamBean(rs));
             }
             APIUtils.closeResource(stmt);
 
@@ -62,7 +63,7 @@ public class SingleEventAPI {
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
             while (rs.next()) {
-            	players.put(playerToJson(rs));	
+            	players.add(new UserBean(rs));
             }
         } catch (SQLException e) {
             status = 500;
@@ -83,20 +84,48 @@ public class SingleEventAPI {
             }
         }
 
-        APIUtils.appendStatus(response, status, message);
-        return response.toString();
+        ResponseBean resp = new ResponseBean(status, message);
+        if (event != null) {
+            event.setTeams(teams);
+            event.setPlayers(players);
+            resp.setEvent(event);
+        }
+        return resp;
     }
 
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public String createEvent(EventBean event) {
-        JSONObject response = new JSONObject();
+    public ResponseBean createEvent(EventBean event) {
+        return createDBEvent(event);
+    }
+
+    @PUT
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateEvent(EventBean event) {
+        // TODO
+        return new ResponseBean(200, "");
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Produces("application/json")
+    public ResponseBean deleteEvent(@PathParam("id") final int id) {
+        // TODO
+        return new ResponseBean(200, "");
+    }
+
+    /**
+     * Create a new event in the database
+     * @param event
+     * @return a JSON response bean
+     */
+    public static ResponseBean createDBEvent(EventBean event) {
         int status = 200;
         String message = event.validate();
         if (!message.isEmpty()) {
-            APIUtils.appendStatus(response, 400, message);
-            return response.toString();
+            return new ResponseBean(400, message);
         }
 
         Connection conn = null;
@@ -123,7 +152,7 @@ public class SingleEventAPI {
                 }
             }
 
-            if (status == 200 && event.getTournamentID() != -1) {
+            if (status == 200 && event.getTournamentID() > 0) {
                 if (!verifyTournament(event.getTournamentID(), conn)) {
                     status = 422;
                     message = "Non-existent tournament ID specified.";
@@ -204,11 +233,17 @@ public class SingleEventAPI {
             }
         }
 
-        APIUtils.appendStatus(response, status, message);
-        return response.toString();
+        return new ResponseBean(status, message);
     }
 
-    private boolean verifyTeams(List<Integer> teams, Connection conn) throws SQLException {
+    /**
+     * Make sure the teams exist in the database
+     * @param teams
+     * @param conn
+     * @return true if all teams exist
+     * @throws SQLException
+     */
+    private static boolean verifyTeams(List<Integer> teams, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(TeamId) FROM Team WHERE TeamId IN (" +
                 generateArgs(teams.size()) + ")");
         for (int i = 1; i <= teams.size(); i++) {
@@ -224,7 +259,14 @@ public class SingleEventAPI {
         return res;
     }
 
-    private boolean verifyPlayers(List<String> players, Connection conn) throws SQLException {
+    /**
+     * Make sure the players exist in the database
+     * @param players
+     * @param conn
+     * @return true if all players exist
+     * @throws SQLException
+     */
+    private static boolean verifyPlayers(List<String> players, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(Login) FROM Player WHERE Login IN(" +
                 generateArgs(players.size()) + ")");
         for (int i = 1; i <= players.size(); i++) {
@@ -240,7 +282,14 @@ public class SingleEventAPI {
         return res;
     }
 
-    private boolean verifyTournament(int tournamentID, Connection conn) throws SQLException {
+    /**
+     * Make sure the tournament exists in the database
+     * @param tournamentID
+     * @param conn
+     * @return true if the tournament exists
+     * @throws SQLException
+     */
+    private static boolean verifyTournament(int tournamentID, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(TournamentId) FROM Tournament WHERE TournamentId = ?");
         stmt.setInt(1, tournamentID);
         ResultSet rs = stmt.executeQuery();
@@ -253,13 +302,20 @@ public class SingleEventAPI {
         return res;
     }
 
-    private int addEvent(EventBean event, Connection conn) throws SQLException {
+    /**
+     * Add an event to the event table
+     * @param event
+     * @param conn
+     * @return the auto-generated event ID
+     * @throws SQLException
+     */
+    private static int addEvent(EventBean event, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO Event (EventName, StartDate, EndDate, TournamentId) " +
                 "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
         stmt.setLong(3, event.getEndMillis());
-        if (event.getTournamentID() != -1) {
+        if (event.getTournamentID() > 0) {
             stmt.setInt(4, event.getTournamentID());
         }
         else {
@@ -285,61 +341,5 @@ public class SingleEventAPI {
         }
 
         return args;
-    }
-
-    /**
-     * Convert an event result from the database into JSON
-     * @param rs the result set, pointing at an event record
-     * @return The JSON version of the event
-     */
-    private static JSONObject eventToJson(ResultSet rs) throws SQLException {
-        String title = rs.getString(1);
-        DateTime start = APIUtils.getUTCDateFromResultSet(rs, 2);
-        DateTime end = APIUtils.getUTCDateFromResultSet(rs, 3);
-        int tourId = rs.getInt(4);
-
-        JSONObject event = new JSONObject();
-        event.put("title", title);
-        event.put("start", start.toString());
-        event.put("end", end.toString());
-        if (tourId > 0) {
-            event.put("tournamentID", tourId);
-        }
-
-        return event;
-    }
-    
-    /**
-     * Convert an team result from the database into JSON
-     * @param rs the result set, pointing at an team record
-     * @return The JSON version of the team
-     */
-    private static JSONObject teamToJson(ResultSet rs) throws SQLException {
-    	int teamId = rs.getInt("t1.TeamId");
-    	String teamName = rs.getString(2);
-    	String teamOwner = rs.getString(3);
-    	JSONObject team = new JSONObject();
-    	team.put("teamId", teamId);
-    	team.put("teamName", teamName);
-    	team.put("teamOwner", teamOwner);
-    	
-    	return team;
-    
-    }
-    
-    /**
-     * Convert an player result from the database into JSON
-     * @param rs the result set, pointing at an player record
-     * @return The JSON version of the player
-     */
-    private static JSONObject playerToJson(ResultSet rs) throws SQLException {
-    	String login = rs.getString(1);
-    	String firstName = rs.getString(2);
-    	String lastName = rs.getString(3);
-    	JSONObject player = new JSONObject();
-    	player.put("login", login);
-    	player.put("firstName", firstName);
-    	player.put("lastName", lastName);
-    	return player;
     }
 }

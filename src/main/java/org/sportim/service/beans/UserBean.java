@@ -1,8 +1,14 @@
 package org.sportim.service.beans;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  * Created by hannah on 11/29/14.
  */
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class UserBean {
     private String firstName;
     private String lastName;
@@ -14,6 +20,19 @@ public class UserBean {
      * Zero-argument constructor required by Jersey.
      */
     public UserBean() {
+    }
+
+    public UserBean(ResultSet rs) throws SQLException {
+        login = rs.getString(1);
+        firstName = rs.getString(2);
+        lastName = rs.getString(3);
+    }
+
+    public UserBean(ResultSet rs, String email) throws SQLException {
+        login = email;
+        firstName = rs.getString(1);
+        lastName = rs.getString(2);
+        phone = rs.getString(3);
     }
 
     /**

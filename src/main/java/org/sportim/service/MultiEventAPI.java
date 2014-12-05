@@ -1,16 +1,15 @@
 package org.sportim.service;
 
 import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.sportim.service.beans.EventBean;
+import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * API to handle bulk event requests.
@@ -19,22 +18,31 @@ import java.sql.*;
 @Path("/events")
 public class MultiEventAPI {
 
+    @POST
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean batchPostEvents(List<EventBean> events) {
+        for (EventBean event : events) {
+            ResponseBean resp = SingleEventAPI.createDBEvent(event);
+            if (resp.getStatus().getCode() != 200) {
+                return resp;
+            }
+        }
+        return new ResponseBean(200, "");
+    }
+
     @GET
     @Produces("application/json")
-    public String getEventsForRange(@QueryParam(value = "start") final String start,
-                                    @QueryParam(value = "end") final String end,
-                                    @QueryParam(value = "token") final String authToken) {
+    public ResponseBean getEventsForRange(@QueryParam(value = "start") final String start,
+                                          @QueryParam(value = "end") final String end,
+                                          @QueryParam(value = "token") final String authToken) {
         int status = 200;
         String message = "";
-        JSONObject response = new JSONObject();
-        JSONArray events = new JSONArray();
-        response.put("events", events);
 
         if (start == null || start.isEmpty() || end == null || end.isEmpty()) {
             status = 400;
             message = "You must specify a start and end date.";
-            APIUtils.appendStatus(response, status, message);
-            return response.toString();
+            return new ResponseBean(status, message);
         }
 
         DateTime startTime;
@@ -45,14 +53,14 @@ public class MultiEventAPI {
         } catch (IllegalArgumentException e) {
             status = 400;
             message = "Invalid date format.";
-            APIUtils.appendStatus(response, status, message);
-            return response.toString();
+            return new ResponseBean(status, message);
         }
 
         // TODO only return authorized events via auth token
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        List<EventBean> events = new LinkedList<EventBean>();
         try {
             conn = ConnectionManager.getInstance().getConnection();
             stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
@@ -62,7 +70,7 @@ public class MultiEventAPI {
             rs = stmt.executeQuery();
 
             while(rs.next()) {
-                events.put(eventToJson(rs));
+                events.add(new EventBean(rs));
             }
         } catch (SQLException e) {
             status = 500;
@@ -83,31 +91,8 @@ public class MultiEventAPI {
             }
         }
 
-        APIUtils.appendStatus(response, status, message);
-        return response.toString();
-    }
-
-    /**
-     * Convert an event result from the database into JSON
-     * @param rs the result set, pointing at an event record
-     * @return The JSON version of the event
-     */
-    private static JSONObject eventToJson(ResultSet rs) throws SQLException {
-        String title = rs.getString(1);
-        DateTime start = APIUtils.getUTCDateFromResultSet(rs, 2);
-        DateTime end = APIUtils.getUTCDateFromResultSet(rs, 3);
-        int tourId = rs.getInt(4);
-        int id = rs.getInt(5);
-
-        JSONObject event = new JSONObject();
-        event.put("id", id);
-        event.put("title", title);
-        event.put("start", start.toString());
-        event.put("end", end.toString());
-        if (tourId > 0) {
-            event.put("tournamentID", tourId);
-        }
-
-        return event;
+        ResponseBean resp = new ResponseBean(status, message);
+        resp.setEvents(events);
+        return resp;
     }
 }

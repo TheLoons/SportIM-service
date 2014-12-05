@@ -1,0 +1,57 @@
+package org.sportim.service.beans;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.util.List;
+
+/**
+ * Created by hannah on 12/4/14.
+ */
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+public class ResponseBean {
+    private StatusBean status;
+    private List<EventBean> events;
+    private EventBean event;
+    private UserBean user;
+
+    public ResponseBean(){
+    }
+
+    public ResponseBean(int status, String message) {
+        this.status = new StatusBean();
+        this.status.setCode(status);
+        this.status.setMessage(message);
+    }
+
+    public StatusBean getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusBean status) {
+        this.status = status;
+    }
+
+    public List<EventBean> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<EventBean> events) {
+        this.events = events;
+    }
+
+    public EventBean getEvent() {
+        return event;
+    }
+
+    public void setEvent(EventBean event) {
+        this.event = event;
+    }
+
+    public UserBean getUser() {
+        return user;
+    }
+
+    public void setUser(UserBean user) {
+        this.user = user;
+    }
+}
