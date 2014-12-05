@@ -124,7 +124,7 @@ public class UserAPI {
     @DELETE
     @Produces("application/json")
     public ResponseBean deleteUser(@QueryParam(value = "login") final String login,
-                             @QueryParam(value = "token") final String token) {
+                                   @QueryParam(value = "token") final String token) {
         return new ResponseBean(501, "Not implemented");
     }
 }

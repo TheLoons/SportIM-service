@@ -10,8 +10,7 @@ import org.sportim.service.util.ConnectionManager;
 import javax.ws.rs.*;
 
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * API to handle single event requests.
@@ -104,16 +103,86 @@ public class SingleEventAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean updateEvent(EventBean event) {
-        // TODO
-        return new ResponseBean(200, "");
+        int status = 200;
+        String message = "";
+
+        if (event.getId() < 1) {
+            status = 400;
+            message = "Invalid event ID.";
+            return new ResponseBean(status, message);
+        }
+
+        if (!(message = event.validate()).isEmpty()) {
+            status = 400;
+            return new ResponseBean(status, message);
+        }
+
+        // TODO AUTHENTICATE
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+
+            // first, check for existence of any teams or players
+            if ((message = verifyEventComponents(event, conn)) != null) {
+                status = 422;
+            }
+
+            if (status == 200) {
+                Map<PreparedStatement, Boolean> queries = createUpdateQueries(event, conn);
+                for (PreparedStatement s : queries.keySet()) {
+                    // set stmt to s so we can close it in the catch if we hit an exception
+                    stmt = s;
+                    if (queries.get(s)) {
+                        s.executeBatch();
+                    } else {
+                        s.executeUpdate();
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            // TODO log
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to update event. SQL Error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+
+        return new ResponseBean(status, message);
     }
 
     @DELETE
     @Path("{id}")
     @Produces("application/json")
     public ResponseBean deleteEvent(@PathParam("id") final int id) {
-        // TODO
-        return new ResponseBean(200, "");
+        int status = 200;
+        String message = "";
+
+        // TODO AUTHENTICATE
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("DELETE FROM Event WHERE EventId = ?");
+            stmt.setInt(1, id);
+            int res = stmt.executeUpdate();
+            if (res < 1) {
+                status = 404;
+                message = "Event with ID " + id + " does not exist.";
+            }
+        } catch (SQLException e) {
+            // TODO log actual error
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to delete event. SQL Error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return new ResponseBean(status, message);
     }
 
     /**
@@ -135,28 +204,8 @@ public class SingleEventAPI {
             conn = ConnectionManager.getInstance().getConnection();
 
             // first, check for existence of any teams or players
-            List<Integer> teams = event.getTeamIDs();
-            List<String> players = event.getPlayerIDs();
-
-            if (teams != null && !teams.isEmpty()) {
-                if (!verifyTeams(teams, conn)) {
-                    status = 422;
-                    message = "Non-existent team ID specified.";
-                }
-            }
-
-            if (status == 200 && players != null && !players.isEmpty()) {
-                if (!verifyPlayers(players, conn)) {
-                    status = 422;
-                    message = "Non-existent player ID specified.";
-                }
-            }
-
-            if (status == 200 && event.getTournamentID() > 0) {
-                if (!verifyTournament(event.getTournamentID(), conn)) {
-                    status = 422;
-                    message = "Non-existent tournament ID specified.";
-                }
+            if ((message = verifyEventComponents(event, conn)) != null) {
+                status = 422;
             }
 
             // now, create the event and add any lookups
@@ -171,6 +220,8 @@ public class SingleEventAPI {
             }
 
             // add lookups
+            List<Integer> teams = event.getTeamIDs();
+            List<String> players = event.getPlayerIDs();
             if (status == 200 && teams != null && !teams.isEmpty()) {
                 stmt = conn.prepareStatement("INSERT INTO TeamEvent (TeamId, EventId) VALUES (?,?)");
 
@@ -234,6 +285,92 @@ public class SingleEventAPI {
         }
 
         return new ResponseBean(status, message);
+    }
+
+    /**
+     * Create the update queries based on an event bean
+     * @param event
+     * @return set of queries mapped to whether or not the query is a batch
+     */
+    private Map<PreparedStatement, Boolean> createUpdateQueries(EventBean event, Connection conn) throws SQLException {
+        Map<Integer, Object> argMap = new HashMap<>();
+        Map<PreparedStatement, Boolean> stmts = new HashMap<>();
+
+        // update event stmt
+        PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
+                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ? " +
+                "WHERE EventId = ?");
+        stmt.setString(1, event.getTitle());
+        stmt.setLong(2, event.getStartMillis());
+        stmt.setLong(3, event.getEndMillis());
+        if (event.getTournamentID() > 0) {
+            stmt.setInt(4, event.getTournamentID());
+        } else {
+            stmt.setNull(4, Types.INTEGER);
+        }
+        stmt.setInt(5, event.getId());
+        stmts.put(stmt, false);
+
+        // remove teams and players stmt
+        stmt = conn.prepareStatement("DELETE FROM PlayerEvent WHERE EventId = ?");
+        stmt.setInt(1, event.getId());
+        stmts.put(stmt, false);
+        stmt = conn.prepareStatement("DELETE FROM TeamEvent WHERE EventId = ?");
+        stmt.setInt(1, event.getId());
+        stmts.put(stmt, false);
+
+        // add teams and players stmt
+        if (event.getTeamIDs() != null && !event.getTeamIDs().isEmpty()) {
+            stmt = conn.prepareStatement("INSERT INTO TeamEvent (TeamId, EventId) VALUES (?,?)");
+            for (int id : event.getTeamIDs()) {
+                stmt.setInt(1, id);
+                stmt.setInt(2, event.getId());
+                stmt.addBatch();
+            }
+            stmts.put(stmt, true);
+        }
+
+        if (event.getPlayerIDs() != null && !event.getPlayerIDs().isEmpty()) {
+            stmt = conn.prepareStatement("INSERT INTO PlayerEvent (Login, EventId) VALUES (?,?)");
+            for (String id : event.getPlayerIDs()) {
+                stmt.setString(1, id);
+                stmt.setInt(2, event.getId());
+                stmt.addBatch();
+            }
+            stmts.put(stmt, true);
+        }
+
+        return stmts;
+    }
+
+    private static String verifyEventComponents(EventBean event, Connection conn) throws SQLException {
+        // first, check for existence of any teams or players
+        List<Integer> teams = event.getTeamIDs();
+        List<String> players = event.getPlayerIDs();
+
+        String message = null;
+        int status = 200;
+        if (teams != null && !teams.isEmpty()) {
+            if (!verifyTeams(teams, conn)) {
+                status = 422;
+                message = "Non-existent team ID specified.";
+            }
+        }
+
+        if (status == 200 && players != null && !players.isEmpty()) {
+            if (!verifyPlayers(players, conn)) {
+                status = 422;
+                message = "Non-existent player ID specified.";
+            }
+        }
+
+        if (status == 200 && event.getTournamentID() > 0) {
+            if (!verifyTournament(event.getTournamentID(), conn)) {
+                status = 422;
+                message = "Non-existent tournament ID specified.";
+            }
+        }
+        return message;
     }
 
     /**
