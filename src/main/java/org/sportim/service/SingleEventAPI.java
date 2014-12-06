@@ -100,6 +100,15 @@ public class SingleEventAPI {
     }
 
     @PUT
+    @Path("{id}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateEvent(@PathParam("id") final int id, EventBean event) {
+        event.setId(id);
+        return updateEvent(event);
+    }
+
+    @PUT
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean updateEvent(EventBean event) {
