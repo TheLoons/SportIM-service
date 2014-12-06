@@ -103,7 +103,7 @@ public class SingleEventAPI {
     @Path("{id}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateEvent(@PathParam("id") final int id, EventBean event) {
+    public ResponseBean updateEvent(EventBean event, @PathParam("id") final int id) {
         event.setId(id);
         return updateEvent(event);
     }
@@ -138,15 +138,11 @@ public class SingleEventAPI {
             }
 
             if (status == 200) {
-                Map<PreparedStatement, Boolean> queries = createUpdateQueries(event, conn);
-                for (PreparedStatement s : queries.keySet()) {
+                List<PreparedStatement> queries = createUpdateQueries(event, conn);
+                for (PreparedStatement s : queries) {
                     // set stmt to s so we can close it in the catch if we hit an exception
                     stmt = s;
-                    if (queries.get(s)) {
-                        s.executeBatch();
-                    } else {
-                        s.executeUpdate();
-                    }
+                    s.executeBatch();
                 }
             }
 
@@ -301,9 +297,9 @@ public class SingleEventAPI {
      * @param event
      * @return set of queries mapped to whether or not the query is a batch
      */
-    private Map<PreparedStatement, Boolean> createUpdateQueries(EventBean event, Connection conn) throws SQLException {
+    private List<PreparedStatement> createUpdateQueries(EventBean event, Connection conn) throws SQLException {
         Map<Integer, Object> argMap = new HashMap<>();
-        Map<PreparedStatement, Boolean> stmts = new HashMap<>();
+        List<PreparedStatement> stmts = new LinkedList<>();
 
         // update event stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
@@ -318,15 +314,17 @@ public class SingleEventAPI {
             stmt.setNull(4, Types.INTEGER);
         }
         stmt.setInt(5, event.getId());
-        stmts.put(stmt, false);
+        stmt.addBatch();
+        stmts.add(stmt);
 
         // remove teams and players stmt
         stmt = conn.prepareStatement("DELETE FROM PlayerEvent WHERE EventId = ?");
         stmt.setInt(1, event.getId());
-        stmts.put(stmt, false);
+        stmts.add(stmt);
         stmt = conn.prepareStatement("DELETE FROM TeamEvent WHERE EventId = ?");
         stmt.setInt(1, event.getId());
-        stmts.put(stmt, false);
+        stmt.addBatch();
+        stmts.add(stmt);
 
         // add teams and players stmt
         if (event.getTeamIDs() != null && !event.getTeamIDs().isEmpty()) {
@@ -336,7 +334,7 @@ public class SingleEventAPI {
                 stmt.setInt(2, event.getId());
                 stmt.addBatch();
             }
-            stmts.put(stmt, true);
+            stmts.add(stmt);
         }
 
         if (event.getPlayerIDs() != null && !event.getPlayerIDs().isEmpty()) {
@@ -346,7 +344,7 @@ public class SingleEventAPI {
                 stmt.setInt(2, event.getId());
                 stmt.addBatch();
             }
-            stmts.put(stmt, true);
+            stmts.add(stmt);
         }
 
         return stmts;

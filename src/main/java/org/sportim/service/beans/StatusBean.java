@@ -16,6 +16,9 @@ public class StatusBean {
 
     public void setMessage(String message) {
         this.message = message;
+        if (this.message == null) {
+            this.message = "";
+        }
     }
 
     public int getCode() {
