@@ -14,6 +14,7 @@ public class ResponseBean {
     private EventBean event;
     private UserBean user;
     private TournamentBean tournament;
+    private TeamBean team;
 
     public ResponseBean(){
     }
@@ -61,4 +62,8 @@ public class ResponseBean {
     public void setTournament(TournamentBean tournament) {
         this.tournament = tournament;
     }
+
+    public TeamBean getTeam() {return team;}
+
+    public void setTeam(TeamBean team) {this.team = team;}
 }

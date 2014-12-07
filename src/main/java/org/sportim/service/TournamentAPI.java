@@ -1,6 +1,5 @@
 package org.sportim.service;
 
-import org.sportim.service.beans.EventBean;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.TournamentBean;
 import org.sportim.service.util.APIUtils;
@@ -9,10 +8,8 @@ import org.sportim.service.util.ConnectionManager;
 import javax.ws.rs.*;
 
 import java.sql.*;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 @Path("/tournament")
 /**
@@ -92,19 +89,19 @@ public class TournamentAPI
         try {
             conn = ConnectionManager.getInstance().getConnection();
 
-            // first, check for existence of any teams or players
+            // first, check for League
             if ((message = verifyTournamentComponents(tournament, conn)) != null) {
                 status = 422;
             }
 
-            // now, create the event and add any lookups
+            // now, create the tournament
             conn.setAutoCommit(false);
             int tournamentID = -1;
             if (status == 200) {
                 tournamentID = addTournament(tournament, conn);
                 if (tournamentID == -1) {
                     status = 500;
-                    message = "Unable to add event. SQL error.";
+                    message = "Unable to add tournament. SQL error.";
                 }
             }
             if (status == 200) {
@@ -112,7 +109,7 @@ public class TournamentAPI
             }
         } catch (SQLException e) {
             status = 500;
-            message = "Unable to add event. SQL error.";
+            message = "Unable to add tournament. SQL error.";
             // TODO log4j 2 log this
             e.printStackTrace();
         } catch (NullPointerException e) {
@@ -150,7 +147,7 @@ public class TournamentAPI
 
         if (tournament.getTournamentID() < 1) {
             status = 400;
-            message = "Invalid event ID.";
+            message = "Invalid tournament ID.";
             return new ResponseBean(status, message);
         }
 
@@ -183,7 +180,7 @@ public class TournamentAPI
             // TODO log
             e.printStackTrace();
             status = 500;
-            message = "Unable to update event. SQL Error.";
+            message = "Unable to update tournament. SQL Error.";
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
@@ -224,14 +221,14 @@ public class TournamentAPI
     }
 
     /**
-     * Create the update queries based on an event bean
+     * Create the update queries based on a tournament bean
      * @param tournament
      * @return set of queries mapped to whether or not the query is a batch
      */
     private List<PreparedStatement> createUpdateQueries(TournamentBean tournament, Connection conn) throws SQLException {
         List<PreparedStatement> stmts = new LinkedList<PreparedStatement>();
 
-        // update event stmt
+        // update tournament stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Tournament " +
                 "SET TournamentName = ?, LeagueId = ?, Description = ?" +
                 "WHERE TournamentId = ?");
@@ -261,7 +258,7 @@ public class TournamentAPI
      * Make sure the league exists in the database
      * @param leagueID
      * @param conn
-     * @return true if the tournament exists
+     * @return true if the league exists
      * @throws SQLException
      */
     private static boolean verifyLeague(int leagueID, Connection conn) throws SQLException {
@@ -278,15 +275,15 @@ public class TournamentAPI
     }
 
     /**
-     * Add an tournament to the event table
+     * Add an tournament to the tournament table
      * @param tournament
      * @param conn
-     * @return the auto-generated event ID
+     * @return the auto-generated tournament ID
      * @throws SQLException
      */
     private static int addTournament(TournamentBean tournament, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO Tournament (TournamentName, LeagueId, Description) " +
-                "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, tournament.getTournamentName());
         stmt.setInt(2, tournament.getLeagueId());
         stmt.setString(3, tournament.getDesc());

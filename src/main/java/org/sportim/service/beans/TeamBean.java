@@ -47,4 +47,12 @@ public class TeamBean {
     public void setOwner(String owner) {
         this.owner = owner;
     }
+
+    public String validate() {
+
+        if (name == null || name.isEmpty()) {
+            return "Team Name is required";
+        }
+        return "";
+    }
 }
