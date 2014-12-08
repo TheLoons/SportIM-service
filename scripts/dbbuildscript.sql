@@ -3,7 +3,7 @@ CREATE TABLE Player(
     Password CHAR(64) NOT NULL, 
     FirstName VARCHAR(255) NOT NULL, 
     LastName VARCHAR(255) NOT NULL, 
-    Phone INTEGER, 
+    Phone VARCHAR(20) NULL, 
     Salt CHAR(20) NOT NULL
 );
 

@@ -20,6 +20,13 @@ import java.sql.SQLException;
 public class UserAPI {
 
     @GET
+    @Path("{login}")
+    @Produces("application/json")
+    public ResponseBean getUser(@PathParam("login") final String login) {
+        return getUser(login, null);
+    }
+
+    @GET
     @Produces("application/json")
     public ResponseBean getUser(@QueryParam(value = "login") final String login,
                           @QueryParam(value = "token") final String token) {
@@ -46,6 +53,10 @@ public class UserAPI {
 
             if (rs.next()) {
                 user = new UserBean(rs, login);
+            }
+            else {
+                status = 404;
+                message = "User " + login + " not found.";
             }
         } catch (SQLException e) {
             status = 500;
@@ -76,7 +87,7 @@ public class UserAPI {
     public ResponseBean createUser(UserBean user) {
         int status = 200;
         String message = user.validate(true);
-        if (message != null) {
+        if (!message.isEmpty()) {
             return new ResponseBean(400, message);
         }
 
@@ -115,16 +126,89 @@ public class UserAPI {
     }
 
     @PUT
+    @Path("{login}")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public ResponseBean updateUser(@PathParam("login") final String login, UserBean user) {
+        user.setLogin(login);
+        return updateUser(user);
+    }
+
+    @PUT
     @Produces("application/json")
     @Consumes("application/json")
     public ResponseBean updateUser(UserBean user) {
-        return new ResponseBean(501, "Not implemented");
+        int status = 200;
+        String message = "";
+
+        if (!(message = user.validate(false)).isEmpty()) {
+            status = 400;
+            return new ResponseBean(status, message);
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ? " +
+                                             "WHERE Login = ?");
+                stmt.setString(4, user.getLogin());
+            } else {
+                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, Password = ?, Salt = ? " +
+                                             "WHERE Login = ?");
+                byte[] salt = APIUtils.getSalt();
+                byte[] hash = APIUtils.saltHashPassword(salt, user.getPassword());
+                stmt.setString(4, APIUtils.byteArrayToHexString(hash));
+                stmt.setString(5, APIUtils.byteArrayToHexString(salt));
+                stmt.setString(6, user.getLogin());
+            }
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getLastName());
+            stmt.setString(3, user.getPhone());
+            int res = stmt.executeUpdate();
+            if (res < 1) {
+                message = "No change to user.";
+            }
+        } catch (SQLException e) {
+            // TODO log4j
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to update user. SQL error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return new ResponseBean(status, message);
     }
 
     @DELETE
+    @Path("{login}")
     @Produces("application/json")
-    public ResponseBean deleteUser(@QueryParam(value = "login") final String login,
-                                   @QueryParam(value = "token") final String token) {
-        return new ResponseBean(501, "Not implemented");
+    public ResponseBean deleteUser(@PathParam("login") final String login) {
+        String message = "";
+        int status = 200;
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("DELETE FROM Player WHERE Login = ?");
+            stmt.setString(1, login);
+            int res = stmt.executeUpdate();
+            if (res < 1) {
+                status = 404;
+                message = "User not found.";
+            }
+        } catch (SQLException e) {
+            // TODO log4j
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to delete user. SQL Error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return new ResponseBean(status, message);
     }
 }

@@ -63,7 +63,7 @@ public class UserBean {
         if (forPost && (password == null || password.isEmpty())) {
             return "Password is required.";
         }
-        return null;
+        return "";
     }
 
     public String getFirstName() {
