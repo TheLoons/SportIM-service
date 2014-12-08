@@ -15,6 +15,7 @@ public class ResponseBean {
     private UserBean user;
     private TournamentBean tournament;
     private TeamBean team;
+    private int id = -1;
 
     public ResponseBean(){
     }
@@ -66,4 +67,13 @@ public class ResponseBean {
     public TeamBean getTeam() {return team;}
 
     public void setTeam(TeamBean team) {this.team = team;}
+
+    @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

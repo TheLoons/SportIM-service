@@ -93,6 +93,7 @@ public class TournamentAPI
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        int tournamentID = -1;
         try {
             conn = ConnectionManager.getInstance().getConnection();
 
@@ -103,7 +104,6 @@ public class TournamentAPI
 
             // now, create the tournament
             conn.setAutoCommit(false);
-            int tournamentID = -1;
             if (status == 200) {
                 tournamentID = addTournament(tournament, conn);
                 if (tournamentID == -1) {
@@ -133,7 +133,9 @@ public class TournamentAPI
             }
         }
 
-        return new ResponseBean(status, message);
+        ResponseBean resp = new ResponseBean(status, message);
+        resp.setId(tournamentID);
+        return resp;
     }
 
     @PUT

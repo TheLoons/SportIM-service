@@ -31,8 +31,9 @@ public class TeamAPI
         ResultSet rs = null;
         try {
             conn = ConnectionManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1" +
-                    "WHERE TeamId = " + teamId);
+            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1 " +
+                    "WHERE t1.TeamId = ?");
+            stmt.setInt(1, teamId);
             rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -86,6 +87,7 @@ public class TeamAPI
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        int teamID = -1;
         try {
             conn = ConnectionManager.getInstance().getConnection();
 
@@ -96,7 +98,6 @@ public class TeamAPI
 
             // now, create the event and add any lookups
             conn.setAutoCommit(false);
-            int teamID = -1;
             if (status == 200) {
                 teamID = addTeam(team, conn);
                 if (teamID == -1) {
@@ -126,7 +127,9 @@ public class TeamAPI
             }
         }
 
-        return new ResponseBean(status, message);
+        ResponseBean resp = new ResponseBean(status, message);
+        resp.setId(teamID);
+        return resp;
     }
 
     private static String verifyTeamComponents(TeamBean team, Connection conn) throws SQLException {
