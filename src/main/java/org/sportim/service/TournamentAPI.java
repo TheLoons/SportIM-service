@@ -1,6 +1,7 @@
 package org.sportim.service;
 
 import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TournamentBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
@@ -20,7 +21,7 @@ public class TournamentAPI
     @GET
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean getTournament(@QueryParam(value = "id") final int tournamentId)
+    public ResponseBean getTournament(@PathParam("id") final int tournamentId)
     {
         int status = 200;
         String message = "";
@@ -32,7 +33,8 @@ public class TournamentAPI
         try {
             conn = ConnectionManager.getInstance().getConnection();
             stmt = conn.prepareStatement("SELECT TournamentId, TournamentName, LeagueId, Description FROM Tournament " +
-                    "WHERE TournamentId = " + tournamentId);
+                    "WHERE TournamentId = ?");
+            stmt.setInt(1, tournamentId);
             rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -60,6 +62,11 @@ public class TournamentAPI
         ResponseBean resp = new ResponseBean(status, message);
         if (tournament != null) {
             resp.setTournament(tournament);
+        } else {
+            StatusBean s = new StatusBean();
+            s.setCode(404);
+            s.setMessage("Tournament not found.");
+            resp.setStatus(s);
         }
         return resp;
     }

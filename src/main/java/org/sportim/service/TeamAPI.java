@@ -21,7 +21,7 @@ public class TeamAPI
     @GET
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean getTeam(@QueryParam(value = "id") final int teamId)
+    public ResponseBean getTeam(@PathParam("id") final int teamId)
     {
         int status = 200;
         String message = "";
