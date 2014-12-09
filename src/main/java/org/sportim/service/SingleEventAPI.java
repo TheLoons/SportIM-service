@@ -1,9 +1,6 @@
 package org.sportim.service;
 
-import org.sportim.service.beans.EventBean;
-import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.beans.TeamBean;
-import org.sportim.service.beans.UserBean;
+import org.sportim.service.beans.*;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 
@@ -88,6 +85,9 @@ public class SingleEventAPI {
             event.setTeams(teams);
             event.setPlayers(players);
             resp.setEvent(event);
+        } else {
+            StatusBean s = new StatusBean(404, "Event not found.");
+            resp.setStatus(s);
         }
         return resp;
     }

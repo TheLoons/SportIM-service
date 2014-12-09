@@ -1,6 +1,7 @@
 package org.sportim.service;
 
 import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TeamBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
@@ -61,6 +62,9 @@ public class TeamAPI
         ResponseBean resp = new ResponseBean(status, message);
         if (team != null) {
             resp.setTeam(team);
+        } else {
+            StatusBean s = new StatusBean(404, "Team not found.");
+            resp.setStatus(s);
         }
         return resp;
     }

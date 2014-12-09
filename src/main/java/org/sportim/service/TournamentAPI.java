@@ -63,9 +63,7 @@ public class TournamentAPI
         if (tournament != null) {
             resp.setTournament(tournament);
         } else {
-            StatusBean s = new StatusBean();
-            s.setCode(404);
-            s.setMessage("Tournament not found.");
+            StatusBean s = new StatusBean(404, "Tournament not found.");
             resp.setStatus(s);
         }
         return resp;

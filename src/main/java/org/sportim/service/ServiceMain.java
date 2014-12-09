@@ -26,6 +26,8 @@ public class ServiceMain {
         directory.put("users", "/rest/user");
         directory.put("bulk events", "/rest/events");
         directory.put("single events", "/rest/event");
+        directory.put("teams", "/rest/team");
+        directory.put("tournaments", "/rest/tournament");
 
         json.put("directory", directory);
 

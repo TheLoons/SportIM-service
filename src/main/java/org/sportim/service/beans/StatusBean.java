@@ -10,6 +10,11 @@ public class StatusBean {
     public StatusBean() {
     }
 
+    public StatusBean(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
     public String getMessage() {
         return message;
     }

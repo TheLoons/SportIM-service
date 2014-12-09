@@ -1,6 +1,7 @@
 package org.sportim.service;
 
 import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
@@ -77,6 +78,9 @@ public class UserAPI {
         ResponseBean resp = new ResponseBean(status, message);
         if (user != null) {
             resp.setUser(user);
+        } else {
+            StatusBean s = new StatusBean(404, "User not found.");
+            resp.setStatus(s);
         }
         return resp;
     }
