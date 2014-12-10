@@ -3,5 +3,5 @@
 <Resource name="jdbc/SportIMDB" auth="Container"
           type="javax.sql.DataSource" username="USER" password="PASSWORD"
           driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://DB_HOST:DB_PORT/sportimdev"
-          maxActive="16" maxIdle="8"/>
+          maxActive="32" maxIdle="16" maxWait="-1" />
 </Context>
