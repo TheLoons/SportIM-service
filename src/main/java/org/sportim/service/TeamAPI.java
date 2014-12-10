@@ -9,6 +9,8 @@ import org.sportim.service.util.ConnectionManager;
 import javax.ws.rs.*;
 
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 
 @Path("/team")
@@ -40,9 +42,14 @@ public class TeamAPI
             if (rs.next()) {
                 team = new TeamBean(rs);
             }
+            else
+            {
+                status = 404;
+                message = "Team not found";
+            }
         } catch (SQLException e) {
             status = 500;
-            message = "Unable to retrieve tournament. SQL error.";
+            message = "Unable to retrieve team. SQL error.";
             // TODO log4j 2 log this
             e.printStackTrace();
         } catch (NullPointerException e) {
@@ -136,6 +143,97 @@ public class TeamAPI
         return resp;
     }
 
+    @PUT
+    @Path("{id}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateTeam(TeamBean team, @PathParam("id") final int id) {
+        team.setId(id);
+        return updateTeam(team);
+    }
+
+    @PUT
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateTeam(TeamBean team) {
+        int status = 200;
+        String message = "";
+
+        if (team.getId() < 1) {
+            status = 400;
+            message = "Invalid team ID.";
+            return new ResponseBean(status, message);
+        }
+
+        if (!(message = team.validate()).isEmpty()) {
+            status = 400;
+            return new ResponseBean(status, message);
+        }
+
+        // TODO AUTHENTICATE
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+
+            // first, check for existence of any teams or players
+            if ((message = verifyTeamComponents(team, conn)) != null) {
+                status = 422;
+            }
+
+            if (status == 200) {
+                List<PreparedStatement> queries = createUpdateQueries(team, conn);
+                for (PreparedStatement s : queries) {
+                    // set stmt to s so we can close it in the catch if we hit an exception
+                    stmt = s;
+                    s.executeBatch();
+                }
+            }
+
+        } catch (SQLException e) {
+            // TODO log
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to update team. SQL Error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+
+        return new ResponseBean(status, message);
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Produces("application/json")
+    public ResponseBean deleteTeam(@PathParam("id") final int id) {
+        int status = 200;
+        String message = "";
+
+        // TODO AUTHENTICATE
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("DELETE FROM Team WHERE TeamId = ?");
+            stmt.setInt(1, id);
+            int res = stmt.executeUpdate();
+            if (res < 1) {
+                status = 404;
+                message = "Team with ID " + id + " does not exist.";
+            }
+        } catch (SQLException e) {
+            // TODO log actual error
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to delete team. SQL Error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return new ResponseBean(status, message);
+    }
+
     private static String verifyTeamComponents(TeamBean team, Connection conn) throws SQLException {
 
         String message = null;
@@ -153,7 +251,7 @@ public class TeamAPI
      * Make sure the Team Owner exists in the database
      * @param teamOwner
      * @param conn
-     * @return true if the tournament exists
+     * @return true if the team exists
      * @throws SQLException
      */
     private static boolean verifyTeamOwner(String teamOwner, Connection conn) throws SQLException {
@@ -192,5 +290,25 @@ public class TeamAPI
         APIUtils.closeResource(rs);
         APIUtils.closeResource(stmt);
         return id;
+    }
+
+    /**
+     * Create the update queries based on a team bean
+     * @param team
+     * @return set of queries mapped to whether or not the query is a batch
+     */
+    private List<PreparedStatement> createUpdateQueries(TeamBean team, Connection conn) throws SQLException {
+        List<PreparedStatement> stmts = new LinkedList<PreparedStatement>();
+
+        // update team stmt
+        PreparedStatement stmt = conn.prepareStatement("UPDATE Team " +
+                "SET TeamName = ?, TeamOwner = ?" +
+                "WHERE TeamId = ?");
+        stmt.setString(1, team.getName());
+        stmt.setString(2, team.getOwner());
+        stmt.setInt(3, team.getId());
+        stmt.addBatch();
+        stmts.add(stmt);
+        return stmts;
     }
 }
