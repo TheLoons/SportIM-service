@@ -8,6 +8,7 @@ import org.sportim.service.util.ConnectionManager;
 
 import javax.ws.rs.*;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,13 +23,17 @@ public class MultiEventAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean batchPostEvents(List<EventBean> events) {
+        ResponseBean resp = new ResponseBean(200, "");
+        List<Integer> ids = new ArrayList<Integer>(events.size());
         for (EventBean event : events) {
-            ResponseBean resp = SingleEventAPI.createDBEvent(event);
+            ResponseBean sresp = SingleEventAPI.createDBEvent(event);
             if (resp.getStatus().getCode() != 200) {
-                return resp;
+                return sresp;
             }
+            ids.add(sresp.getId());
         }
-        return new ResponseBean(200, "");
+        resp.setIds(ids);
+        return resp;
     }
 
     @GET

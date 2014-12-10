@@ -205,6 +205,7 @@ public class SingleEventAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        int eventID = -1;
         try {
             conn = ConnectionManager.getInstance().getConnection();
 
@@ -215,7 +216,6 @@ public class SingleEventAPI {
 
             // now, create the event and add any lookups
             conn.setAutoCommit(false);
-            int eventID = -1;
             if (status == 200) {
                 eventID = addEvent(event, conn);
                 if (eventID == -1) {
@@ -289,7 +289,9 @@ public class SingleEventAPI {
             }
         }
 
-        return new ResponseBean(status, message);
+        ResponseBean resp = new ResponseBean(status, message);
+        resp.setId(eventID);
+        return resp;
     }
 
     /**
@@ -298,7 +300,6 @@ public class SingleEventAPI {
      * @return set of queries mapped to whether or not the query is a batch
      */
     private List<PreparedStatement> createUpdateQueries(EventBean event, Connection conn) throws SQLException {
-        Map<Integer, Object> argMap = new HashMap<>();
         List<PreparedStatement> stmts = new LinkedList<>();
 
         // update event stmt
