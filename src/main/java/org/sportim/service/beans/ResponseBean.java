@@ -14,6 +14,7 @@ public class ResponseBean {
     private EventBean event;
     private UserBean user;
     private TournamentBean tournament;
+    private List<TeamBean> teams;
     private TeamBean team;
     private int id = -1;
     private List<Integer> ids;
@@ -84,5 +85,13 @@ public class ResponseBean {
 
     public void setIds(List<Integer> ids) {
         this.ids = ids;
+    }
+
+    public List<TeamBean> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<TeamBean> teams) {
+        this.teams = teams;
     }
 }

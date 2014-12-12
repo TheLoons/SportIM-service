@@ -76,6 +76,47 @@ public class TeamAPI
         return resp;
     }
 
+    @GET
+    @Produces("application/json")
+    public ResponseBean getTeams(@QueryParam(value="league") final int leagueID)
+    {
+        int status = 200;
+        String message = "";
+        List<TeamBean> teams = new LinkedList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1, TeamBelongsTo l " +
+                    "WHERE l.LeagueId = ? AND t1.TeamId = l.TeamId");
+            stmt.setInt(1, leagueID);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                teams.add(new TeamBean(rs));
+            }
+        } catch (SQLException e) {
+            status = 500;
+            message = "Unable to retrieve teams. SQL error.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            status = 500;
+            message = "Unable to connect to datasource.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+
+        ResponseBean resp = new ResponseBean(status, message);
+        resp.setTeams(teams);
+        return resp;
+    }
+
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -235,12 +276,9 @@ public class TeamAPI
     }
 
     private static String verifyTeamComponents(TeamBean team, Connection conn) throws SQLException {
-
         String message = null;
-        int status = 200;
-        if (status == 200 && team.getOwner() != null) {
+        if (team.getOwner() != null) {
             if (!verifyTeamOwner(team.getOwner(), conn)) {
-                status = 422;
                 message = "Non-existent Player specified for Team Owner.";
             }
         }
