@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -59,6 +60,19 @@ public class APIUtils {
         return true;
     }
 
+    public static boolean setAutoCommit(Connection conn, boolean autoCommit) {
+        if (conn == null) {
+            return true;
+        }
+
+        try {
+            conn.setAutoCommit(autoCommit);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Parse a date/time using the ISO date format
      * @param timestamp the datetime to parse
@@ -76,18 +90,6 @@ public class APIUtils {
     public static String millisToUTCString(long millis) {
         DateTime dt = new DateTime(millis, DateTimeZone.UTC);
         return dt.toString();
-    }
-
-    /**
-     * Get a UTC date from a result set
-     * @param rs the result set
-     * @param col the column containing the date
-     * @return Returns the date as a Joda DateTime
-     * @throws SQLException
-     */
-    public static DateTime getUTCDateFromResultSet(ResultSet rs, int col) throws SQLException {
-        Long millis = rs.getLong(col);
-        return new DateTime(millis, DateTimeZone.UTC);
     }
 
     /**
