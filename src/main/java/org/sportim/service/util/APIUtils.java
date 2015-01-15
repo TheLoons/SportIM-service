@@ -5,19 +5,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONObject;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Utility functions for the SportIM APIs.
@@ -90,57 +78,5 @@ public class APIUtils {
     public static String millisToUTCString(long millis) {
         DateTime dt = new DateTime(millis, DateTimeZone.UTC);
         return dt.toString();
-    }
-
-    /**
-     * Get a new random salt
-     * @return the byte array containing the salt
-     */
-    public static byte[] getSalt() {
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
-        random.nextBytes(bytes);
-        return bytes;
-    }
-
-    /**
-     * Get a salted and hashed password
-     * @param salt the salt to use
-     * @param pwd the password
-     * @return Null if unsuccessful, byte array of the hash otherwise.
-     */
-    public static byte[] saltHashPassword(byte[] salt, String pwd) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            outputStream.write(salt);
-            outputStream.write(pwd.getBytes("UTF-8"));
-        } catch (IOException e) {
-            // TODO log4j this
-            e.printStackTrace();
-            return null;
-        }
-
-        byte[] bytes = outputStream.toByteArray();
-        MessageDigest digest = null;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            // TODO log4j this
-            e.printStackTrace();
-            return null;
-        }
-        byte[] hash = digest.digest(bytes);
-
-        return hash;
-    }
-
-    /**
-     * Convert a byte array into a hex string.
-     * @param bytes
-     * @return
-     */
-    public static String byteArrayToHexString(byte[] bytes) {
-        String hex = DatatypeConverter.printHexBinary(bytes);
-        return hex;
     }
 }

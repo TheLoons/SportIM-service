@@ -4,6 +4,7 @@ import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.APIUtils;
+import org.sportim.service.util.AuthenticationUtil;
 import org.sportim.service.util.ConnectionManager;
 
 import javax.ws.rs.*;
@@ -96,8 +97,8 @@ public class UserAPI {
         }
 
         message = "";
-        byte[] salt = APIUtils.getSalt();
-        byte[] hash = APIUtils.saltHashPassword(salt, user.getPassword());
+        byte[] salt = AuthenticationUtil.getSalt();
+        byte[] hash = AuthenticationUtil.saltHashPassword(salt, user.getPassword());
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -109,8 +110,8 @@ public class UserAPI {
             stmt.setString(2, user.getFirstName());
             stmt.setString(3, user.getLastName());
             stmt.setString(4, user.getPhone());
-            stmt.setString(5, APIUtils.byteArrayToHexString(hash));
-            stmt.setString(6, APIUtils.byteArrayToHexString(salt));
+            stmt.setString(5, AuthenticationUtil.byteArrayToHexString(hash));
+            stmt.setString(6, AuthenticationUtil.byteArrayToHexString(salt));
             int res = stmt.executeUpdate();
             if (res < 1) {
                 message = "User with that login already exists.";
@@ -161,10 +162,10 @@ public class UserAPI {
             } else {
                 stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, Password = ?, Salt = ? " +
                                              "WHERE Login = ?");
-                byte[] salt = APIUtils.getSalt();
-                byte[] hash = APIUtils.saltHashPassword(salt, user.getPassword());
-                stmt.setString(4, APIUtils.byteArrayToHexString(hash));
-                stmt.setString(5, APIUtils.byteArrayToHexString(salt));
+                byte[] salt = AuthenticationUtil.getSalt();
+                byte[] hash = AuthenticationUtil.saltHashPassword(salt, user.getPassword());
+                stmt.setString(4, AuthenticationUtil.byteArrayToHexString(hash));
+                stmt.setString(5, AuthenticationUtil.byteArrayToHexString(salt));
                 stmt.setString(6, user.getLogin());
             }
             stmt.setString(1, user.getFirstName());
