@@ -16,7 +16,9 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * Created by hannah on 1/3/15.
+ * Utililties for generating and using authentication tokens.
+ *
+ * @author Hannah Brock
  */
 public class AuthenticationUtil {
 
@@ -25,15 +27,41 @@ public class AuthenticationUtil {
      * @param username User to generate auth token for
      * @return the token
      */
-    public String generateToken(String username) {
+    public static String generateToken(String username) {
         String token = UUID.randomUUID().toString().toUpperCase() + "#" + username + "#" + System.nanoTime();
-
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
         String enToken = jasypt.encrypt(token);
-
-        // TODO: store token in DB
-
+        storeToken(username, enToken);
         return enToken;
+    }
+
+    /**
+     * Store a token in the database. This token will overwrite any existing token
+     * for the given user.
+     * @param username The user
+     * @param token The auth token
+     * @return true if successful
+     */
+    private static boolean storeToken(String username, String token) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        int upCount = 0;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("INSERT INTO Auth (Login, Token) VALUES (?, ?) " +
+                                         "ON DUPLICATE KEY UPDATE Token = ?");
+            stmt.setString(1, username);
+            stmt.setString(2, token);
+            stmt.setString(3, token);
+            upCount = stmt.executeUpdate();
+        } catch (SQLException e) {
+            // TODO: log4j this
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(conn);
+            APIUtils.closeResource(stmt);
+        }
+        return upCount > 0;
     }
 
     /**
@@ -41,7 +69,7 @@ public class AuthenticationUtil {
      * @param token the token
      * @return the user belonging to the token, or null if the token is invalid
      */
-    public String validateToken(String token) {
+    public static String validateToken(String token) {
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
         String[] parts = jasypt.decrypt(token).split("#");
         if (parts.length < 3) {
@@ -59,7 +87,7 @@ public class AuthenticationUtil {
      * @param password the password
      * @return true if valid
      */
-    public boolean authenticate(String username, String password) {
+    public static boolean authenticate(String username, String password) {
         UserBean user = getUserFromDB(username);
         byte[] salt = hexStringToByteArray(user.getSalt());
         byte[] currentPass = saltHashPassword(salt, password);

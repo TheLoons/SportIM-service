@@ -6,4 +6,5 @@ drop table TeamBelongsTo;
 drop table League;
 drop table PlaysFor;
 drop table Team;
+drop table Auth;
 drop table Player;
