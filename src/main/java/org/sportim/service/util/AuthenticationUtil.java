@@ -70,15 +70,51 @@ public class AuthenticationUtil {
      * @return the user belonging to the token, or null if the token is invalid
      */
     public static String validateToken(String token) {
+        if (token == null) {
+            return null;
+        }
+
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
         String[] parts = jasypt.decrypt(token).split("#");
         if (parts.length < 3) {
             return null;
         }
-        // TODO: check DB for token
 
-        // TODO: return user
-        return null;
+        String user = parts[1];
+        String userToken = getTokenForUser(user);
+        if (userToken == null || !userToken.equals(token)) {
+            return null;
+        }
+        return user;
+    }
+
+    /**
+     * Get the auth token from the database for a user
+     * @param username the user
+     * @return the user's token or null if not found
+     */
+    private static String getTokenForUser(String username) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        String token = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT Token FROM Auth WHERE Login = ?");
+            stmt.setString(1, username);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                token = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            // TODO: log4j
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return token;
     }
 
     /**
@@ -129,7 +165,7 @@ public class AuthenticationUtil {
         }
 
         byte[] bytes = outputStream.toByteArray();
-        MessageDigest digest = null;
+        MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
@@ -137,15 +173,14 @@ public class AuthenticationUtil {
             e.printStackTrace();
             return null;
         }
-        byte[] hash = digest.digest(bytes);
 
-        return hash;
+        return digest.digest(bytes);
     }
 
     /**
      * Convert a byte array into a hex string.
-     * @param bytes
-     * @return
+     * @param bytes byte array to convert
+     * @return the hex string
      */
     public static String byteArrayToHexString(byte[] bytes) {
         return DatatypeConverter.printHexBinary(bytes);
