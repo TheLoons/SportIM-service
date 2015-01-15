@@ -84,7 +84,7 @@ CREATE TABLE PlayerEvent(
         FOREIGN KEY (EventId) REFERENCES Event (EventId)
         ON UPDATE CASCADE
         ON DELETE CASCADE, 
-    LoginVARCHAR (50), 
+    Login VARCHAR (50), 
         FOREIGN KEY (Login) REFERENCES Player (Login)
         ON UPDATE CASCADE
         ON DELETE CASCADE, 
