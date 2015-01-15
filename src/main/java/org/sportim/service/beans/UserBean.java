@@ -17,6 +17,7 @@ public class UserBean {
     private String login;
     private String password;
     private String phone;
+    private String salt;
 
     /**
      * Zero-argument constructor required by Jersey.
@@ -106,5 +107,13 @@ public class UserBean {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }
