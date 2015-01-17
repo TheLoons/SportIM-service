@@ -6,10 +6,6 @@
             <New class="com.mchange.v2.c3p0.ComboPooledDataSource">
                  <Set name="driverClass">com.mysql.jdbc.Driver</Set>
                  <Set name="jdbcUrl">jdbc:${dbUrl}</Set>
-                 <!--Uncomment to enter dbuser and pass not in URL>
-                 <Set name="user">${dbUser}</Set>
-                 <Set name="password">${dbPass}</Set>
-                 <--!>
                  <Set name="maxPoolSize">32</Set>
                  <Set name="maxIdleTime">3600</Set>
                  <Set name="preferredTestQuery">SELECT 1</Set>
