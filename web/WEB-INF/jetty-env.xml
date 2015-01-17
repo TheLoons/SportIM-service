@@ -5,9 +5,9 @@
         <Arg>
             <New class="com.mchange.v2.c3p0.ComboPooledDataSource">
                 <Set name="driverClass">com.mysql.jdbc.Driver</Set>
-                <Set name="jdbcUrl">jdbc:${dbUrl}</Set>
-                <Set name="user">${dbUser}</Set>
-                <Set name="password">${dbPass}</Set>
+                <Set name="jdbcUrl"><Env name="DATABASE_URL"/></Set>
+                <Set name="user"><Env name="DATABASE_USER"/></Set>
+                <Set name="password"><Env name="DATABASE_PWD"/></Set>
                 <Set name="maxPoolSize">32</Set>
                 <Set name="maxIdleTime">3600</Set>
                 <Set name="preferredTestQuery">SELECT 1</Set>
