@@ -41,6 +41,16 @@
             <version>1.9.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.6.v20141205</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -61,6 +71,15 @@
                     <warName>sportim</warName>
                     <webXml>web/WEB-INF/web.xml</webXml>
                     <containerConfigXML>web/META-INF/context.xml</containerConfigXML>
+                    <webResources>
+                        <resource>
+                            <directory>web/WEB-INF</directory>
+                            <includes>
+                                <include>jetty-env.xml</include>
+                            </includes>
+                            <targetPath>WEB-INF</targetPath>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
             <plugin>
@@ -74,10 +93,10 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.github.jsimone</groupId>
-                                    <artifactId>webapp-runner</artifactId>
-                                    <version>7.0.57.1</version>
-                                    <destFileName>webapp-runner.jar</destFileName>
+                                    <groupId>org.eclipse.jetty</groupId>
+                                    <artifactId>jetty-runner</artifactId>
+                                    <version>9.2.6.v20141205</version>
+                                    <destFileName>jetty-runner.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
