@@ -4,7 +4,7 @@ CREATE TABLE Player(
     FirstName VARCHAR(255) NOT NULL, 
     LastName VARCHAR(255) NOT NULL, 
     Phone VARCHAR(20) NULL, 
-    Salt CHAR(20) NOT NULL
+    Salt CHAR(40) NOT NULL
 );
 
 CREATE TABLE Auth(
