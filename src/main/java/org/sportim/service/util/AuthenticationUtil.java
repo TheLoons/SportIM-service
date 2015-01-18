@@ -25,13 +25,21 @@ public class AuthenticationUtil {
     /**
      * Generate and store an auth token.
      * @param username User to generate auth token for
-     * @return the token
+     * @return the token or null if unable to store token
      */
     public static String generateToken(String username) {
         String token = UUID.randomUUID().toString().toUpperCase() + "#" + username + "#" + System.nanoTime();
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
-        String enToken = jasypt.encrypt(token);
-        storeToken(username, enToken);
+        jasypt.setPassword(System.getenv("ENCRYPTION_PASSWORD"));
+        String enToken;
+        try {
+            enToken = jasypt.encrypt(token);
+        } catch (Exception e) {
+            return null;
+        }
+        if (!storeToken(username, enToken)) {
+            return null;
+        }
         return enToken;
     }
 
@@ -75,7 +83,13 @@ public class AuthenticationUtil {
         }
 
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
-        String[] parts = jasypt.decrypt(token).split("#");
+        jasypt.setPassword(System.getenv("ENCRYPTION_PASSWORD"));
+        String[] parts;
+        try {
+            parts = jasypt.decrypt(token).split("#");
+        } catch (Exception e) {
+            return null;
+        }
         if (parts.length < 3) {
             return null;
         }
@@ -125,6 +139,9 @@ public class AuthenticationUtil {
      */
     public static boolean authenticate(String username, String password) {
         UserBean user = getUserFromDB(username);
+        if (user == null) {
+            return false;
+        }
         byte[] salt = hexStringToByteArray(user.getSalt());
         byte[] currentPass = saltHashPassword(salt, password);
         byte[] correctPass = hexStringToByteArray(user.getPassword());

@@ -18,6 +18,7 @@ public class ResponseBean {
     private TeamBean team;
     private int id = -1;
     private List<Integer> ids;
+    private String token;
 
     public ResponseBean(){
     }
@@ -93,5 +94,13 @@ public class ResponseBean {
 
     public void setTeams(List<TeamBean> teams) {
         this.teams = teams;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
