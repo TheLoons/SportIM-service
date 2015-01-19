@@ -21,6 +21,7 @@ fi
 
 : ${DB_HOST:="cs4400-02.eng.utah.edu"}
 : ${DB_PORT:="3306"}
+: ${TOMCAT_SERVICE:="tomcat7-api-dev"}
 
 pushd ../web/META-INF
 sed -i "s/USER/$2/" context.xml
@@ -33,8 +34,15 @@ pushd ..
 mvn clean package
 popd
 
+service ${TOMCAT_SERVICE} stop
+pushd "$1/webapps"
+rm -r sportim*
+popd
+
 pushd ../target
 cp sportim.war "$1/webapps"
 popd
 
-echo "Install finished. Restart your Tomcat instance to ensure complete installation."
+service ${TOMCAT_SERVICE} start
+
+echo "Install finished."

@@ -14,10 +14,12 @@ public class ResponseBean {
     private EventBean event;
     private UserBean user;
     private TournamentBean tournament;
+    private List<TeamBean> teams;
     private TeamBean team;
     private LeagueBean league;
     private int id = -1;
     private List<Integer> ids;
+    private String token;
 
     public ResponseBean(){
     }
@@ -91,5 +93,21 @@ public class ResponseBean {
 
     public void setIds(List<Integer> ids) {
         this.ids = ids;
+    }
+
+    public List<TeamBean> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<TeamBean> teams) {
+        this.teams = teams;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

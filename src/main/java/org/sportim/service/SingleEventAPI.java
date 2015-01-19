@@ -204,7 +204,6 @@ public class SingleEventAPI {
 
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         int eventID = -1;
         try {
             conn = ConnectionManager.getInstance().getConnection();
@@ -269,6 +268,8 @@ public class SingleEventAPI {
 
             if (status == 200) {
                 conn.commit();
+            } else {
+                conn.rollback();
             }
         } catch (SQLException e) {
             status = 500;
@@ -281,12 +282,9 @@ public class SingleEventAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.setAutoCommit(conn, true);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);

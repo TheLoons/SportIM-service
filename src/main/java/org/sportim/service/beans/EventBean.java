@@ -1,11 +1,10 @@
 package org.sportim.service.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.util.APIUtils;
 
-import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.List;
  * Created by hannah on 12/1/14.
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class EventBean {
     private String title;
     private long start;

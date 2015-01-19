@@ -1,20 +1,23 @@
 package org.sportim.service.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Created by hannah on 11/29/14.
+ * A bean representing a user
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class UserBean {
     private String firstName;
     private String lastName;
     private String login;
     private String password;
     private String phone;
+    private String salt;
 
     /**
      * Zero-argument constructor required by Jersey.
@@ -104,5 +107,13 @@ public class UserBean {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }
