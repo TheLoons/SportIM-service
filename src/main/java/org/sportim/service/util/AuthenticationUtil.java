@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * Utililties for generating and using authentication tokens.
+ * Utilities for generating and using authentication tokens.
  *
  * @author Hannah Brock
  */
