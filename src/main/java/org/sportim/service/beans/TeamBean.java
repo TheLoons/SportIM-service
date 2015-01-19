@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by hannah on 12/4/14.
@@ -15,6 +16,7 @@ public class TeamBean {
     private int id = 0;
     private String name;
     private String owner;
+    private List<UserBean> players;
 
     public TeamBean(){
     }
@@ -49,6 +51,10 @@ public class TeamBean {
     public void setOwner(String owner) {
         this.owner = owner;
     }
+
+    public List<UserBean> getPlayers() {return this.players;}
+
+    public void setPlayers(List<UserBean> players) {this.players = players;}
 
     public String validate() {
 

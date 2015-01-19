@@ -3,6 +3,7 @@ package org.sportim.service;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TeamBean;
+import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 
@@ -27,6 +28,7 @@ public class TeamAPI
     public ResponseBean getTeam(@PathParam("id") final int teamId)
     {
         int status = 200;
+        List<UserBean> players = new LinkedList<UserBean>();
         String message = "";
         TeamBean team = null;
         Connection conn = null;
@@ -46,6 +48,15 @@ public class TeamAPI
             {
                 status = 404;
                 message = "Team not found";
+            }
+
+            stmt = conn.prepareStatement("SELECT p1.Login, p1.FirstName, p1.LastName from Player p1, PlaysFor pf WHERE pf.TeamID = ?");
+            stmt.setInt(1, teamId);
+            rs = stmt.executeQuery();
+
+            while(rs.next())
+            {
+                players.add(new UserBean(rs));
             }
         } catch (SQLException e) {
             status = 500;
@@ -68,6 +79,7 @@ public class TeamAPI
 
         ResponseBean resp = new ResponseBean(status, message);
         if (team != null) {
+            team.setPlayers(players);
             resp.setTeam(team);
         } else {
             StatusBean s = new StatusBean(404, "Team not found.");
@@ -82,7 +94,7 @@ public class TeamAPI
     {
         int status = 200;
         String message = "";
-        List<TeamBean> teams = new LinkedList<>();
+        List<TeamBean> teams = new LinkedList<TeamBean>();
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
