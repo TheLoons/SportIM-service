@@ -1,6 +1,8 @@
 package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +11,8 @@ import java.util.List;
 /**
  * Created by Doug on 1/19/15.
  */
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class LeagueBean {
 
     private int id = 0;
