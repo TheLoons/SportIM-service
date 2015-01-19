@@ -196,6 +196,88 @@ public class TeamAPI
         return resp;
     }
 
+    @POST
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean addPlayerToTeam(TeamBean team, @QueryParam("id") final int id, @QueryParam("login") final String login)
+    {
+        team.setId(id);
+        return addPlayerToTeam(team, login);
+    }
+
+    @POST
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean addPlayerToTeam(TeamBean team, String playerLogin)
+    {
+        int status = 200;
+        String message = "";
+
+        if(team.getId() < 1)
+        {
+            status =  400;
+            message = "Invalid team ID";
+            return new ResponseBean(status, message);
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = ConnectionManager.getInstance().getConnection();
+
+
+            // now, create the event and add any lookups
+            conn.setAutoCommit(false);
+            if (status == 200)
+            {
+                UserBean player = new UserBean();
+                player.setLogin(playerLogin);
+                if(!verifyPlayer(player, conn).isEmpty())
+                {
+                    message = "Player Not Found";
+                    status = 404;
+                }
+            }
+            if(status == 200)
+            {
+                stmt = conn.prepareStatement("INSERT INTO PlaysFor(Login, TeamID) Values (?, ?)");
+                stmt.setString(1, playerLogin);
+                stmt.setInt(2, team.getId());
+                rs = stmt.executeQuery();
+                if(!rs.next())
+                {
+                    status = 500;
+                    message = "Unable to link player to team.";
+                }
+            }
+            if (status == 200) {
+                conn.commit();
+            }
+        } catch (SQLException e) {
+            status = 500;
+            message = "Unable to add team. SQL error.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            status = 500;
+            message = "Unable to connect to datasource.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } finally {
+            boolean ok = APIUtils.closeResource(rs);
+            ok = ok && APIUtils.closeResource(stmt);
+            ok = ok && APIUtils.closeResource(conn);
+            if (!ok) {
+                // TODO implement Log4j 2 and log out error
+            }
+        }
+
+
+        ResponseBean resp = new ResponseBean(status, message);
+        return resp;
+    }
+
     @PUT
     @Path("{id}")
     @Consumes("application/json")
@@ -285,6 +367,24 @@ public class TeamAPI
             APIUtils.closeResource(conn);
         }
         return new ResponseBean(status, message);
+    }
+
+    private static String verifyPlayer(UserBean player, Connection conn) throws SQLException
+    {
+        String message = null;
+
+
+        if(player.getLogin() != null && !player.getLogin().isEmpty())
+        {
+            PreparedStatement stmt = conn.prepareStatement("SELECT  COUNT (Login) FROM Player Where Login = ?");
+            stmt.setString(1, player.getLogin());
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next() && rs.getInt(1) != 1)
+            {
+                message = "Player not available";
+            }
+        }
+        return message;
     }
 
     private static String verifyTeamComponents(TeamBean team, Connection conn) throws SQLException {
