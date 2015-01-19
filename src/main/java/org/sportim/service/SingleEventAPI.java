@@ -29,8 +29,8 @@ public class SingleEventAPI {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         EventBean event = null;
-        List<TeamBean> teams = new LinkedList<>();
-        List<UserBean> players = new LinkedList<>();
+        List<TeamBean> teams = new LinkedList<TeamBean>();
+        List<UserBean> players = new LinkedList<UserBean>();
         try {
             conn = ConnectionManager.getInstance().getConnection();
             stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
@@ -298,7 +298,7 @@ public class SingleEventAPI {
      * @return set of queries mapped to whether or not the query is a batch
      */
     private List<PreparedStatement> createUpdateQueries(EventBean event, Connection conn) throws SQLException {
-        List<PreparedStatement> stmts = new LinkedList<>();
+        List<PreparedStatement> stmts = new LinkedList<PreparedStatement>();
 
         // update event stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
