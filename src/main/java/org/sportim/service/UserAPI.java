@@ -3,10 +3,7 @@ package org.sportim.service;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.UserBean;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.AuthenticationUtil;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.PrivilegeUtil;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 import java.sql.Connection;
@@ -21,6 +18,15 @@ import java.sql.SQLException;
  */
 @Path("/user")
 public class UserAPI {
+    private ConnectionProvider provider;
+
+    public UserAPI() {
+        provider = ConnectionManager.getInstance();
+    }
+
+    public UserAPI(ConnectionProvider provider) {
+        this.provider = provider;
+    }
 
     @GET
     @Path("{login}")
@@ -49,7 +55,7 @@ public class UserAPI {
         ResultSet rs = null;
         UserBean user = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone FROM Player " +
                                          "WHERE Login = ?");
             stmt.setString(1, login);
@@ -105,7 +111,7 @@ public class UserAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("INSERT IGNORE INTO Player (Login, FirstName, LastName, Phone, Password, Salt) " +
                                          "VALUES (?,?,?,?,?,?)");
             stmt.setString(1, user.getLogin());
@@ -156,7 +162,7 @@ public class UserAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ? " +
                                              "WHERE Login = ?");
@@ -199,7 +205,7 @@ public class UserAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("DELETE FROM Player WHERE Login = ?");
             stmt.setString(1, login);
             int res = stmt.executeUpdate();

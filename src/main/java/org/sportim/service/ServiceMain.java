@@ -23,6 +23,7 @@ public class ServiceMain {
         json.put("version", VERSION);
 
         JSONObject directory = new JSONObject();
+        directory.put("login", "/rest/login");
         directory.put("users", "/rest/user");
         directory.put("bulk events", "/rest/events");
         directory.put("single events", "/rest/event");

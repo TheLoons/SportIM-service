@@ -11,7 +11,7 @@ import java.sql.Statement;
  *
  * Created by hannah on 11/22/14.
  */
-public class ConnectionManager {
+public class ConnectionManager implements ConnectionProvider {
     private static ConnectionManager instance = null;
     private DataSource ds;
 

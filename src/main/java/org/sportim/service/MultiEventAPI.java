@@ -5,6 +5,7 @@ import org.sportim.service.beans.EventBean;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
+import org.sportim.service.util.ConnectionProvider;
 
 import javax.ws.rs.*;
 import java.sql.*;
@@ -18,6 +19,15 @@ import java.util.List;
  */
 @Path("/events")
 public class MultiEventAPI {
+    private ConnectionProvider provider;
+
+    public MultiEventAPI() {
+        provider = ConnectionManager.getInstance();
+    }
+
+    public MultiEventAPI(ConnectionProvider provider) {
+        this.provider = provider;
+    }
 
     @POST
     @Consumes("application/json")
@@ -26,7 +36,7 @@ public class MultiEventAPI {
         ResponseBean resp = new ResponseBean(200, "");
         List<Integer> ids = new ArrayList<Integer>(events.size());
         for (EventBean event : events) {
-            ResponseBean sresp = SingleEventAPI.createDBEvent(event);
+            ResponseBean sresp = SingleEventAPI.createDBEvent(event, provider);
             if (resp.getStatus().getCode() != 200) {
                 return sresp;
             }
@@ -67,7 +77,7 @@ public class MultiEventAPI {
         ResultSet rs = null;
         List<EventBean> events = new LinkedList<EventBean>();
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
                                          "WHERE StartDate < ? AND EndDate > ?");
             stmt.setLong(1, endTime.getMillis());

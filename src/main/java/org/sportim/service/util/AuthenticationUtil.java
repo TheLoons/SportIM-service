@@ -21,6 +21,11 @@ import java.util.UUID;
  * @author Hannah Brock
  */
 public class AuthenticationUtil {
+    private static ConnectionProvider provider = ConnectionManager.getInstance();
+
+    public static void setConnectionProvider(ConnectionProvider provider) {
+        AuthenticationUtil.provider = provider;
+    }
 
     /**
      * Generate and store an auth token.
@@ -55,7 +60,7 @@ public class AuthenticationUtil {
         PreparedStatement stmt = null;
         int upCount = 0;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("INSERT INTO Auth (Login, Token) VALUES (?, ?) " +
                                          "ON DUPLICATE KEY UPDATE Token = ?");
             stmt.setString(1, username);
@@ -113,7 +118,7 @@ public class AuthenticationUtil {
         ResultSet rs = null;
         String token = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT Token FROM Auth WHERE Login = ?");
             stmt.setString(1, username);
             rs = stmt.executeQuery();
@@ -212,7 +217,7 @@ public class AuthenticationUtil {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         UserBean user = null;
-        conn = ConnectionManager.getInstance().getConnection();
+        conn = provider.getConnection();
         stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone, Password, Salt FROM Player " +
                 "WHERE Login = ?");
         stmt.setString(1, username);
