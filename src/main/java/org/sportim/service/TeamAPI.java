@@ -339,6 +339,42 @@ public class TeamAPI
     }
 
     @DELETE
+    @Produces("application/json")
+    public ResponseBean removePlayerFromTeam(@QueryParam("login") final String login, @QueryParam("teamId") final int teamId)
+    {
+        int status = 200;
+        String message = "";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try
+        {
+            conn = ConnectionManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("DELETE  FROM PlaysFor WHERE Login = ? AND TeamID = ?");
+            stmt.setString(1, login);
+            stmt.setInt(2, teamId);
+            int res = stmt.executeUpdate();
+            if(res < 1)
+            {
+                status = 404;
+                message = "Player " + login + " does not belong to Team " + teamId + ".";
+            }
+
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            status = 500;
+            message =  "Unable to delete Team from League. SQL Error";
+
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return new ResponseBean(status, message);
+    }
+
+    @DELETE
     @Path("{id}")
     @Produces("application/json")
     public ResponseBean deleteTeam(@PathParam("id") final int id) {
