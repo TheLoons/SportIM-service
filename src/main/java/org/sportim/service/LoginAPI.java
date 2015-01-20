@@ -17,8 +17,14 @@ public class LoginAPI {
     @Produces("application/json")
     @Consumes("application/json")
     public ResponseBean authenticateUser(AuthenticationBean auth) {
-        if(!AuthenticationUtil.authenticate(auth.getLogin(), auth.getPassword())) {
-            return new ResponseBean(401, "Bad username or password");
+        try {
+            if (!AuthenticationUtil.authenticate(auth.getLogin(), auth.getPassword())) {
+                return new ResponseBean(401, "Bad username or password");
+            }
+        } catch (Exception e) {
+            // TODO log4j
+            e.printStackTrace();
+            return new ResponseBean(500, "Unable to generate auth token");
         }
         String token = AuthenticationUtil.generateToken(auth.getLogin());
         if (token == null) {

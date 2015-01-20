@@ -137,7 +137,7 @@ public class AuthenticationUtil {
      * @param password the password
      * @return true if valid
      */
-    public static boolean authenticate(String username, String password) {
+    public static boolean authenticate(String username, String password) throws Exception {
         UserBean user = getUserFromDB(username);
         if (user == null) {
             return false;
@@ -207,36 +207,25 @@ public class AuthenticationUtil {
         return DatatypeConverter.parseHexBinary(hex);
     }
 
-    private static UserBean getUserFromDB(String username) {
+    private static UserBean getUserFromDB(String username) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         UserBean user = null;
-        try {
-            conn = ConnectionManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone, Password, Salt FROM Player " +
-                    "WHERE Login = ?");
-            stmt.setString(1, username);
-            rs = stmt.executeQuery();
+        conn = ConnectionManager.getInstance().getConnection();
+        stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone, Password, Salt FROM Player " +
+                "WHERE Login = ?");
+        stmt.setString(1, username);
+        rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                user = new UserBean(rs, username);
-                user.setPassword(rs.getString(4));
-                user.setSalt(rs.getString(5));
-            }
-        } catch (SQLException e) {
-            // TODO log4j 2 log this
-            e.printStackTrace();
-            return null;
-        } catch (NullPointerException e) {
-            // TODO log4j 2 log this
-            e.printStackTrace();
-            return null;
-        } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+        if (rs.next()) {
+            user = new UserBean(rs, username);
+            user.setPassword(rs.getString(4));
+            user.setSalt(rs.getString(5));
         }
+        APIUtils.closeResource(rs);
+        APIUtils.closeResource(stmt);
+        APIUtils.closeResource(conn);
         return user;
     }
 }
