@@ -6,6 +6,7 @@ import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.AuthenticationUtil;
 import org.sportim.service.util.ConnectionManager;
+import org.sportim.service.util.PrivilegeUtil;
 
 import javax.ws.rs.*;
 import java.sql.Connection;
@@ -31,21 +32,22 @@ public class UserAPI {
     @GET
     @Produces("application/json")
     public ResponseBean getUser(@QueryParam(value = "login") final String login,
-                          @QueryParam(value = "token") final String token) {
+                          @HeaderParam(value = "token") final String token) {
         int status = 200;
         String message = "";
 
         if (login == null) {
-            status = 400;
-            message = "Missing login parameter";
-            return new ResponseBean(status, message);
+            return new ResponseBean(400, "Missing login parameter");
+        }
+
+        if (!PrivilegeUtil.hasUserView(token, login)) {
+            return new ResponseBean(401, "Not authorized");
         }
 
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         UserBean user = null;
-        // TODO only pull user if authorized by token
         try {
             conn = ConnectionManager.getInstance().getConnection();
             stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone FROM Player " +
