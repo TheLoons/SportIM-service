@@ -31,14 +31,14 @@ public class UserAPI {
     @GET
     @Path("{login}")
     @Produces("application/json")
-    public ResponseBean getUser(@PathParam("login") final String login) {
-        return getUser(login, null);
+    public ResponseBean getUser(@PathParam("login") final String login, @HeaderParam("token") final String token) {
+        return getUser(login, token);
     }
 
     @GET
     @Produces("application/json")
-    public ResponseBean getUser(@QueryParam(value = "login") final String login,
-                          @HeaderParam(value = "token") final String token) {
+    public ResponseBean getUserQuery(@QueryParam("login") final String login,
+                                     @HeaderParam("token") final String token) {
         int status = 200;
         String message = "";
 
@@ -142,21 +142,26 @@ public class UserAPI {
     @Path("{login}")
     @Produces("application/json")
     @Consumes("application/json")
-    public ResponseBean updateUser(@PathParam("login") final String login, UserBean user) {
+    public ResponseBean updateUser(@PathParam("login") final String login, UserBean user,
+                                   @HeaderParam("token") final String token) {
         user.setLogin(login);
-        return updateUser(user);
+        return updateUser(user, token);
     }
 
     @PUT
     @Produces("application/json")
     @Consumes("application/json")
-    public ResponseBean updateUser(UserBean user) {
+    public ResponseBean updateUser(UserBean user, @HeaderParam("token") final String token) {
         int status = 200;
         String message = "";
 
         if (!(message = user.validate(false)).isEmpty()) {
             status = 400;
             return new ResponseBean(status, message);
+        }
+
+        if (!PrivilegeUtil.hasUserUpdate(token, user.getLogin())) {
+            return new ResponseBean(401, "Not authorized");
         }
 
         Connection conn = null;
@@ -198,9 +203,13 @@ public class UserAPI {
     @DELETE
     @Path("{login}")
     @Produces("application/json")
-    public ResponseBean deleteUser(@PathParam("login") final String login) {
+    public ResponseBean deleteUser(@PathParam("login") final String login, @HeaderParam("token") final String token) {
         String message = "";
         int status = 200;
+
+        if (!PrivilegeUtil.hasUserUpdate(token, login)) {
+            return new ResponseBean(401, "Not authorized");
+        }
 
         Connection conn = null;
         PreparedStatement stmt = null;

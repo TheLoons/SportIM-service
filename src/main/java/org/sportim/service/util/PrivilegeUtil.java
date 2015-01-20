@@ -59,8 +59,9 @@ public class PrivilegeUtil {
         return ok;
     }
 
-    public static boolean hasUserUpdate(String user, String userToUpdate) {
-        // TODO
-        return true;
+    public static boolean hasUserUpdate(String token, String userToUpdate) {
+        // This is simple for now - users can only update themselves
+        String user = AuthenticationUtil.validateToken(token);
+        return user != null && user.equals(userToUpdate);
     }
 }
