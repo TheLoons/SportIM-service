@@ -12,7 +12,7 @@
                 <Set name="maxIdleTime">3600</Set>
                 <Set name="maxConnectionAge">3600</Set>
                 <Set name="preferredTestQuery">SELECT 1</Set>
-                <Set name="testConnectionOnCheckin">true</Set>
+                <Set name="testConnectionOnCheckout">true</Set>
             </New>
         </Arg>
     </New>
