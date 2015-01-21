@@ -3,6 +3,7 @@ package org.sportim.service;
 import org.sportim.service.beans.*;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
+import org.sportim.service.util.ConnectionProvider;
 
 import javax.ws.rs.*;
 
@@ -15,8 +16,17 @@ import java.util.*;
  */
 @Path("/event")
 public class SingleEventAPI {
-	
-	@GET
+    private ConnectionProvider provider;
+
+    public SingleEventAPI() {
+        provider = ConnectionManager.getInstance();
+    }
+
+    public SingleEventAPI(ConnectionProvider provider) {
+        this.provider = provider;
+    }
+
+    @GET
     @Path("{id}")
     @Produces("application/json")
     public ResponseBean getEvent(@PathParam("id") final int id)
@@ -32,7 +42,7 @@ public class SingleEventAPI {
         List<TeamBean> teams = new LinkedList<TeamBean>();
         List<UserBean> players = new LinkedList<UserBean>();
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
                                          "WHERE EventId = ?");
             stmt.setInt(1, id);
@@ -96,7 +106,7 @@ public class SingleEventAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean createEvent(EventBean event) {
-        return createDBEvent(event);
+        return createDBEvent(event, provider);
     }
 
     @PUT
@@ -130,7 +140,7 @@ public class SingleEventAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for existence of any teams or players
             if ((message = verifyEventComponents(event, conn)) != null) {
@@ -170,7 +180,7 @@ public class SingleEventAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("DELETE FROM Event WHERE EventId = ?");
             stmt.setInt(1, id);
             int res = stmt.executeUpdate();
@@ -195,7 +205,7 @@ public class SingleEventAPI {
      * @param event
      * @return a JSON response bean
      */
-    public static ResponseBean createDBEvent(EventBean event) {
+    public static ResponseBean createDBEvent(EventBean event, ConnectionProvider provider) {
         int status = 200;
         String message = event.validate();
         if (!message.isEmpty()) {
@@ -206,7 +216,7 @@ public class SingleEventAPI {
         PreparedStatement stmt = null;
         int eventID = -1;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for existence of any teams or players
             if ((message = verifyEventComponents(event, conn)) != null) {

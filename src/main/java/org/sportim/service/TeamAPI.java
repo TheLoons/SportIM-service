@@ -6,6 +6,7 @@ import org.sportim.service.beans.TeamBean;
 import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
+import org.sportim.service.util.ConnectionProvider;
 
 import javax.ws.rs.*;
 
@@ -19,8 +20,16 @@ import java.util.List;
 /**
  * Created by Doug on 12/7/14.
  */
-public class TeamAPI
-{
+public class TeamAPI {
+    private ConnectionProvider provider;
+
+    public TeamAPI() {
+        provider = ConnectionManager.getInstance();
+    }
+
+    public TeamAPI(ConnectionProvider provider) {
+        this.provider = provider;
+    }
 
     @GET
     @Path("{id}")
@@ -35,7 +44,7 @@ public class TeamAPI
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1 " +
                     "WHERE t1.TeamId = ?");
             stmt.setInt(1, teamId);
@@ -99,7 +108,7 @@ public class TeamAPI
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1, TeamBelongsTo l " +
                     "WHERE l.LeagueId = ? AND t1.TeamId = l.TeamId");
             stmt.setInt(1, leagueID);
@@ -141,7 +150,7 @@ public class TeamAPI
      * @param team
      * @return a JSON response bean
      */
-    public static ResponseBean createDBTeam(TeamBean team) {
+    public ResponseBean createDBTeam(TeamBean team) {
         int status = 200;
         String message = team.validate();
         if (!message.isEmpty()) {
@@ -153,7 +162,7 @@ public class TeamAPI
         ResultSet rs = null;
         int teamID = -1;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for existence of any teams or players
             if ((message = verifyTeamComponents(team, conn)) != null) {
@@ -224,7 +233,7 @@ public class TeamAPI
 //        PreparedStatement stmt = null;
 //        ResultSet rs = null;
 //        try {
-//            conn = ConnectionManager.getInstance().getConnection();
+//            conn = provider.getConnection();
 //
 //
 //            // now, create the event and add any lookups
@@ -309,7 +318,7 @@ public class TeamAPI
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for existence of any teams or players
             if ((message = verifyTeamComponents(team, conn)) != null) {
@@ -385,7 +394,7 @@ public class TeamAPI
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("DELETE FROM Team WHERE TeamId = ?");
             stmt.setInt(1, id);
             int res = stmt.executeUpdate();

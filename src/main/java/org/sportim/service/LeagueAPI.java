@@ -3,6 +3,7 @@ package org.sportim.service;
 import org.sportim.service.beans.*;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
+import org.sportim.service.util.ConnectionProvider;
 
 import javax.ws.rs.*;
 import java.sql.*;
@@ -13,6 +14,16 @@ import java.util.List;
  * Created by Doug on 1/19/15.
  */
 public class LeagueAPI {
+    private ConnectionProvider provider;
+
+    public LeagueAPI() {
+        provider = ConnectionManager.getInstance();
+    }
+
+    public LeagueAPI(ConnectionProvider provider) {
+        this.provider = provider;
+    }
+
     @GET
     @Path("{id}")
     @Produces("application/json")
@@ -26,7 +37,7 @@ public class LeagueAPI {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT LeagueId, LeagueName, LeagueId, Description FROM League " +
                     "WHERE LeagueId = ?");
             stmt.setInt(1, leagueId);
@@ -77,7 +88,7 @@ public class LeagueAPI {
      * @param league
      * @return a JSON response bean
      */
-    public static ResponseBean createDBLeague(LeagueBean league) {
+    public ResponseBean createDBLeague(LeagueBean league) {
         int status = 200;
         String message = league.validate();
         if (!message.isEmpty()) {
@@ -89,7 +100,7 @@ public class LeagueAPI {
         ResultSet rs = null;
         int leagueID = -1;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for League
             if ((message = verifyLeagueComponents(league, conn)) != null) {
@@ -255,7 +266,7 @@ public class LeagueAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for existence of any teams or players
             if ((message = verifyLeagueComponents(league, conn)) != null) {
@@ -295,7 +306,7 @@ public class LeagueAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("DELETE FROM League WHERE LeagueId = ?");
             stmt.setInt(1, id);
             int res = stmt.executeUpdate();

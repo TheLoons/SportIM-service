@@ -5,6 +5,7 @@ import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TournamentBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
+import org.sportim.service.util.ConnectionProvider;
 
 import javax.ws.rs.*;
 
@@ -16,8 +17,17 @@ import java.util.List;
 /**
  * Created by Doug on 12/4/14.
  */
-public class TournamentAPI
-{
+public class TournamentAPI {
+    private ConnectionProvider provider;
+
+    public TournamentAPI() {
+        provider = ConnectionManager.getInstance();
+    }
+
+    public TournamentAPI(ConnectionProvider provider) {
+        this.provider = provider;
+    }
+
     @GET
     @Path("{id}")
     @Produces("application/json")
@@ -31,7 +41,7 @@ public class TournamentAPI
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT TournamentId, TournamentName, LeagueId, Description FROM Tournament " +
                     "WHERE TournamentId = ?");
             stmt.setInt(1, tournamentId);
@@ -81,7 +91,7 @@ public class TournamentAPI
      * @param tournament
      * @return a JSON response bean
      */
-    public static ResponseBean createDBTournament(TournamentBean tournament) {
+    public ResponseBean createDBTournament(TournamentBean tournament) {
         int status = 200;
         String message = tournament.validate();
         if (!message.isEmpty()) {
@@ -93,7 +103,7 @@ public class TournamentAPI
         ResultSet rs = null;
         int tournamentID = -1;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for League
             if ((message = verifyTournamentComponents(tournament, conn)) != null) {
@@ -167,7 +177,7 @@ public class TournamentAPI
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
 
             // first, check for existence of any teams or players
             if ((message = verifyTournamentComponents(tournament, conn)) != null) {
@@ -207,7 +217,7 @@ public class TournamentAPI
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("DELETE FROM Tournament WHERE TournamentId = ?");
             stmt.setInt(1, id);
             int res = stmt.executeUpdate();

@@ -8,6 +8,11 @@ import java.sql.ResultSet;
  * Utilities for determining availability of actions to a user.
  */
 public class PrivilegeUtil {
+    private static ConnectionProvider provider = ConnectionManager.getInstance();
+
+    public static void setConnectionProvider(ConnectionProvider provider) {
+        PrivilegeUtil.provider = provider;
+    }
 
     /**
      * A user must be the team/league owner of an organization to which the
@@ -27,7 +32,7 @@ public class PrivilegeUtil {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getInstance().getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT COUNT(p1.Login) FROM " +
                     "Player p1 INNER JOIN PlaysFor pf ON p1.Login = pf.Login " +
                     "INNER JOIN Team t ON t.TeamId = pf.TeamID " +
