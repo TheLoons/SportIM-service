@@ -10,6 +10,7 @@
                 <Set name="password"><Env name="DATABASE_PWD"/></Set>
                 <Set name="maxPoolSize">32</Set>
                 <Set name="maxIdleTime">3600</Set>
+                <Set name="maxConnectionAge">3600</Set>
                 <Set name="preferredTestQuery">SELECT 1</Set>
                 <Set name="testConnectionOnCheckin">true</Set>
             </New>
