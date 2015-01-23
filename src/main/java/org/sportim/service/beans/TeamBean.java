@@ -17,6 +17,7 @@ public class TeamBean {
     private String name;
     private String owner;
     private List<UserBean> players;
+    private String sport;
 
     public TeamBean(){
     }
@@ -25,6 +26,7 @@ public class TeamBean {
         id = rs.getInt("t1.TeamId");
         name = rs.getString(2);
         owner = rs.getString(3);
+        sport = rs.getString(4);
     }
 
     @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
@@ -62,5 +64,13 @@ public class TeamBean {
             return "Team Name is required";
         }
         return "";
+    }
+
+    public String getSport() {
+        return sport;
+    }
+
+    public void setSport(String sport) {
+        this.sport = sport;
     }
 }

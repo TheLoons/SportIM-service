@@ -57,7 +57,7 @@ public class SingleEventAPI {
             }
             APIUtils.closeResource(stmt);
 
-            stmt = conn.prepareStatement("select t1.TeamId, t1.TeamName, t1.TeamOwner from Team t1 join TeamEvent te where te.EventId = ? and te.TeamId = t1.TeamId");
+            stmt = conn.prepareStatement("select t1.TeamId, t1.TeamName, t1.TeamOwner, t1.Sport from Team t1 join TeamEvent te where te.EventId = ? and te.TeamId = t1.TeamId");
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
             while(rs.next()) {
@@ -82,12 +82,9 @@ public class SingleEventAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -202,7 +199,7 @@ public class SingleEventAPI {
 
     /**
      * Create a new event in the database
-     * @param event
+     * @param event event to create
      * @return a JSON response bean
      */
     public static ResponseBean createDBEvent(EventBean event, ConnectionProvider provider) {
@@ -304,7 +301,7 @@ public class SingleEventAPI {
 
     /**
      * Create the update queries based on an event bean
-     * @param event
+     * @param event event to update
      * @return set of queries mapped to whether or not the query is a batch
      */
     private List<PreparedStatement> createUpdateQueries(EventBean event, Connection conn) throws SQLException {
@@ -382,7 +379,6 @@ public class SingleEventAPI {
 
         if (status == 200 && event.getTournamentID() > 0) {
             if (!verifyTournament(event.getTournamentID(), conn)) {
-                status = 422;
                 message = "Non-existent tournament ID specified.";
             }
         }
@@ -391,8 +387,8 @@ public class SingleEventAPI {
 
     /**
      * Make sure the teams exist in the database
-     * @param teams
-     * @param conn
+     * @param teams teams to verify
+     * @param conn connection to use
      * @return true if all teams exist
      * @throws SQLException
      */
@@ -414,8 +410,8 @@ public class SingleEventAPI {
 
     /**
      * Make sure the players exist in the database
-     * @param players
-     * @param conn
+     * @param players players to validate
+     * @param conn connection to use
      * @return true if all players exist
      * @throws SQLException
      */
@@ -437,8 +433,8 @@ public class SingleEventAPI {
 
     /**
      * Make sure the tournament exists in the database
-     * @param tournamentID
-     * @param conn
+     * @param tournamentID tournament ID to check
+     * @param conn connection to use
      * @return true if the tournament exists
      * @throws SQLException
      */
@@ -457,8 +453,8 @@ public class SingleEventAPI {
 
     /**
      * Add an event to the event table
-     * @param event
-     * @param conn
+     * @param event event to add
+     * @param conn connection to use
      * @return the auto-generated event ID
      * @throws SQLException
      */

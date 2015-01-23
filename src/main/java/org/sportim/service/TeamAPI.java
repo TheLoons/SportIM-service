@@ -14,12 +14,10 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
-
-@Path("/team")
-
 /**
- * Created by Doug on 12/7/14.
+ * API for team management.
  */
+@Path("/team")
 public class TeamAPI {
     private ConnectionProvider provider;
 
@@ -45,7 +43,7 @@ public class TeamAPI {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1 " +
+            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner, t1.Sport FROM Team t1 " +
                     "WHERE t1.TeamId = ?");
             stmt.setInt(1, teamId);
             rs = stmt.executeQuery();
@@ -109,7 +107,7 @@ public class TeamAPI {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner FROM Team t1, TeamBelongsTo l " +
+            stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner, t1.Sport FROM Team t1, TeamBelongsTo l " +
                     "WHERE l.LeagueId = ? AND t1.TeamId = l.TeamId");
             stmt.setInt(1, leagueID);
             rs = stmt.executeQuery();
@@ -158,8 +156,6 @@ public class TeamAPI {
         }
 
         Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         int teamID = -1;
         try {
             conn = provider.getConnection();
@@ -192,12 +188,7 @@ public class TeamAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResource(conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -471,10 +462,11 @@ public class TeamAPI {
      * @throws SQLException
      */
     private static int addTeam(TeamBean team, Connection conn) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO Team (TeamName, TeamOwner) " +
-                "VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO Team (TeamName, TeamOwner, Sport) " +
+                "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, team.getName());
         stmt.setString(2, team.getOwner());
+        stmt.setString(3, team.getSport());
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();
 
@@ -497,11 +489,12 @@ public class TeamAPI {
 
         // update team stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Team " +
-                "SET TeamName = ?, TeamOwner = ?" +
+                "SET TeamName = ?, TeamOwner = ?, Sport = ? " +
                 "WHERE TeamId = ?");
         stmt.setString(1, team.getName());
         stmt.setString(2, team.getOwner());
-        stmt.setInt(3, team.getId());
+        stmt.setString(3, team.getSport());
+        stmt.setInt(4, team.getId());
         stmt.addBatch();
         stmts.add(stmt);
         return stmts;
