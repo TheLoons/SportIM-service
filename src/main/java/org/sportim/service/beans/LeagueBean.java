@@ -19,14 +19,16 @@ public class LeagueBean {
     private String name;
     private String owner;
     private List<TeamBean> teams;
+    private String sport;
 
     public LeagueBean(){
     }
 
     public LeagueBean(ResultSet rs) throws SQLException {
-        id = rs.getInt("t1.TeamId");
+        id = rs.getInt(1);
         name = rs.getString(2);
         owner = rs.getString(3);
+        sport = rs.getString(4);
     }
 
     @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
@@ -68,5 +70,13 @@ public class LeagueBean {
             return "League Name is required";
         }
         return "";
+    }
+
+    public String getSport() {
+        return sport;
+    }
+
+    public void setSport(String sport) {
+        this.sport = sport;
     }
 }

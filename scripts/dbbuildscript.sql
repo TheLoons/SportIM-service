@@ -18,6 +18,7 @@ CREATE TABLE Team(
     TeamOwner VARCHAR(50), 
         FOREIGN KEY (TeamOwner) 
         REFERENCES Player(Login), 
+    Sport VARCHAR(50),
     PRIMARY KEY(TeamId)
 );
 
@@ -38,6 +39,7 @@ CREATE TABLE League(
     LeagueName VARCHAR(50), 
     LeagueOwner VARCHAR(50), 
         FOREIGN KEY (LeagueOwner) REFERENCES Player (Login), 
+    Sport VARCHAR(50),
     PRIMARY KEY (LeagueId)
 );
 
