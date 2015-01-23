@@ -13,8 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by Doug on 1/19/15.
+ * API for league management
  */
+@Path("/league")
 public class LeagueAPI {
     private ConnectionProvider provider;
 
@@ -40,7 +41,7 @@ public class LeagueAPI {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT LeagueId, LeagueName, LeagueId, Description FROM League " +
+            stmt = conn.prepareStatement("SELECT LeagueId, LeagueName, LeagueOwner, Sport FROM League " +
                     "WHERE LeagueId = ?");
             stmt.setInt(1, leagueId);
             rs = stmt.executeQuery();
@@ -60,12 +61,9 @@ public class LeagueAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -87,7 +85,7 @@ public class LeagueAPI {
 
     /**
      * Create a new league in the database
-     * @param league
+     * @param league the league to create
      * @return a JSON response bean
      */
     public ResponseBean createDBLeague(LeagueBean league) {
@@ -98,8 +96,6 @@ public class LeagueAPI {
         }
 
         Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         int leagueID = -1;
         try {
             conn = provider.getConnection();
@@ -132,12 +128,7 @@ public class LeagueAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResource(conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -238,7 +229,7 @@ public class LeagueAPI {
 
     /**
      * Create the update queries based on a league bean
-     * @param league
+     * @param league the league to create queries for
      * @return set of queries mapped to whether or not the query is a batch
      */
     private List<PreparedStatement> createUpdateQueries(LeagueBean league, Connection conn) throws SQLException {
@@ -246,10 +237,12 @@ public class LeagueAPI {
 
         // update league stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE League " +
-                "SET LeagueName = ?, LeagueOwner = ?" +
+                "SET LeagueName = ?, LeagueOwner = ?, Sport = ? " +
                 "WHERE LeagueId = ?");
         stmt.setString(1, league.getLeagueName());
         stmt.setString(2, league.getLeagueOwner());
+        stmt.setString(3, league.getSport());
+        stmt.setInt(4, league.getLeagueId());
         stmt.addBatch();
         stmts.add(stmt);
         return stmts;
@@ -258,10 +251,8 @@ public class LeagueAPI {
     private static String verifyLeagueComponents(LeagueBean league, Connection conn) throws SQLException {
 
         String message = null;
-        int status = 200;
-        if (status == 200 && league.getLeagueId() > 0) {
+        if (league.getLeagueId() > 0) {
             if (!verifyLeague(league.getLeagueId(), conn)) {
-                status = 422;
                 message = "Non-existent league ID specified.";
             }
         }
@@ -270,8 +261,8 @@ public class LeagueAPI {
 
     /**
      * Make sure the league exists in the database
-     * @param leagueID
-     * @param conn
+     * @param leagueID ID of the league to verify
+     * @param conn the connection to use
      * @return true if the league exists
      * @throws java.sql.SQLException
      */
@@ -290,16 +281,17 @@ public class LeagueAPI {
 
     /**
      * Add a league to the league table
-     * @param league
-     * @param conn
+     * @param league league to add
+     * @param conn connection to use
      * @return the auto-generated league ID
      * @throws java.sql.SQLException
      */
     private static int addLeague(LeagueBean league, Connection conn) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO League (LeagueName, LeagueOwner) " +
-                "VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO League (LeagueName, LeagueOwner, Sport) " +
+                "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, league.getLeagueName());
         stmt.setString(2, league.getLeagueOwner());
+        stmt.setString(3, league.getSport());
 
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();
