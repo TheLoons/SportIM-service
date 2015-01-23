@@ -134,30 +134,20 @@ public class LeagueAPI {
         return resp;
     }
 
-    @POST
-    @Consumes("application/json")
+    @PUT
+    @Path("{leagueId}")
     @Produces("application/json")
-    public ResponseBean addTeamToLeague(LeagueBean league, TeamBean team, @QueryParam("id") final int id, @QueryParam("teamId") final int teamId)
-    {
-        league.setLeagueId(id);
-        team.setId(teamId);
-        return addTeamToLeague(league, team);
-    }
-
-    @POST
-    @Consumes("application/json")
-    @Produces("application/json")
-    public ResponseBean addTeamToLeague(LeagueBean league, TeamBean team)
+    public ResponseBean addTeamToLeague(@QueryParam("teamId") final int teamId, @PathParam("leagueId") final int leagueId)
     {
         int status = 200;
         String message = "";
-        if(team.getId() < 1)
+        if(teamId < 1)
         {
             status =  400;
             message = "Invalid team ID";
             return new ResponseBean(status, message);
         }
-        if(league.getLeagueId() < 1)
+        if(leagueId < 1)
         {
             status = 400;
             message = "Invalid League Id";
@@ -166,40 +156,35 @@ public class LeagueAPI {
 
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         try {
             conn = ConnectionManager.getInstance().getConnection();
 
 
             // now, create the event and add any lookups
             conn.setAutoCommit(false);
-            if (status == 200)
-            {
-                if(!verifyTeam(team, conn).isEmpty())
-                {
-                    message = "Team Not Found";
-                    status = 404;
-                }
-            }
-            if(status == 200)
-            {
-                if(!verifyLeague(league.getLeagueId(), conn))
-                {
-                    status = 404;
-                    message = "League Not Found";
-                }
-            }
+//            if (status == 200)
+//            {
+//                if(!verifyTeam(teamId, conn).isEmpty())
+//                {
+//                    message = "Team Not Found";
+//                    status = 404;
+//                }
+//            }
+//            if(status == 200)
+//            {
+//                if(!verifyLeague(leagueId, conn))
+//                {
+//                    status = 404;
+//                    message = "League Not Found";
+//                }
+//            }
             if(status == 200)
             {
                 stmt = conn.prepareStatement("INSERT INTO TeamBelongsTo(TeamID, LeagueId) Values (?, ?)");
-                stmt.setInt(1, league.getLeagueId());
-                stmt.setInt(2, team.getId());
-                rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    status = 500;
-                    message = "Unable to link team to League.";
-                }
+                stmt.setInt(1, leagueId);
+                stmt.setInt(2, leagueId);
+                stmt.executeUpdate();
+
             }
             if (status == 200) {
                 conn.commit();
@@ -215,8 +200,7 @@ public class LeagueAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
+            boolean ok = APIUtils.closeResource(stmt);
             ok = ok && APIUtils.closeResource(conn);
             if (!ok) {
                 // TODO implement Log4j 2 and log out error
@@ -329,7 +313,7 @@ public class LeagueAPI {
         try
         {
             conn = ConnectionManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("DELETE  FROM TeamBelongsTo WHERE LeagueId = ? AND TeamId = ?");
+            stmt = conn.prepareStatement("DELETE FROM TeamBelongsTo WHERE LeagueId = ? AND TeamId = ?");
             stmt.setInt(1, leagueId);
             stmt.setInt(2, teamId);
             int res = stmt.executeUpdate();
@@ -374,13 +358,13 @@ public class LeagueAPI {
         return stmts;
     }
 
-    private static String verifyTeam(TeamBean team, Connection conn) throws SQLException
+    private static String verifyTeam(int teamId, Connection conn) throws SQLException
     {
         String message = null;
-        if(team.getId() > 0)
+        if(teamId > 0)
         {
             PreparedStatement stmt = conn.prepareStatement("SELECT  COUNT (TeamId) FROM Team Where TeamId = ?");
-            stmt.setInt(1, team.getId());
+            stmt.setInt(1, teamId);
             ResultSet rs = stmt.executeQuery();
             if(rs.next() && rs.getInt(1) != 1)
             {
