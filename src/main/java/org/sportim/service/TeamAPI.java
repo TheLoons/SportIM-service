@@ -4,9 +4,7 @@ import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TeamBean;
 import org.sportim.service.beans.UserBean;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 
@@ -32,8 +30,12 @@ public class TeamAPI {
     @GET
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean getTeam(@PathParam("id") final int teamId)
+    public ResponseBean getTeam(@PathParam("id") final int teamId, @HeaderParam("token") final String token)
     {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         List<UserBean> players = new LinkedList<UserBean>();
         String message = "";
@@ -97,8 +99,12 @@ public class TeamAPI {
 
     @GET
     @Produces("application/json")
-    public ResponseBean getTeams(@QueryParam(value="league") final int leagueID)
+    public ResponseBean getTeams(@QueryParam(value="league") final int leagueID, @HeaderParam("token") final String token)
     {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
         List<TeamBean> teams = new LinkedList<TeamBean>();
@@ -139,7 +145,11 @@ public class TeamAPI {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean createTeam(TeamBean team) {
+    public ResponseBean createTeam(TeamBean team, @HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null || !user.equals(team.getOwner())) {
+            return new ResponseBean(401, "Not authorized");
+        }
         return createDBTeam(team);
     }
 
@@ -199,8 +209,13 @@ public class TeamAPI {
     @PUT
     @Path("{teamid}")
     @Produces("application/json")
-    public ResponseBean addPlayerToTeam(@PathParam("teamid") final int id, @QueryParam("login") final String playerLogin)
+    public ResponseBean addPlayerToTeam(@PathParam("teamid") final int id, @QueryParam("login") final String playerLogin,
+                                        @HeaderParam("token") final String token)
     {
+        if (!PrivilegeUtil.hasTeamUpdate(token, id)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
         TeamBean team = new TeamBean();
@@ -270,15 +285,19 @@ public class TeamAPI {
     @Path("{id}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateTeam(TeamBean team, @PathParam("id") final int id) {
+    public ResponseBean updateTeam(TeamBean team, @PathParam("id") final int id, @HeaderParam("token") final String token) {
         team.setId(id);
-        return updateTeam(team);
+        return updateTeam(team, token);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateTeam(TeamBean team) {
+    public ResponseBean updateTeam(TeamBean team, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasTeamUpdate(token, team.getId())) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -328,8 +347,13 @@ public class TeamAPI {
 
     @DELETE
     @Produces("application/json")
-    public ResponseBean removePlayerFromTeam(@QueryParam("login") final String login, @QueryParam("teamId") final int teamId)
+    public ResponseBean removePlayerFromTeam(@QueryParam("login") final String login, @QueryParam("teamId") final int teamId,
+                                             @HeaderParam("token") final String token)
     {
+        if (!PrivilegeUtil.hasTeamUpdate(token, teamId)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -365,7 +389,11 @@ public class TeamAPI {
     @DELETE
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean deleteTeam(@PathParam("id") final int id) {
+    public ResponseBean deleteTeam(@PathParam("id") final int id, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasTeamUpdate(token, id)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 

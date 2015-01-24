@@ -59,9 +59,118 @@ public class PrivilegeUtil {
         return ok;
     }
 
+    /**
+     * Check if a user can update the given user
+     * @param token the user's token
+     * @param userToUpdate the user to update
+     * @return true if user can update
+     */
     public static boolean hasUserUpdate(String token, String userToUpdate) {
         // This is simple for now - users can only update themselves
         String user = AuthenticationUtil.validateToken(token);
         return user != null && user.equals(userToUpdate);
+    }
+
+    /**
+     * Check if a user can update a league
+     * @param token the user's token
+     * @param leagueID the league ID
+     * @return true if the user can update
+     */
+    public static boolean hasLeagueUpdate(String token, int leagueID) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return false;
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        boolean res = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT COUNT(LeagueId) FROM League WHERE LeagueOwner = ? AND LeagueId = ?");
+            stmt.setString(1, user);
+            stmt.setInt(2, leagueID);
+            rs = stmt.executeQuery();
+            res = rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return res;
+    }
+
+    /**
+     * Check if a user can update a team
+     * @param token the user's token
+     * @param teamID the team ID
+     * @return true if the user can update
+     */
+    public static boolean hasTeamUpdate(String token, int teamID) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return false;
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        boolean res = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT COUNT(TeamId) FROM Team WHERE TeamOwner = ? AND TeamId = ?");
+            stmt.setString(1, user);
+            stmt.setInt(2, teamID);
+            rs = stmt.executeQuery();
+            res = rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return res;
+    }
+
+    /**
+     * Check if a user can update a tournament
+     * @param token the user's token
+     * @param tournamentID the tournament ID
+     * @return true if the user can update
+     */
+    public static boolean hasTournamentUpdate(String token, int tournamentID) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return false;
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        boolean res = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT COUNT(t.TournamentId) FROM Tournament t INNER JOIN League l " +
+                    "WHERE l.LeagueOwner = ? AND t.TournamentId = ?");
+            stmt.setString(1, user);
+            stmt.setInt(2, tournamentID);
+            rs = stmt.executeQuery();
+            res = rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return res;
     }
 }

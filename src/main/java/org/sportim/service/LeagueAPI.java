@@ -1,9 +1,7 @@
 package org.sportim.service;
 
 import org.sportim.service.beans.*;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 import java.sql.*;
@@ -28,12 +26,16 @@ public class LeagueAPI {
     @GET
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean getLeague(@PathParam("id") final int leagueId)
+    public ResponseBean getLeague(@PathParam("id") final int leagueId, @HeaderParam("token") final String token)
     {
+        // any user can see league info
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
         LeagueBean league = null;
-        // TODO only return authorized leagues via auth token
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -77,7 +79,12 @@ public class LeagueAPI {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean createLeague(LeagueBean league) {
+    public ResponseBean createLeague(LeagueBean league, @HeaderParam("token") final String token) {
+        // only the to-be owner can create a league
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null || !user.equals(league.getLeagueOwner())) {
+            return new ResponseBean(401, "Not authorized");
+        }
         return createDBLeague(league);
     }
 
@@ -137,8 +144,13 @@ public class LeagueAPI {
     @PUT
     @Path("{leagueId}")
     @Produces("application/json")
-    public ResponseBean addTeamToLeague(@QueryParam("teamId") final int teamId, @PathParam("leagueId") final int leagueId)
+    public ResponseBean addTeamToLeague(@QueryParam("teamId") final int teamId, @PathParam("leagueId") final int leagueId,
+                                        @HeaderParam("token") final String token)
     {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, leagueId)) {
+             return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
         if(teamId < 1)
@@ -162,22 +174,22 @@ public class LeagueAPI {
 
             // now, create the event and add any lookups
             conn.setAutoCommit(false);
-//            if (status == 200)
-//            {
-//                if(!verifyTeam(teamId, conn).isEmpty())
-//                {
-//                    message = "Team Not Found";
-//                    status = 404;
-//                }
-//            }
-//            if(status == 200)
-//            {
-//                if(!verifyLeague(leagueId, conn))
-//                {
-//                    status = 404;
-//                    message = "League Not Found";
-//                }
-//            }
+            if (status == 200)
+            {
+                if(!verifyTeam(teamId, conn))
+                {
+                    message = "Team Not Found";
+                    status = 404;
+                }
+            }
+            if(status == 200)
+            {
+                if(!verifyLeague(leagueId, conn))
+                {
+                    status = 404;
+                    message = "League Not Found";
+                }
+            }
             if(status == 200)
             {
                 stmt = conn.prepareStatement("INSERT INTO TeamBelongsTo(TeamID, LeagueId) Values (?, ?)");
@@ -206,23 +218,27 @@ public class LeagueAPI {
                 // TODO implement Log4j 2 and log out error
             }
         }
-        ResponseBean resp = new ResponseBean(status, message);
-        return resp;
+        return new ResponseBean(status, message);
     }
 
     @PUT
     @Path("{id}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateLeague(LeagueBean league, @PathParam("id") final int id) {
+    public ResponseBean updateLeague(LeagueBean league, @PathParam("id") final int id,
+                                     @HeaderParam("token") final String token) {
         league.setLeagueId(id);
-        return updateLeague(league);
+        return updateLeague(league, token);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateLeague(LeagueBean league) {
+    public ResponseBean updateLeague(LeagueBean league, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, league.getLeagueId())) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -273,7 +289,11 @@ public class LeagueAPI {
     @DELETE
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean deleteLeague(@PathParam("id") final int id) {
+    public ResponseBean deleteLeague(@PathParam("id") final int id, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, id)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -303,8 +323,14 @@ public class LeagueAPI {
 
     @DELETE
     @Produces("application/json")
-    public ResponseBean removeTeamFromLeague(@QueryParam("leagueId") final int leagueId, @QueryParam("teamId") final int teamId)
+    public ResponseBean removeTeamFromLeague(@QueryParam("leagueId") final int leagueId,
+                                             @QueryParam("teamId") final int teamId,
+                                             @HeaderParam("token") final String token)
     {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, leagueId)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -358,9 +384,9 @@ public class LeagueAPI {
         return stmts;
     }
 
-    private static String verifyTeam(int teamId, Connection conn) throws SQLException
+    private static boolean verifyTeam(int teamId, Connection conn) throws SQLException
     {
-        String message = null;
+        boolean res = true;
         if(teamId > 0)
         {
             PreparedStatement stmt = conn.prepareStatement("SELECT  COUNT (TeamId) FROM Team Where TeamId = ?");
@@ -368,18 +394,20 @@ public class LeagueAPI {
             ResultSet rs = stmt.executeQuery();
             if(rs.next() && rs.getInt(1) != 1)
             {
-                message = "Team not available";
+                res = true;
             }
         }
-        return message;
+        return res;
     }
 
     private static String verifyLeagueComponents(LeagueBean league, Connection conn) throws SQLException {
-
         String message = null;
         if (league.getLeagueId() > 0) {
             if (!verifyLeague(league.getLeagueId(), conn)) {
                 message = "Non-existent league ID specified.";
+            }
+            if (!verifyOwner(league.getLeagueOwner(), conn)) {
+                message = "Non-existent league owner specified.";
             }
         }
         return message;
@@ -400,6 +428,16 @@ public class LeagueAPI {
         if (rs.next() && rs.getInt(1) != 1) {
             res = false;
         }
+        APIUtils.closeResource(rs);
+        APIUtils.closeResource(stmt);
+        return res;
+    }
+
+    private static boolean verifyOwner(String owner, Connection conn) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(Login) FROM Player WHERE Login = ?");
+        stmt.setString(1, owner);
+        ResultSet rs = stmt.executeQuery();
+        boolean res = rs.next() && rs.getInt(1) == 1;
         APIUtils.closeResource(rs);
         APIUtils.closeResource(stmt);
         return res;

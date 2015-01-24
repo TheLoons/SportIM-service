@@ -3,9 +3,7 @@ package org.sportim.service;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TournamentBean;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 
@@ -31,8 +29,11 @@ public class TournamentAPI {
     @GET
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean getTournament(@PathParam("id") final int tournamentId)
+    public ResponseBean getTournament(@PathParam("id") final int tournamentId, @HeaderParam("token") final String token)
     {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
         int status = 200;
         String message = "";
         TournamentBean tournament = null;
@@ -82,7 +83,10 @@ public class TournamentAPI {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean createTournament(TournamentBean tournament) {
+    public ResponseBean createTournament(TournamentBean tournament, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, tournament.getLeagueId())) {
+            return new ResponseBean(401, "Not authorized");
+        }
         return createDBTournament(tournament);
     }
 
@@ -150,15 +154,20 @@ public class TournamentAPI {
     @Path("{id}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateTournament(TournamentBean tournament, @PathParam("id") final int id) {
+    public ResponseBean updateTournament(TournamentBean tournament, @PathParam("id") final int id,
+                                         @HeaderParam("token") final String token) {
         tournament.setTournamentID(id);
-        return updateTournament(tournament);
+        return updateTournament(tournament, token);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateTournament(TournamentBean tournament) {
+    public ResponseBean updateTournament(TournamentBean tournament, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasTournamentUpdate(token, tournament.getTournamentID())) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -209,7 +218,11 @@ public class TournamentAPI {
     @DELETE
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean deleteTournament(@PathParam("id") final int id) {
+    public ResponseBean deleteTournament(@PathParam("id") final int id, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasTournamentUpdate(token, id)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
