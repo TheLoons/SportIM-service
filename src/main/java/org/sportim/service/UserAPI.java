@@ -32,7 +32,7 @@ public class UserAPI {
     @Path("{login}")
     @Produces("application/json")
     public ResponseBean getUser(@PathParam("login") final String login, @HeaderParam("token") final String token) {
-        return getUser(login, token);
+        return getUserQuery(login, token);
     }
 
     @GET

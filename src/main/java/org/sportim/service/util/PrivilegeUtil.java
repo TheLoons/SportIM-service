@@ -27,6 +27,10 @@ public class PrivilegeUtil {
             return false;
         }
 
+        if (user.equals(userToView)) {
+            return true;
+        }
+
         boolean ok = false;
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -44,11 +48,8 @@ public class PrivilegeUtil {
             stmt.setString(2, user);
             stmt.setString(3, user);
             rs = stmt.executeQuery();
-            if (rs.next()) {
-                ok = rs.getInt(1) > 0;
-            }
+            ok = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            ok = false;
             // TODO log4j
             e.printStackTrace();
         } finally {
