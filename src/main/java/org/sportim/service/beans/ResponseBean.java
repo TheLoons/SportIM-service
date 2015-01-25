@@ -20,6 +20,7 @@ public class ResponseBean {
     private int id = -1;
     private List<Integer> ids;
     private String token;
+    private String session;
 
     public ResponseBean(){
     }
@@ -109,5 +110,13 @@ public class ResponseBean {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
     }
 }

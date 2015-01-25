@@ -1,4 +1,4 @@
-package org.sportim.service;
+package org.sportim.service.api;
 
 import org.json.JSONObject;
 

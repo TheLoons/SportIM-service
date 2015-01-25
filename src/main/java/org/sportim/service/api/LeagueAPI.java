@@ -1,4 +1,4 @@
-package org.sportim.service;
+package org.sportim.service.api;
 
 import org.sportim.service.beans.*;
 import org.sportim.service.util.*;

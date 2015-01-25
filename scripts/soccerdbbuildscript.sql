@@ -19,3 +19,8 @@ CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `yellow` INT NOT NULL,
   PRIMARY KEY (`eventID`, `player`));
 
+CREATE TABLE IF NOT EXISTS `SoccerSessions` (
+  `eventID` INT NOT NULL,
+  `sessionID` VARCHAR(255),
+  PRIMARY KEY (`eventID`)
+);

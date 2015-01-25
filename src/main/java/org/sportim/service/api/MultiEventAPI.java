@@ -1,4 +1,4 @@
-package org.sportim.service;
+package org.sportim.service.api;
 
 import org.joda.time.DateTime;
 import org.sportim.service.beans.EventBean;

@@ -9,9 +9,23 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>org.sportim.service</param-value>
+            <param-value>org.sportim.service.api</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>SportIM Soccer Stats</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>org.sportim.service.soccer</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SportIM Soccer Stats</servlet-name>
+        <url-pattern>/soccer/*</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SportIM Service</servlet-name>
         <url-pattern>/rest/*</url-pattern>
