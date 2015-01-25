@@ -171,7 +171,6 @@ public class LeagueAPI {
         try {
             conn = ConnectionManager.getInstance().getConnection();
 
-
             // now, create the event and add any lookups
             conn.setAutoCommit(false);
             if (status == 200)

@@ -158,11 +158,61 @@ public class PrivilegeUtil {
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT COUNT(t.TournamentId) FROM Tournament t INNER JOIN League l " +
+                    "ON t.LeagueId = l.LeagueId " +
                     "WHERE l.LeagueOwner = ? AND t.TournamentId = ?");
             stmt.setString(1, user);
             stmt.setInt(2, tournamentID);
             rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return res;
+    }
+
+    /**
+     * Check if a user has view rights to an event
+     * @param token the user's token
+     * @param eventID the event ID to check
+     * @return true if the user can view
+     */
+    public static boolean hasEventView(String token, int eventID) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return false;
+        }
+
+        boolean res = false;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT COUNT(p.Login) FROM Player p INNER JOIN PlayerEvent pe " +
+                    "ON p.Login = pe.Login " +
+                    "INNER JOIN Event e ON e.EventId = pe.EventId " +
+                    "WHERE pe.EventId = ? AND p.Login = ?");
+            stmt.setInt(1, eventID);
+            stmt.setString(2, user);
+            rs = stmt.executeQuery();
+            res = rs.next() && rs.getInt(1) > 0;
+            if (!res) {
+                APIUtils.closeResource(rs);
+                APIUtils.closeResource(stmt);
+                stmt = conn.prepareStatement("SELECT COUNT(p.Login) FROM Player p INNER JOIN PlaysFor pf " +
+                        "ON p.Login = pf.Login " +
+                        "INNER JOIN TeamEvent te ON te.TeamId = pf.TeamID " +
+                        "WHERE te.EventId = ? and p.Login = ?");
+                stmt.setInt(1, eventID);
+                stmt.setString(2, user);
+                rs = stmt.executeQuery();
+                res = rs.next() && rs.getInt(1) > 0;
+            }
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
