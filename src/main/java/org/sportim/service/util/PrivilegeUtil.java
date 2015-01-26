@@ -194,14 +194,25 @@ public class PrivilegeUtil {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT COUNT(p.Login) FROM Player p INNER JOIN PlayerEvent pe " +
-                    "ON p.Login = pe.Login " +
-                    "INNER JOIN Event e ON e.EventId = pe.EventId " +
-                    "WHERE pe.EventId = ? AND p.Login = ?");
+            stmt = conn.prepareStatement("SELECT COUNT(EventOwner) FROM Event WHERE EventId = ? AND EventOwner = ?");
             stmt.setInt(1, eventID);
             stmt.setString(2, user);
             rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
+
+            if (!res) {
+                APIUtils.closeResource(rs);
+                APIUtils.closeResource(stmt);
+                stmt = conn.prepareStatement("SELECT COUNT(p.Login) FROM Player p INNER JOIN PlayerEvent pe " +
+                        "ON p.Login = pe.Login " +
+                        "INNER JOIN Event e ON e.EventId = pe.EventId " +
+                        "WHERE pe.EventId = ? AND p.Login = ?");
+                stmt.setInt(1, eventID);
+                stmt.setString(2, user);
+                rs = stmt.executeQuery();
+                res = rs.next() && rs.getInt(1) > 0;
+            }
+            
             if (!res) {
                 APIUtils.closeResource(rs);
                 APIUtils.closeResource(stmt);
@@ -214,6 +225,39 @@ public class PrivilegeUtil {
                 rs = stmt.executeQuery();
                 res = rs.next() && rs.getInt(1) > 0;
             }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return res;
+    }
+
+    /**
+     * Check if a user can update an event
+     * @param token the user's token
+     * @param eventID the event id
+     * @return true if the user can update the event
+     */
+    public static boolean hasEventUpdate(String token, int eventID) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return false;
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        boolean res = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT COUNT(EventOwner) FROM Event WHERE EventId = ? AND EventOwner = ?");
+            stmt.setInt(1, eventID);
+            stmt.setString(2, user);
+            res = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();

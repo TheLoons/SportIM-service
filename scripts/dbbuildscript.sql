@@ -66,11 +66,14 @@ CREATE TABLE Tournament(
 
 CREATE TABLE Event(
     EventId INTEGER NOT NULL AUTO_INCREMENT, 
+	EventOwner VARCHAR(50),
     EventName VARCHAR (50), 
     StartDate BIGINT NOT NULL, 
     EndDate BIGINT NOT NULL, 
     TournamentId INTEGER, 
-        FOREIGN KEY (TournamentId) REFERENCES Tournament (TournamentId), 
+	FOREIGN KEY (TournamentId) REFERENCES Tournament (TournamentId), 
+    FOREIGN KEY (EventOwner) REFERENCES Player (Login)
+        ON UPDATE CASCADE,
     PRIMARY KEY(EventId)
 );
 

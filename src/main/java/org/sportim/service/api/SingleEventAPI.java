@@ -1,9 +1,7 @@
 package org.sportim.service.api;
 
 import org.sportim.service.beans.*;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 
@@ -29,12 +27,15 @@ public class SingleEventAPI {
     @GET
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean getEvent(@PathParam("id") final int id)
+    public ResponseBean getEvent(@PathParam("id") final int id, @HeaderParam("token") final String token)
 	{
+        if (!PrivilegeUtil.hasEventView(token, id)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
-        // TODO only return authorized events via auth token
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -43,7 +44,7 @@ public class SingleEventAPI {
         List<UserBean> players = new LinkedList<UserBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
+            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner FROM Event " +
                                          "WHERE EventId = ?");
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
@@ -102,7 +103,11 @@ public class SingleEventAPI {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean createEvent(EventBean event) {
+    public ResponseBean createEvent(EventBean event, @HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null || !user.equals(event.getOwner())) {
+            return new ResponseBean(401, "Not authorized");
+        }
         return createDBEvent(event, provider);
     }
 
@@ -110,15 +115,20 @@ public class SingleEventAPI {
     @Path("{id}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateEvent(EventBean event, @PathParam("id") final int id) {
+    public ResponseBean updateEvent(EventBean event, @PathParam("id") final int id,
+                                    @HeaderParam("token") final String token) {
         event.setId(id);
-        return updateEvent(event);
+        return updateEvent(event, token);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateEvent(EventBean event) {
+    public ResponseBean updateEvent(EventBean event, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasEventUpdate(token, event.getId())) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -133,7 +143,6 @@ public class SingleEventAPI {
             return new ResponseBean(status, message);
         }
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -169,11 +178,13 @@ public class SingleEventAPI {
     @DELETE
     @Path("{id}")
     @Produces("application/json")
-    public ResponseBean deleteEvent(@PathParam("id") final int id) {
+    public ResponseBean deleteEvent(@PathParam("id") final int id, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasEventUpdate(token, id)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
-
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -309,7 +320,7 @@ public class SingleEventAPI {
 
         // update event stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
-                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ? " +
+                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, EventOwner = ? " +
                 "WHERE EventId = ?");
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
@@ -319,7 +330,8 @@ public class SingleEventAPI {
         } else {
             stmt.setNull(4, Types.INTEGER);
         }
-        stmt.setInt(5, event.getId());
+        stmt.setString(5, event.getOwner());
+        stmt.setInt(6, event.getId());
         stmt.addBatch();
         stmts.add(stmt);
 
@@ -371,6 +383,7 @@ public class SingleEventAPI {
         }
 
         if (status == 200 && players != null && !players.isEmpty()) {
+            players.add(event.getOwner());
             if (!verifyPlayers(players, conn)) {
                 status = 422;
                 message = "Non-existent player ID specified.";
@@ -459,8 +472,8 @@ public class SingleEventAPI {
      * @throws SQLException
      */
     private static int addEvent(EventBean event, Connection conn) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO Event (EventName, StartDate, EndDate, TournamentId) " +
-                "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO Event (EventName, StartDate, EndDate, TournamentId, " +
+                "EventOwner) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
         stmt.setLong(3, event.getEndMillis());
@@ -470,6 +483,7 @@ public class SingleEventAPI {
         else {
             stmt.setNull(4, Types.INTEGER);
         }
+        stmt.setString(5, event.getOwner());
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();
 

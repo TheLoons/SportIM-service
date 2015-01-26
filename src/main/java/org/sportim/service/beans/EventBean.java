@@ -16,6 +16,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class EventBean {
     private String title;
+    private String owner;
     private long start;
     private long end;
     private List<Integer> teamIDs;
@@ -34,6 +35,7 @@ public class EventBean {
         end = rs.getLong(3);
         tournamentID = rs.getInt(4);
         id = rs.getInt(5);
+        owner = rs.getString(6);
     }
 
     public String getTitle() {
@@ -124,5 +126,13 @@ public class EventBean {
 
     public void setPlayers(List<UserBean> players) {
         this.players = players;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

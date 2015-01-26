@@ -78,7 +78,7 @@ public class MultiEventAPI {
         List<EventBean> events = new LinkedList<EventBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId FROM Event " +
+            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner FROM Event " +
                                          "WHERE StartDate < ? AND EndDate > ?");
             stmt.setLong(1, endTime.getMillis());
             stmt.setLong(2, startTime.getMillis());
