@@ -48,6 +48,16 @@ public class APIUtils {
         return true;
     }
 
+    /**
+     * Try to close the given resources
+     * @param resources resources to close
+     */
+    public static void closeResources(AutoCloseable... resources) {
+        for (AutoCloseable resource : resources) {
+            closeResource(resource);
+        }
+    }
+
     public static boolean setAutoCommit(Connection conn, boolean autoCommit) {
         if (conn == null) {
             return true;

@@ -8,15 +8,15 @@ CREATE TABLE IF NOT EXISTS `SoccerPassing` (
 CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `eventID` INT NOT NULL,
   `player` VARCHAR(50) NOT NULL,
-  `goals` INT NOT NULL,
-  `shots` INT NOT NULL,
-  `shotsongoal` INT NOT NULL,
-  `assists` INT NOT NULL,
-  `goalsagainst` INT NOT NULL,
-  `minutes` INT NOT NULL,
-  `fouls` INT NOT NULL,
-  `red` INT NOT NULL,
-  `yellow` INT NOT NULL,
+  `goals` INT NOT NULL DEFAULT 0,
+  `shots` INT NOT NULL DEFAULT 0,
+  `shotsongoal` INT NOT NULL DEFAULT 0,
+  `assists` INT NOT NULL DEFAULT 0,
+  `goalsagainst` INT NOT NULL DEFAULT 0,
+  `minutes` INT NOT NULL DEFAULT 0,
+  `fouls` INT NOT NULL DEFAULT 0,
+  `red` INT NOT NULL DEFAULT 0,
+  `yellow` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`eventID`, `player`));
 
 CREATE TABLE IF NOT EXISTS `SoccerSessions` (
