@@ -105,9 +105,10 @@ public class SingleEventAPI {
     @Produces("application/json")
     public ResponseBean createEvent(EventBean event, @HeaderParam("token") final String token) {
         String user = AuthenticationUtil.validateToken(token);
-        if (user == null || !user.equals(event.getOwner())) {
+        if (user == null) {
             return new ResponseBean(401, "Not authorized");
         }
+        event.setOwner(user);
         return createDBEvent(event, provider);
     }
 

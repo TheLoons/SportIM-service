@@ -10,7 +10,6 @@ import org.sportim.service.util.ConnectionProvider;
 import javax.ws.rs.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 /**
  * API for goal tracking

@@ -4,14 +4,14 @@ import org.joda.time.DateTime;
 import org.sportim.service.beans.EventBean;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.util.APIUtils;
+import org.sportim.service.util.AuthenticationUtil;
 import org.sportim.service.util.ConnectionManager;
 import org.sportim.service.util.ConnectionProvider;
 
+import javax.naming.InitialContext;
 import javax.ws.rs.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * API to handle bulk event requests.
@@ -32,10 +32,15 @@ public class MultiEventAPI {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean batchPostEvents(List<EventBean> events) {
+    public ResponseBean batchPostEvents(List<EventBean> events, @HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
         ResponseBean resp = new ResponseBean(200, "");
         List<Integer> ids = new ArrayList<Integer>(events.size());
         for (EventBean event : events) {
+            event.setOwner(user);
             ResponseBean sresp = SingleEventAPI.createDBEvent(event, provider);
             if (resp.getStatus().getCode() != 200) {
                 return sresp;
@@ -50,7 +55,12 @@ public class MultiEventAPI {
     @Produces("application/json")
     public ResponseBean getEventsForRange(@QueryParam(value = "start") final String start,
                                           @QueryParam(value = "end") final String end,
-                                          @QueryParam(value = "token") final String authToken) {
+                                          @HeaderParam(value = "token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
 
@@ -71,17 +81,22 @@ public class MultiEventAPI {
             return new ResponseBean(status, message);
         }
 
-        // TODO only return authorized events via auth token
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         List<EventBean> events = new LinkedList<EventBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner FROM Event " +
-                                         "WHERE StartDate < ? AND EndDate > ?");
+            Set<Integer> teams = getTeamsForUser(user, conn);
+            stmt = getEventQuery(teams, conn);
             stmt.setLong(1, endTime.getMillis());
             stmt.setLong(2, startTime.getMillis());
+            stmt.setString(3, user);
+            stmt.setString(4, user);
+            int i = 5;
+            for (int team : teams) {
+                stmt.setInt(i++, team);
+            }
             rs = stmt.executeQuery();
 
             while(rs.next()) {
@@ -98,16 +113,46 @@ public class MultiEventAPI {
             // TODO log4j 2 log this
             e.printStackTrace();
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
         resp.setEvents(events);
         return resp;
+    }
+
+    private static PreparedStatement getEventQuery(Set<Integer> teams, Connection conn) throws SQLException {
+        String query = "SELECT DISTINCT e.EventName, e.StartDate, e.EndDate, e.TournamentId, e.EventId, e.EventOwner " +
+                        "FROM Event e LEFT OUTER JOIN TeamEvent te ON te.EventId = e.EventId " +
+                        "LEFT OUTER JOIN PlayerEvent pe ON e.EventId = pe.EventId " +
+                        "WHERE StartDate < ? AND EndDate > ? AND (e.EventOwner = ? OR pe.Login = ?";
+        if (!teams.isEmpty()) {
+            query += " OR te.TeamId IN(" + params(teams.size()) + ")";
+        }
+        query += ")";
+        return conn.prepareStatement(query);
+    }
+
+    private static String params(int numParams) {
+        String ret = "";
+        for (int i = 0; i < numParams; i++) {
+            if (i > 0) {
+                ret += ",";
+            }
+            ret += "?";
+        }
+        return ret;
+    }
+
+    private static Set<Integer> getTeamsForUser(String user, Connection conn) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT TeamId FROM PlaysFor WHERE Login = ?");
+        stmt.setString(1, user);
+        ResultSet rs = stmt.executeQuery();
+        Set<Integer> teams = new HashSet<Integer>();
+        while (rs.next()) {
+            teams.add(rs.getInt(1));
+        }
+        APIUtils.closeResources(rs, stmt);
+        return teams;
     }
 }
