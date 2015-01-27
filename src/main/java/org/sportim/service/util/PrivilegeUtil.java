@@ -257,6 +257,7 @@ public class PrivilegeUtil {
             stmt = conn.prepareStatement("SELECT COUNT(EventOwner) FROM Event WHERE EventId = ? AND EventOwner = ?");
             stmt.setInt(1, eventID);
             stmt.setString(2, user);
+            rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
             // TODO log
