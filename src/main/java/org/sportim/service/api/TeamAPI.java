@@ -59,7 +59,7 @@ public class TeamAPI {
                 message = "Team not found";
             }
 
-            stmt = conn.prepareStatement("SELECT p1.Login, p1.FirstName, p1.LastName from Player p1, PlaysFor pf WHERE pf.TeamID = ?");
+            stmt = conn.prepareStatement("SELECT p1.Login, p1.FirstName, p1.LastName from Player p1, PlaysFor pf WHERE pf.TeamID = ? AND p1.Login = pf.Login");
             stmt.setInt(1, teamId);
             rs = stmt.executeQuery();
 
