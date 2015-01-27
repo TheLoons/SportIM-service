@@ -192,7 +192,7 @@ public class LeagueAPI {
             if(status == 200)
             {
                 stmt = conn.prepareStatement("INSERT INTO TeamBelongsTo(TeamID, LeagueId) Values (?, ?)");
-                stmt.setInt(1, leagueId);
+                stmt.setInt(1, teamId);
                 stmt.setInt(2, leagueId);
                 stmt.executeUpdate();
 
@@ -220,15 +220,15 @@ public class LeagueAPI {
         return new ResponseBean(status, message);
     }
 
-    @PUT
-    @Path("{id}")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public ResponseBean updateLeague(LeagueBean league, @PathParam("id") final int id,
-                                     @HeaderParam("token") final String token) {
-        league.setLeagueId(id);
-        return updateLeague(league, token);
-    }
+//    @PUT
+//    @Path("{id}")
+//    @Consumes("application/json")
+//    @Produces("application/json")
+//    public ResponseBean updateLeague(LeagueBean league, @PathParam("id") final int id,
+//                                     @HeaderParam("token") final String token) {
+//        league.setLeagueId(id);
+//        return updateLeague(league, token);
+//    }
 
     @PUT
     @Consumes("application/json")
@@ -252,7 +252,6 @@ public class LeagueAPI {
             return new ResponseBean(status, message);
         }
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -388,7 +387,7 @@ public class LeagueAPI {
         boolean res = true;
         if(teamId > 0)
         {
-            PreparedStatement stmt = conn.prepareStatement("SELECT  COUNT (TeamId) FROM Team Where TeamId = ?");
+            PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(TeamId) FROM Team Where TeamId = ?");
             stmt.setInt(1, teamId);
             ResultSet rs = stmt.executeQuery();
             if(rs.next() && rs.getInt(1) != 1)
