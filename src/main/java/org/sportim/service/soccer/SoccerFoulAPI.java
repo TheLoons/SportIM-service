@@ -43,7 +43,7 @@ public class SoccerFoulAPI {
             return new ResponseBean(400, "Malformed request");
         }
 
-        boolean success = true;
+        boolean success = false;
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
