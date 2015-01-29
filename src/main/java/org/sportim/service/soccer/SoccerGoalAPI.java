@@ -30,10 +30,14 @@ public class SoccerGoalAPI {
     @Path("{eventID}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean postGoal(final ScoreBean score, @PathParam("{eventID}") final int eventID,
+    public ResponseBean postGoal(final ScoreBean score, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
         if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
+        }
+
+        if (!score.validate()) {
+            return new ResponseBean(400, "Malformed request");
         }
 
         Connection conn = null;
@@ -44,7 +48,7 @@ public class SoccerGoalAPI {
             stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, goals, shots, shotsongoal) VALUES (?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE goals = goals + 1, shots = shots + 1, shotsongoal = shotsongoal + 1");
             stmt.setInt(1, eventID);
-            stmt.setString(2, score.scorer);
+            stmt.setString(2, score.player);
             stmt.setInt(3, 1);
             stmt.setInt(4, 1);
             stmt.setInt(5, 1);

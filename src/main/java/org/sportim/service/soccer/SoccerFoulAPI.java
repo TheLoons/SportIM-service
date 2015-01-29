@@ -17,8 +17,8 @@ import java.sql.SQLException;
  */
 @Path("/foul")
 public class SoccerFoulAPI {
-    private static final String UPDATE_QUERY_BASE = "INSERT INTO SoccerStats (eventID, player, fouls, %s) VALUES " +
-                                                    "(?, ?, ?, %s) ON DUPLICATE KEY UPDATE fouls = fouls + 1%s";
+    private static final String UPDATE_QUERY_BASE = "INSERT INTO SoccerStats (eventID, player, fouls%s) VALUES " +
+                                                    "(?, ?, ?%s) ON DUPLICATE KEY UPDATE fouls = fouls + 1%s";
     private ConnectionProvider provider;
 
     public SoccerFoulAPI() {
@@ -37,6 +37,10 @@ public class SoccerFoulAPI {
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
         if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
+        }
+
+        if (!foul.validate()) {
+            return new ResponseBean(400, "Malformed request");
         }
 
         boolean success = true;
@@ -72,19 +76,13 @@ public class SoccerFoulAPI {
         String params = "";
         String onUpdate = "";
         if (foul.red) {
-            extraColNames += "red";
-            params += "?";
+            extraColNames += ", red";
+            params += ", ?";
             onUpdate += ", red = red + 1";
         }
         if (foul.yellow) {
-            if (extraColNames.isEmpty()) {
-                extraColNames += "yellow";
-                params += "?";
-            }
-            else {
-                extraColNames += ", yellow";
-                params += ", ?";
-            }
+            extraColNames += ", yellow";
+            params += ", ?";
             onUpdate += ", yellow = yellow + 1";
         }
 
