@@ -82,7 +82,7 @@ public class LeagueAPI {
     public ResponseBean createLeague(LeagueBean league, @HeaderParam("token") final String token) {
         // only the to-be owner can create a league
         String user = AuthenticationUtil.validateToken(token);
-        if (user == null || !user.equals(league.getLeagueOwner())) {
+        if (user == null || !user.equals(league.getOwner())) {
             return new ResponseBean(401, "Not authorized");
         }
         return createDBLeague(league);
@@ -234,14 +234,14 @@ public class LeagueAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean updateLeague(LeagueBean league, @HeaderParam("token") final String token) {
-        if (!PrivilegeUtil.hasLeagueUpdate(token, league.getLeagueId())) {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, league.getId())) {
             return new ResponseBean(401, "Not authorized");
         }
 
         int status = 200;
         String message = "";
 
-        if (league.getLeagueId() < 1) {
+        if (league.getId() < 1) {
             status = 400;
             message = "Invalid league ID.";
             return new ResponseBean(status, message);
@@ -373,10 +373,10 @@ public class LeagueAPI {
         PreparedStatement stmt = conn.prepareStatement("UPDATE League " +
                 "SET LeagueName = ?, LeagueOwner = ?, Sport = ? " +
                 "WHERE LeagueId = ?");
-        stmt.setString(1, league.getLeagueName());
-        stmt.setString(2, league.getLeagueOwner());
+        stmt.setString(1, league.getName());
+        stmt.setString(2, league.getOwner());
         stmt.setString(3, league.getSport());
-        stmt.setInt(4, league.getLeagueId());
+        stmt.setInt(4, league.getId());
         stmt.addBatch();
         stmts.add(stmt);
         return stmts;
@@ -400,11 +400,11 @@ public class LeagueAPI {
 
     private static String verifyLeagueComponents(LeagueBean league, Connection conn) throws SQLException {
         String message = null;
-        if (league.getLeagueId() > 0) {
-            if (!verifyLeague(league.getLeagueId(), conn)) {
+        if (league.getId() > 0) {
+            if (!verifyLeague(league.getId(), conn)) {
                 message = "Non-existent league ID specified.";
             }
-            if (!verifyOwner(league.getLeagueOwner(), conn)) {
+            if (!verifyOwner(league.getOwner(), conn)) {
                 message = "Non-existent league owner specified.";
             }
         }
@@ -451,8 +451,8 @@ public class LeagueAPI {
     private static int addLeague(LeagueBean league, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO League (LeagueName, LeagueOwner, Sport) " +
                 "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
-        stmt.setString(1, league.getLeagueName());
-        stmt.setString(2, league.getLeagueOwner());
+        stmt.setString(1, league.getName());
+        stmt.setString(2, league.getOwner());
         stmt.setString(3, league.getSport());
 
         stmt.executeUpdate();

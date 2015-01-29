@@ -32,27 +32,27 @@ public class LeagueBean {
     }
 
     @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
-    public int getLeagueId() {
+    public int getId() {
         return id;
     }
 
-    public void setLeagueId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getLeagueName() {
+    public String getName() {
         return name;
     }
 
-    public void setLeagueName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getLeagueOwner() {
+    public String getOwner() {
         return owner;
     }
 
-    public void setLeagueOwner(String owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
     }
 
