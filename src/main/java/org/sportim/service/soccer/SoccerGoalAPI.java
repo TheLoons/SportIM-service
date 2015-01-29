@@ -27,11 +27,12 @@ public class SoccerGoalAPI {
     }
 
     @POST
+    @Path("{eventID}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean postGoal(final ScoreBean score, @HeaderParam("token") final String token,
-                                 @HeaderParam("session") final String session) {
-        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, score.eventID)) {
+    public ResponseBean postGoal(final ScoreBean score, @PathParam("{eventID}") final int eventID,
+                                 @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
+        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 
@@ -42,7 +43,7 @@ public class SoccerGoalAPI {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, goals, shots, shotsongoal) VALUES (?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE goals = goals + 1, shots = shots + 1, shotsongoal = shotsongoal + 1");
-            stmt.setInt(1, score.eventID);
+            stmt.setInt(1, eventID);
             stmt.setString(2, score.scorer);
             stmt.setInt(3, 1);
             stmt.setInt(4, 1);
@@ -52,8 +53,16 @@ public class SoccerGoalAPI {
             APIUtils.closeResource(stmt);
             stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, assists) VALUES (?,?,?) " +
                     "ON DUPLICATE KEY UPDATE assists = assists + 1");
-            stmt.setInt(1, score.eventID);
+            stmt.setInt(1, eventID);
             stmt.setString(2, score.assist);
+            stmt.setInt(3, 1);
+            success = success && (stmt.executeUpdate() > 0);
+
+            APIUtils.closeResource(stmt);
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, goalsagainst) VALUES (?,?,?) " +
+                    "ON DUPLICATE KEY UPDATE goalsagainst = goalsagainst + 1");
+            stmt.setInt(1, eventID);
+            stmt.setString(2, score.goalkeeper);
             stmt.setInt(3, 1);
             success = success && (stmt.executeUpdate() > 0);
         } catch (Exception e) {

@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Bean used for passing score information
+ * Bean for fouls/cards
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ScoreBean {
-    public String scorer;
-    public String assist;
-    public String goalkeeper;
+public class FoulBean {
+    public String player;
+    public boolean yellow;
+    public boolean red;
 }
