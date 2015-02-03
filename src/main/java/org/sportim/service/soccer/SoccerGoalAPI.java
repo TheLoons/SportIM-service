@@ -53,13 +53,15 @@ public class SoccerGoalAPI {
             success = stmt.executeUpdate() > 0;
 
             APIUtils.closeResource(stmt);
-            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, assists) VALUES (?,?,?) " +
-                    "ON DUPLICATE KEY UPDATE assists = assists + 1");
-            stmt.setInt(1, eventID);
-            stmt.setInt(2, score.teamID);
-            stmt.setString(3, score.assist);
-            stmt.setInt(4, 1);
-            success = success && (stmt.executeUpdate() > 0);
+            if (score.assist != null) {
+                stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, assists) VALUES (?,?,?) " +
+                        "ON DUPLICATE KEY UPDATE assists = assists + 1");
+                stmt.setInt(1, eventID);
+                stmt.setInt(2, score.teamID);
+                stmt.setString(3, score.assist);
+                stmt.setInt(4, 1);
+                success = success && (stmt.executeUpdate() > 0);
+            }
 
             APIUtils.closeResource(stmt);
             stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goalsagainst) VALUES (?,?,?) " +
