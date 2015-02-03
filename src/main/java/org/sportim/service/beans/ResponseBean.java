@@ -1,6 +1,7 @@
 package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.sportim.service.soccer.beans.AggregateEventBean;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class ResponseBean {
     private List<Integer> ids;
     private String token;
     private String session;
+    private AggregateEventBean eventStats;
 
     public ResponseBean(){
     }
@@ -118,5 +120,13 @@ public class ResponseBean {
 
     public void setSession(String session) {
         this.session = session;
+    }
+
+    public AggregateEventBean getEventStats() {
+        return eventStats;
+    }
+
+    public void setEventStats(AggregateEventBean eventStats) {
+        this.eventStats = eventStats;
     }
 }

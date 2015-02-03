@@ -44,7 +44,7 @@
         </init-param>
         <init-param>
             <param-name>allowedHeaders</param-name>
-            <param-value>origin, content-type, accept, token</param-value>
+            <param-value>origin, content-type, accept, token, session</param-value>
         </init-param>
     </filter>
     <filter-mapping>
