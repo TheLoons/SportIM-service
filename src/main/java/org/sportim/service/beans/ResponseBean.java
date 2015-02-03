@@ -2,6 +2,8 @@ package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.soccer.beans.AggregateEventBean;
+import org.sportim.service.soccer.beans.PlayerStatsBean;
+import org.sportim.service.soccer.beans.TeamStatsBean;
 
 import java.util.List;
 
@@ -23,6 +25,8 @@ public class ResponseBean {
     private String token;
     private String session;
     private AggregateEventBean eventStats;
+    private PlayerStatsBean playerStats;
+    private TeamStatsBean teamStats;
 
     public ResponseBean(){
     }
@@ -128,5 +132,21 @@ public class ResponseBean {
 
     public void setEventStats(AggregateEventBean eventStats) {
         this.eventStats = eventStats;
+    }
+
+    public PlayerStatsBean getPlayerStats() {
+        return playerStats;
+    }
+
+    public void setPlayerStats(PlayerStatsBean playerStats) {
+        this.playerStats = playerStats;
+    }
+
+    public TeamStatsBean getTeamStats() {
+        return teamStats;
+    }
+
+    public void setTeamStats(TeamStatsBean teamStats) {
+        this.teamStats = teamStats;
     }
 }
