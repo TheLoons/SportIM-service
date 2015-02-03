@@ -62,7 +62,7 @@ public class SoccerSessionAPI {
             resp = new ResponseBean(200, "");
             resp.setSession(sessionID);
         } else if (res == 0) {
-            resp = new ResponseBean(401, "Session already started");
+            resp = new ResponseBean(409, "Session already started");
         } else {
             resp = new ResponseBean(500, "Unable to start session");
         }

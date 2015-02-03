@@ -68,10 +68,10 @@ public class SoccerAggregationAPI {
 
             APIUtils.closeResources(rs, stmt);
             for (TeamStatsBean team : eventStats.teamStats) {
-                stmt = conn.prepareStatement("SELECT playerID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red) FROM SoccerStats " +
+                stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
+                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists) FROM SoccerStats " +
                         "WHERE eventID = ? AND teamID = ? " +
-                        "GROUP BY playerID");
+                        "GROUP BY player");
                 stmt.setInt(1, eventID);
                 stmt.setInt(2, team.teamID);
                 rs = stmt.executeQuery();
@@ -86,6 +86,7 @@ public class SoccerAggregationAPI {
                     playerStats.fouls = rs.getInt(6);
                     playerStats.yellow = rs.getInt(7);
                     playerStats.red = rs.getInt(8);
+                    playerStats.assists = rs.getInt(9);
                     team.playerStats.add(playerStats);
                 }
                 APIUtils.closeResources(rs, stmt);
@@ -123,16 +124,16 @@ public class SoccerAggregationAPI {
         try {
             conn = provider.getConnection();
             if (teamID < 1) {
-                stmt = conn.prepareStatement("SELECT playerID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red) FROM SoccerStats " +
-                        "WHERE playerID = ?" +
-                        "GROUP BY playerID");
+                stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
+                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists) FROM SoccerStats " +
+                        "WHERE player = ?" +
+                        "GROUP BY player");
                 stmt.setString(1, login);
             } else {
-                stmt = conn.prepareStatement("SELECT playerID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red) FROM SoccerStats " +
-                        "WHERE playerID = ? AND teamID = ? " +
-                        "GROUP BY playerID");
+                stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
+                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists) FROM SoccerStats " +
+                        "WHERE player = ? AND teamID = ? " +
+                        "GROUP BY player");
                 stmt.setString(1, login);
                 stmt.setInt(2, teamID);
             }
@@ -146,6 +147,7 @@ public class SoccerAggregationAPI {
                 playerStats.fouls = rs.getInt(6);
                 playerStats.yellow = rs.getInt(7);
                 playerStats.red = rs.getInt(8);
+                playerStats.assists = rs.getInt(9);
             }
             success = true;
         } catch (Exception e) {

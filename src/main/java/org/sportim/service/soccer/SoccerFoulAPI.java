@@ -18,7 +18,7 @@ import java.sql.SQLException;
 @Path("/foul")
 public class SoccerFoulAPI {
     private static final String UPDATE_QUERY_BASE = "INSERT INTO SoccerStats (eventID, teamID, player, fouls%s) VALUES " +
-                                                    "(?, ?, ?%s) ON DUPLICATE KEY UPDATE fouls = fouls + 1%s";
+                                                    "(?, ?, ?, ?%s) ON DUPLICATE KEY UPDATE fouls = fouls + 1%s";
     private ConnectionProvider provider;
 
     public SoccerFoulAPI() {

@@ -42,7 +42,7 @@ public class SoccerGoalAPI {
         boolean success = false;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goals, shots, shotsongoal) VALUES (?,?,?,?,?) " +
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goals, shots, shotsongoal) VALUES (?,?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE goals = goals + 1, shots = shots + 1, shotsongoal = shotsongoal + 1");
             stmt.setInt(1, eventID);
             stmt.setInt(2, score.teamID);
@@ -54,7 +54,7 @@ public class SoccerGoalAPI {
 
             APIUtils.closeResource(stmt);
             if (score.assist != null) {
-                stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, assists) VALUES (?,?,?) " +
+                stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, assists) VALUES (?,?,?,?) " +
                         "ON DUPLICATE KEY UPDATE assists = assists + 1");
                 stmt.setInt(1, eventID);
                 stmt.setInt(2, score.teamID);
@@ -64,7 +64,7 @@ public class SoccerGoalAPI {
             }
 
             APIUtils.closeResource(stmt);
-            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goalsagainst) VALUES (?,?,?) " +
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goalsagainst) VALUES (?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE goalsagainst = goalsagainst + 1");
             stmt.setInt(1, eventID);
             stmt.setInt(2, score.goalieTeamID);
@@ -74,6 +74,7 @@ public class SoccerGoalAPI {
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
+            success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);
         }
