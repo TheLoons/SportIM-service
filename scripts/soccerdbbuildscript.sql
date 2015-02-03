@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `SoccerPassing` (
 
 CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `eventID` INT NOT NULL,
+  `teamID` INT NOT NULL,
   `player` VARCHAR(50) NOT NULL,
   `goals` INT NOT NULL DEFAULT 0,
   `shots` INT NOT NULL DEFAULT 0,
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `fouls` INT NOT NULL DEFAULT 0,
   `red` INT NOT NULL DEFAULT 0,
   `yellow` INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`eventID`, `player`));
+  PRIMARY KEY (`eventID`, `teamID`, `player`));
 
 CREATE TABLE IF NOT EXISTS `SoccerSessions` (
   `eventID` INT NOT NULL,

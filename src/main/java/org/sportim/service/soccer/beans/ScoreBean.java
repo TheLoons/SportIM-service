@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ScoreBean {
+    public int teamID;
+    public int goalieTeamID;
     public @NotNull String player;
     public @NotNull String assist;
     public @NotNull String goalkeeper;

@@ -2,10 +2,7 @@ package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.soccer.beans.ScoreBean;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.AuthenticationUtil;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 import java.sql.Connection;
@@ -32,7 +29,7 @@ public class SoccerGoalAPI {
     @Produces("application/json")
     public ResponseBean postGoal(final ScoreBean score, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
-        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
+        if (!PrivilegeUtil.hasEventUpdate(token, eventID) || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 
@@ -45,29 +42,32 @@ public class SoccerGoalAPI {
         boolean success = false;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, goals, shots, shotsongoal) VALUES (?,?,?,?,?) " +
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goals, shots, shotsongoal) VALUES (?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE goals = goals + 1, shots = shots + 1, shotsongoal = shotsongoal + 1");
             stmt.setInt(1, eventID);
-            stmt.setString(2, score.player);
-            stmt.setInt(3, 1);
+            stmt.setInt(2, score.teamID);
+            stmt.setString(3, score.player);
             stmt.setInt(4, 1);
             stmt.setInt(5, 1);
+            stmt.setInt(6, 1);
             success = stmt.executeUpdate() > 0;
 
             APIUtils.closeResource(stmt);
-            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, assists) VALUES (?,?,?) " +
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, assists) VALUES (?,?,?) " +
                     "ON DUPLICATE KEY UPDATE assists = assists + 1");
             stmt.setInt(1, eventID);
-            stmt.setString(2, score.assist);
-            stmt.setInt(3, 1);
+            stmt.setInt(2, score.teamID);
+            stmt.setString(3, score.assist);
+            stmt.setInt(4, 1);
             success = success && (stmt.executeUpdate() > 0);
 
             APIUtils.closeResource(stmt);
-            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, goalsagainst) VALUES (?,?,?) " +
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, goalsagainst) VALUES (?,?,?) " +
                     "ON DUPLICATE KEY UPDATE goalsagainst = goalsagainst + 1");
             stmt.setInt(1, eventID);
-            stmt.setString(2, score.goalkeeper);
-            stmt.setInt(3, 1);
+            stmt.setInt(2, score.goalieTeamID);
+            stmt.setString(3, score.goalkeeper);
+            stmt.setInt(4, 1);
             success = success && (stmt.executeUpdate() > 0);
         } catch (Exception e) {
             // TODO log
@@ -80,5 +80,17 @@ public class SoccerGoalAPI {
             return new ResponseBean(200, "");
         }
         return new ResponseBean(500, "Unable to add score");
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("{eventID}")
+    public ResponseBean getEventGoals(@PathParam("eventID") final int eventID, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasEventView(token, eventID)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+
+        return new ResponseBean(200, "");
     }
 }
