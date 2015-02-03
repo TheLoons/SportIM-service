@@ -18,6 +18,11 @@ public class UserBean {
     private String password;
     private String phone;
     private String salt;
+    private long gameAlert;
+    private long practiceAlert;
+    private long meetingAlert;
+    private long otherAlert;
+
 
     /**
      * Zero-argument constructor required by Jersey.
@@ -89,9 +94,7 @@ public class UserBean {
         return login;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
+    public void setLogin(String login) { this.login = login; }
 
     public String getPassword() {
         return password;
@@ -116,4 +119,20 @@ public class UserBean {
     public void setSalt(String salt) {
         this.salt = salt;
     }
+
+    public long getGameAlert() { return gameAlert;}
+
+    public void setGameAlert(long gameAlert) { this.gameAlert = gameAlert;}
+
+    public long getPracticeAlert() {return practiceAlert;}
+
+    public void setPracticeAlert(long practiceAlert) { this.practiceAlert = practiceAlert;}
+
+    public long getMeetingAlert() {return meetingAlert;}
+
+    public void setMeetingAlert(long meetingAlert) { this.meetingAlert = meetingAlert;}
+
+    public long getOtherAlert() {return otherAlert;}
+
+    public void setOtherAlert(long otherAlert) { this.otherAlert = otherAlert;}
 }

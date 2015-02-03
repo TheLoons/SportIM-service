@@ -4,7 +4,11 @@ CREATE TABLE Player(
     FirstName VARCHAR(255) NOT NULL, 
     LastName VARCHAR(255) NOT NULL, 
     Phone VARCHAR(20) NULL, 
-    Salt CHAR(40) NOT NULL
+    Salt CHAR(40) NOT NULL,
+    GameAlert BIGINT(20),
+    PracticeAlert BIGINT(20),
+    MeetingAlert BIGINT(20),
+    OtherAlert BIGINT(20)
 );
 
 CREATE TABLE Auth(

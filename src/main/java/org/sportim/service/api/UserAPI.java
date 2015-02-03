@@ -94,6 +94,70 @@ public class UserAPI {
         return resp;
     }
 
+    @GET
+    @Path("/alert/{login}")
+    @Produces("application/json")
+    public ResponseBean getUserQueryWithAlert(@PathParam("login") final String login,
+                                     @HeaderParam("token") final String token) {
+        int status = 200;
+        String message = "";
+
+        if (login == null) {
+            return new ResponseBean(400, "Missing login parameter");
+        }
+
+        if (!PrivilegeUtil.hasUserView(token, login)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        UserBean user = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone, GameAlert, PracticeAlert, MeetingAlert, OtherAlert FROM Player " +
+                    "WHERE Login = ?");
+            stmt.setString(1, login);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                user = new UserBean(rs, login);
+                user.setGameAlert(rs.getLong(4));
+                user.setPracticeAlert(rs.getLong(5));
+                user.setMeetingAlert(rs.getLong(6));
+                user.setOtherAlert(rs.getLong(7));
+            }
+            else {
+                status = 404;
+                message = "User " + login + " not found.";
+            }
+        } catch (SQLException e) {
+            status = 500;
+            message = "Unable to retrieve events. SQL error.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            status = 500;
+            message = "Unable to connect to datasource.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResource(rs);
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+
+        ResponseBean resp = new ResponseBean(status, message);
+        if (user != null) {
+            resp.setUser(user);
+        } else {
+            StatusBean s = new StatusBean(404, "User not found.");
+            resp.setStatus(s);
+        }
+        return resp;
+    }
+
     @POST
     @Produces("application/json")
     @Consumes("application/json")
@@ -136,6 +200,73 @@ public class UserAPI {
         }
 
         return new ResponseBean(status, message);
+    }
+
+    @PUT
+    @Path("/alert/{login}")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public ResponseBean updateUserAlerts (@PathParam("login")final String login, UserBean user,
+                                          @HeaderParam("token") final String token) {
+        user.setLogin(login);
+        return updateUserAlerts(user, token);
+    }
+
+    @PUT
+    @Path("/alert")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public ResponseBean updateUserAlerts(UserBean user, @HeaderParam("token") final String token) {
+        long millisPerHour = 3600000;
+        int status = 200;
+        String message = "";
+
+        if (!(message = user.validate(false)).isEmpty()) {
+            status = 400;
+            return new ResponseBean(status, message);
+        }
+
+        if (!PrivilegeUtil.hasUserUpdate(token, user.getLogin())) {
+            return new ResponseBean(401, "Not authorized");
+        }
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ? WHERE Login = ?");
+                stmt.setString(8, user.getLogin());
+            } else {
+                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ?, Password = ?, Salt = ? " +
+                        "WHERE Login = ?");
+                byte[] salt = AuthenticationUtil.getSalt();
+                byte[] hash = AuthenticationUtil.saltHashPassword(salt, user.getPassword());
+                stmt.setString(8, AuthenticationUtil.byteArrayToHexString(hash));
+                stmt.setString(9, AuthenticationUtil.byteArrayToHexString(salt));
+                stmt.setString(10, user.getLogin());
+            }
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getLastName());
+            stmt.setString(3, user.getPhone());
+            stmt.setLong(4, user.getGameAlert() * millisPerHour);
+            stmt.setLong(5, user.getPracticeAlert() * millisPerHour);
+            stmt.setLong(6, user.getMeetingAlert() * millisPerHour);
+            stmt.setLong(7, user.getOtherAlert() * millisPerHour);
+            int res = stmt.executeUpdate();
+            if (res < 1) {
+                message = "No change to user.";
+            }
+        } catch (SQLException e) {
+            // TODO log4j
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to update user. SQL error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+        return new ResponseBean(status, message);
+
     }
 
     @PUT
