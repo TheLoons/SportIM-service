@@ -312,7 +312,6 @@ public class TeamAPI {
             return new ResponseBean(status, message);
         }
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {

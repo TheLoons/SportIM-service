@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class FoulBean {
     public @NotNull String player;
+    public int teamID;
     public boolean yellow;
     public boolean red;
 

@@ -17,7 +17,7 @@ import java.sql.SQLException;
  */
 @Path("/foul")
 public class SoccerFoulAPI {
-    private static final String UPDATE_QUERY_BASE = "INSERT INTO SoccerStats (eventID, player, fouls%s) VALUES " +
+    private static final String UPDATE_QUERY_BASE = "INSERT INTO SoccerStats (eventID, teamID, player, fouls%s) VALUES " +
                                                     "(?, ?, ?%s) ON DUPLICATE KEY UPDATE fouls = fouls + 1%s";
     private ConnectionProvider provider;
 
@@ -89,13 +89,14 @@ public class SoccerFoulAPI {
         String query = String.format(UPDATE_QUERY_BASE, extraColNames, params, onUpdate);
         PreparedStatement stmt = conn.prepareStatement(query);
         stmt.setInt(1, eventID);
-        stmt.setString(2, foul.player);
-        stmt.setInt(3, 1);
+        stmt.setInt(2, foul.teamID);
+        stmt.setString(3, foul.player);
+        stmt.setInt(4, 1);
         if (foul.red || foul.yellow) {
-            stmt.setInt(4, 1);
+            stmt.setInt(5, 1);
         }
         if (foul.red && foul.yellow) {
-            stmt.setInt(5, 1);
+            stmt.setInt(6, 1);
         }
         return stmt;
     }
