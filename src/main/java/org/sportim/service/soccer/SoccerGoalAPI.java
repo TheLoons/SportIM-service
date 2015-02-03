@@ -155,6 +155,12 @@ public class SoccerGoalAPI {
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
-        return new ResponseBean(200, "");
+
+        if (success) {
+            ResponseBean resp = new ResponseBean(200, "");
+            resp.setEventStats(eventStats);
+            return resp;
+        }
+        return new ResponseBean(500, "Unable to retreive statistics.");
     }
 }
