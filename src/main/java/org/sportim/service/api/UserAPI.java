@@ -100,6 +100,7 @@ public class UserAPI {
     public ResponseBean getUserQueryWithAlert(@PathParam("login") final String login,
                                      @HeaderParam("token") final String token) {
         int status = 200;
+        long millisPerHour = 3600000;
         String message = "";
 
         if (login == null) {
@@ -123,10 +124,10 @@ public class UserAPI {
 
             if (rs.next()) {
                 user = new UserBean(rs, login);
-                user.setGameAlert(rs.getLong(4));
-                user.setPracticeAlert(rs.getLong(5));
-                user.setMeetingAlert(rs.getLong(6));
-                user.setOtherAlert(rs.getLong(7));
+                user.setGameAlert(rs.getLong(4) / millisPerHour);
+                user.setPracticeAlert(rs.getLong(5) / millisPerHour);
+                user.setMeetingAlert(rs.getLong(6) / millisPerHour);
+                user.setOtherAlert(rs.getLong(7) / millisPerHour);
             }
             else {
                 status = 404;
