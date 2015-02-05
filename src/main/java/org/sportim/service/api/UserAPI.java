@@ -95,13 +95,18 @@ public class UserAPI {
     }
 
     @GET
-    @Path("/alert/{login}")
+    @Path("/alert")
     @Produces("application/json")
-    public ResponseBean getUserQueryWithAlert(@PathParam("login") final String login,
-                                     @HeaderParam("token") final String token) {
+    public ResponseBean getUserQueryWithAlert(@QueryParam("login") final String qlogin,
+                                              @HeaderParam("token") final String token) {
         int status = 200;
         long millisPerHour = 3600000;
         String message = "";
+
+        String login = qlogin;
+        if (login == null) {
+            login = AuthenticationUtil.validateToken(token);
+        }
 
         if (login == null) {
             return new ResponseBean(400, "Missing login parameter");
@@ -204,16 +209,6 @@ public class UserAPI {
     }
 
     @PUT
-    @Path("/alert/{login}")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public ResponseBean updateUserAlerts (@PathParam("login")final String login, UserBean user,
-                                          @HeaderParam("token") final String token) {
-        user.setLogin(login);
-        return updateUserAlerts(user, token);
-    }
-
-    @PUT
     @Path("/alert")
     @Produces("application/json")
     @Consumes("application/json")
@@ -221,6 +216,10 @@ public class UserAPI {
         long millisPerHour = 3600000;
         int status = 200;
         String message = "";
+
+        if (user.getLogin() == null) {
+            user.setLogin(AuthenticationUtil.validateToken(token));
+        }
 
         if (!(message = user.validate(false)).isEmpty()) {
             status = 400;
