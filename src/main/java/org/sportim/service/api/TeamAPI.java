@@ -46,7 +46,50 @@ public class TeamAPI {
             stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner, t1.Sport FROM Team t1 WHERE TeamOwner = ?");
             stmt.setString(1, user);
             rs = stmt.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
+                TeamBean team = new TeamBean(rs);
+                teams.add(team);
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            status = 500;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        if (status != 200) {
+            return new ResponseBean(status, "Unable to retrieve teams.");
+        }
+        ResponseBean resp = new ResponseBean(status, "");
+        resp.setTeams(teams);
+        return resp;
+    }
+
+    @GET
+    @Path("view")
+    @Produces("application/json")
+    public ResponseBean getTeamsForViewing(@HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int status = 200;
+        List<TeamBean> teams = new LinkedList<TeamBean>();
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT DISTINCT t1.TeamId, t1.TeamName, t1.TeamOwner, t1.Sport " +
+                    "FROM Team t1 LEFT OUTER JOIN TeamBelongsTo tb ON tb.TeamId = t1.TeamId " +
+                    "LEFT OUTER JOIN League l ON l.LeagueId = tb.LeagueId " +
+                    "WHERE t1.TeamOwner = ? OR l.LeagueOwner = ?");
+            stmt.setString(1, user);
+            stmt.setString(2, user);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
                 TeamBean team = new TeamBean(rs);
                 teams.add(team);
             }
