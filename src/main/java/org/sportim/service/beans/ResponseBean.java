@@ -20,6 +20,7 @@ public class ResponseBean {
     private List<TeamBean> teams;
     private TeamBean team;
     private LeagueBean league;
+    private List<LeagueBean> leagues;
     private int id = -1;
     private List<Integer> ids;
     private String token;
@@ -148,5 +149,13 @@ public class ResponseBean {
 
     public void setTeamStats(TeamStatsBean teamStats) {
         this.teamStats = teamStats;
+    }
+
+    public List<LeagueBean> getLeagues() {
+        return leagues;
+    }
+
+    public void setLeagues(List<LeagueBean> leagues) {
+        this.leagues = leagues;
     }
 }

@@ -24,6 +24,44 @@ public class LeagueAPI {
     }
 
     @GET
+    @Produces("application/json")
+    public ResponseBean getLeaguesForCurrentUser(@HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int status = 200;
+        List<LeagueBean> leagues = new LinkedList<LeagueBean>();
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT LeagueId, LeagueName, LeagueOwner, Sport FROM League " +
+                                         "WHERE LeagueOwner = ?");
+            stmt.setString(1, user);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                leagues.add(new LeagueBean(rs));
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            status = 500;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        if (status != 200) {
+            return new ResponseBean(status, "Unable to retrieve leagues.");
+        }
+        ResponseBean resp = new ResponseBean(status, "");
+        resp.setLeagues(leagues);
+        return resp;
+    }
+
+    @GET
     @Path("{id}")
     @Produces("application/json")
     public ResponseBean getLeague(@PathParam("id") final int leagueId, @HeaderParam("token") final String token)
