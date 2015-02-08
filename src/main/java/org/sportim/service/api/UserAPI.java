@@ -2,6 +2,7 @@ package org.sportim.service.api;
 
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
+import org.sportim.service.beans.TeamBean;
 import org.sportim.service.beans.UserBean;
 import org.sportim.service.util.*;
 
@@ -10,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * API to handle user requests.
@@ -26,6 +29,54 @@ public class UserAPI {
 
     public UserAPI(ConnectionProvider provider) {
         this.provider = provider;
+    }
+
+    @GET
+    @Path("view")
+    @Produces("application/json")
+    public ResponseBean getUsersForView(@HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int status = 200;
+        List<UserBean> users = new LinkedList<UserBean>();
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT DISTINCT p.Login, p.FirstName, p.LastName FROM Player p " +
+                    "LEFT OUTER JOIN PlaysFor pf ON p.Login = pf.Login LEFT OUTER JOIN Team t ON t.TeamId = pf.TeamId " +
+                    "LEFT OUTER JOIN TeamBelongsTo tb ON tb.TeamId = t.TeamId " +
+                    "LEFT OUTER JOIN League l ON tb.LeagueId = l.LeagueId " +
+                    "WHERE l.LeagueOwner = ? OR t.TeamOwner = ? OR p.Login = ?");
+            stmt.setString(1, user);
+            stmt.setString(2, user);
+            stmt.setString(3, user);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                UserBean userb = new UserBean();
+                userb.setLogin(rs.getString(1));
+                userb.setFirstName(rs.getString(2));
+                userb.setLastName(rs.getString(3));
+                users.add(userb);
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            status = 500;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        if (status != 200) {
+            return new ResponseBean(status, "Unable to retrieve users.");
+        }
+        ResponseBean resp = new ResponseBean(status, "");
+        resp.setUsers(users);
+        return resp;
     }
 
     @GET

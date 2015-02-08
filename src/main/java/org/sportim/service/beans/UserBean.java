@@ -9,7 +9,7 @@ import java.sql.SQLException;
 /**
  * A bean representing a user
  */
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserBean {
     private String firstName;
@@ -18,10 +18,10 @@ public class UserBean {
     private String password;
     private String phone;
     private String salt;
-    private long gameAlert;
-    private long practiceAlert;
-    private long meetingAlert;
-    private long otherAlert;
+    private long gameAlert = -1;
+    private long practiceAlert = -1;
+    private long meetingAlert = -1;
+    private long otherAlert = -1;
 
 
     /**

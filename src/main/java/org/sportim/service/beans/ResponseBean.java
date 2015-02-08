@@ -16,6 +16,7 @@ public class ResponseBean {
     private List<EventBean> events;
     private EventBean event;
     private UserBean user;
+    private List<UserBean> users;
     private TournamentBean tournament;
     private List<TeamBean> teams;
     private TeamBean team;
@@ -157,5 +158,13 @@ public class ResponseBean {
 
     public void setLeagues(List<LeagueBean> leagues) {
         this.leagues = leagues;
+    }
+
+    public List<UserBean> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<UserBean> users) {
+        this.users = users;
     }
 }
