@@ -41,13 +41,28 @@ public class LeagueAPI {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT LeagueId, LeagueName, LeagueOwner, Sport FROM League " +
-                    "WHERE LeagueId = ?");
+            stmt = conn.prepareStatement("SELECT l.LeagueId, l.LeagueName, l.LeagueOwner, l.Sport, t.TeamId, t.TeamName, t.TeamOwner" +
+                    " FROM League l LEFT OUTER JOIN TeamBelongsTo tb ON tb.LeagueId = l.LeagueId " +
+                    " LEFT OUTER JOIN Team t ON t.TeamId = tb.TeamId " +
+                    "WHERE l.LeagueId = ?");
             stmt.setInt(1, leagueId);
             rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                league = new LeagueBean(rs);
+            List<TeamBean> teams = new LinkedList<TeamBean>();
+            while (rs.next()) {
+                if (league == null) {
+                    league = new LeagueBean(rs);
+                }
+                TeamBean team = new TeamBean();
+                team.setName(rs.getString(6));
+                if (team.getName() != null) {
+                    team.setId(rs.getInt(5));
+                    team.setOwner(rs.getString(7));
+                    teams.add(team);
+                }
+            }
+            if (league != null) {
+                league.setTeams(teams);
             }
             APIUtils.closeResource(stmt);
         } catch (SQLException e) {
@@ -69,8 +84,11 @@ public class LeagueAPI {
         ResponseBean resp = new ResponseBean(status, message);
         if (league != null) {
             resp.setLeague(league);
-        } else {
+        } else if (status != 500) {
             StatusBean s = new StatusBean(404, "League not found.");
+            resp.setStatus(s);
+        } else {
+            StatusBean s = new StatusBean(status, message);
             resp.setStatus(s);
         }
         return resp;
