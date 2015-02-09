@@ -289,7 +289,7 @@ public class TeamAPI {
     }
 
     @PUT
-    @Path("{teamid}")
+    @Path("{teamid}/add")
     @Produces("application/json")
     public ResponseBean addPlayerToTeam(@PathParam("teamid") final int id, @QueryParam("login") final String playerLogin,
                                         @HeaderParam("token") final String token)
@@ -363,14 +363,14 @@ public class TeamAPI {
         return resp;
     }
 
-//    @PUT
-//    @Path("{id}")
-//    @Consumes("application/json")
-//    @Produces("application/json")
-//    public ResponseBean updateTeam(TeamBean team, @PathParam("id") final int id, @HeaderParam("token") final String token) {
-//        team.setId(id);
-//        return updateTeam(team, token);
-//    }
+    @PUT
+    @Path("{id}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateTeam(TeamBean team, @PathParam("id") final int id, @HeaderParam("token") final String token) {
+        team.setId(id);
+        return updateTeam(team, token);
+    }
 
     @PUT
     @Consumes("application/json")

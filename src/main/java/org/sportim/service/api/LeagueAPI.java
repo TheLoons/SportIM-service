@@ -198,7 +198,7 @@ public class LeagueAPI {
     }
 
     @PUT
-    @Path("{leagueId}")
+    @Path("{leagueId}/add")
     @Produces("application/json")
     public ResponseBean addTeamToLeague(@QueryParam("teamId") final int teamId, @PathParam("leagueId") final int leagueId,
                                         @HeaderParam("token") final String token)
@@ -276,15 +276,15 @@ public class LeagueAPI {
         return new ResponseBean(status, message);
     }
 
-//    @PUT
-//    @Path("{id}")
-//    @Consumes("application/json")
-//    @Produces("application/json")
-//    public ResponseBean updateLeague(LeagueBean league, @PathParam("id") final int id,
-//                                     @HeaderParam("token") final String token) {
-//        league.setLeagueId(id);
-//        return updateLeague(league, token);
-//    }
+    @PUT
+    @Path("{id}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateLeague(LeagueBean league, @PathParam("id") final int id,
+                                     @HeaderParam("token") final String token) {
+        league.setId(id);
+        return updateLeague(league, token);
+    }
 
     @PUT
     @Consumes("application/json")
