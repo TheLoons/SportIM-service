@@ -51,6 +51,9 @@ public class SingleEventAPI {
 
             if(rs.next()) {
                 event = new EventBean(rs);
+                if (PrivilegeUtil.hasEventUpdate(token, id)) {
+                    event.setEditable(true);
+                }
             }
             else {
                 status = 404;

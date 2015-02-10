@@ -100,7 +100,11 @@ public class MultiEventAPI {
             rs = stmt.executeQuery();
 
             while(rs.next()) {
-                events.add(new EventBean(rs));
+                EventBean e = new EventBean(rs);
+                if (user.equals(e.getOwner())) {
+                    e.setEditable(true);
+                }
+                events.add(e);
             }
         } catch (SQLException e) {
             status = 500;

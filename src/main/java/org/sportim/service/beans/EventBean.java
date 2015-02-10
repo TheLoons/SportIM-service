@@ -25,6 +25,7 @@ public class EventBean {
     private List<UserBean> players;
     private int tournamentID = 0;
     private int id;
+    private boolean editable = false;
 
     public EventBean() {
     }
@@ -134,5 +135,13 @@ public class EventBean {
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 }
