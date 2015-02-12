@@ -138,9 +138,10 @@ public class LeagueAPI {
     public ResponseBean createLeague(LeagueBean league, @HeaderParam("token") final String token) {
         // only the to-be owner can create a league
         String user = AuthenticationUtil.validateToken(token);
-        if (user == null || !user.equals(league.getOwner())) {
+        if (user == null) {
             return new ResponseBean(401, "Not authorized");
         }
+        league.setOwner(user);
         return createDBLeague(league);
     }
 
@@ -290,8 +291,13 @@ public class LeagueAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean updateLeague(LeagueBean league, @HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
         if (!PrivilegeUtil.hasLeagueUpdate(token, league.getId())) {
             return new ResponseBean(401, "Not authorized");
+        }
+
+        if (league.getOwner() == null) {
+            league.setOwner(user);
         }
 
         int status = 200;
