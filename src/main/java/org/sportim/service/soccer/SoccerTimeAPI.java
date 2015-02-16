@@ -153,6 +153,75 @@ public class SoccerTimeAPI {
         return new ResponseBean(500, "Unable to end game");
     }
 
+    @POST
+    @Produces("application/json")
+    @Path("sub/{eventID}")
+    public ResponseBean substitute(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
+                                   @HeaderParam("token") final String token, GameBean sub) {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        if (!SoccerUtil.isValidSession(session, eventID)) {
+            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+        }
+
+        boolean success = true;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        long start = 0, half_end = 0, half_start = 0, end = 0;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT 'start', 'half_end', 'half_start', 'end' FROM SoccerTime WHERE eventID = ?");
+            stmt.setInt(1, eventID);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                start = rs.getLong(1);
+                half_end = rs.getLong(2);
+                half_end = half_end > 0 ? half_end : sub.getTimestampMillis() + 1;
+                half_start = rs.getLong(3);
+                half_start = half_start > 0 ? half_start : sub.getTimestampMillis() + 1;
+            } else {
+                success = false;
+            }
+            APIUtils.closeResources(rs, stmt);
+
+            // calculate minutes played for subbed off player
+            stmt = conn.prepareStatement("SELECT teamID, timeOn, minutes FROM SoccerStats WHERE eventID = ? " +
+                    "AND player = ?");
+            stmt.setInt(1, eventID);
+            stmt.setString(2, sub.subOff);
+            rs = stmt.executeQuery();
+            if (success && rs.next()) {
+                long timeOn = rs.getLong(2);
+                int min = minutesPlayed(timeOn, start, half_end, half_start, sub.getTimestampMillis());
+                rs.updateInt(3, min);
+                rs.updateRow();
+            } else {
+                success = false;
+            }
+
+            // Add time on for subbed on player
+            stmt = conn.prepareStatement("UPDATE SoccerStats SET timeOn = ? WHERE eventID = ? AND player = ?");
+            stmt.setLong(1, sub.getTimestampMillis());
+            stmt.setInt(2, eventID);
+            stmt.setString(3, sub.subOn);
+            success = stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            success = false;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        if (success) {
+            return new ResponseBean(200, "");
+        }
+        return new ResponseBean(500, "Unable to make substitution. Make sure the game has been started.");
+    }
+
     public int minutesPlayed(long timeOn, long start, long half_end, long half_start, long end) {
         if (timeOn > half_start) {
             return millisToMinutes(end - timeOn);
