@@ -229,9 +229,10 @@ public class TeamAPI {
     @Produces("application/json")
     public ResponseBean createTeam(TeamBean team, @HeaderParam("token") final String token) {
         String user = AuthenticationUtil.validateToken(token);
-        if (user == null || !user.equals(team.getOwner())) {
+        if (user == null) {
             return new ResponseBean(401, "Not authorized");
         }
+        team.setOwner(user);
         return createDBTeam(team);
     }
 
@@ -376,8 +377,13 @@ public class TeamAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean updateTeam(TeamBean team, @HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
         if (!PrivilegeUtil.hasTeamUpdate(token, team.getId())) {
             return new ResponseBean(401, "Not authorized");
+        }
+
+        if (team.getOwner() == null) {
+            team.setOwner(user);
         }
 
         int status = 200;
