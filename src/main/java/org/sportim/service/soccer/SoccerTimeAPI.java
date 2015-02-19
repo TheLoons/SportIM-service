@@ -54,7 +54,7 @@ public class SoccerTimeAPI {
             // Add timestamp for all of the starters
             stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, teamID, player, timeOn) VALUES (?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE timeOn = ?");
-            addStarterBatch(stmt, eventID, gameStart.starters1, gameStart.teamID1, gameStart.getTimestampMillis());
+            addStarterBatch(stmt, eventID, gameStart.starters, gameStart.teamID, gameStart.getTimestampMillis());
             addStarterBatch(stmt, eventID, gameStart.starters2, gameStart.teamID2, gameStart.getTimestampMillis());
             stmt.executeBatch();
         } catch (Exception e) {
@@ -134,7 +134,7 @@ public class SoccerTimeAPI {
                 // Then calculate their minutes and stick them in
                 while (rs.next()) {
                     long timeOn = rs.getLong(3);
-                    int min = minutesPlayed(timeOn, start, half_end, half_start, end);
+                    int min = minutesPlayed(timeOn, half_end, half_start, end);
                     rs.updateInt(4, min);
                     rs.updateRow();
                 }
@@ -170,17 +170,16 @@ public class SoccerTimeAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        long start = 0, half_end = 0, half_start = 0, end = 0;
+        long half_end = 0, half_start = 0;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT 'start', 'half_end', 'half_start', 'end' FROM SoccerTime WHERE eventID = ?");
+            stmt = conn.prepareStatement("SELECT 'half_end', 'half_start' FROM SoccerTime WHERE eventID = ?");
             stmt.setInt(1, eventID);
             rs = stmt.executeQuery();
             if (rs.next()) {
-                start = rs.getLong(1);
-                half_end = rs.getLong(2);
+                half_end = rs.getLong(1);
                 half_end = half_end > 0 ? half_end : sub.getTimestampMillis() + 1;
-                half_start = rs.getLong(3);
+                half_start = rs.getLong(2);
                 half_start = half_start > 0 ? half_start : sub.getTimestampMillis() + 1;
             } else {
                 success = false;
@@ -195,7 +194,7 @@ public class SoccerTimeAPI {
             rs = stmt.executeQuery();
             if (success && rs.next()) {
                 long timeOn = rs.getLong(2);
-                int min = minutesPlayed(timeOn, start, half_end, half_start, sub.getTimestampMillis());
+                int min = minutesPlayed(timeOn, half_end, half_start, sub.getTimestampMillis());
                 rs.updateInt(3, min);
                 rs.updateRow();
             } else {
@@ -203,10 +202,12 @@ public class SoccerTimeAPI {
             }
 
             // Add time on for subbed on player
-            stmt = conn.prepareStatement("UPDATE SoccerStats SET timeOn = ? WHERE eventID = ? AND player = ?");
-            stmt.setLong(1, sub.getTimestampMillis());
-            stmt.setInt(2, eventID);
-            stmt.setString(3, sub.subOn);
+            stmt = conn.prepareStatement("INSERT INTO SoccerStats (eventID, player, teamID, timeOn) VALUES (?,?,?,?) " +
+                    "ON DUPLICATE KEY UPDATE timeOn = ?");
+            stmt.setInt(1, eventID);
+            stmt.setString(2, sub.subOn);
+            stmt.setInt(3, sub.teamID);
+            stmt.setLong(4, sub.getTimestampMillis());
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
             // TODO log
@@ -219,10 +220,11 @@ public class SoccerTimeAPI {
         if (success) {
             return new ResponseBean(200, "");
         }
-        return new ResponseBean(500, "Unable to make substitution. Make sure the game has been started.");
+        return new ResponseBean(500, "Unable to make substitution. Make sure the game has been started and one of the " +
+                "players was already on the field.");
     }
 
-    public int minutesPlayed(long timeOn, long start, long half_end, long half_start, long end) {
+    public int minutesPlayed(long timeOn, long half_end, long half_start, long end) {
         if (timeOn > half_start) {
             return millisToMinutes(end - timeOn);
         }

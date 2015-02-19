@@ -12,8 +12,8 @@ import java.util.List;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class GameBean {
-    public int teamID1;
-    public List<String> starters1;
+    public int teamID;
+    public List<String> starters;
     public int teamID2;
     public List<String> starters2;
     public String subOn;
