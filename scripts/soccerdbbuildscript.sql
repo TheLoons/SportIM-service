@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `SoccerSessions` (
   PRIMARY KEY (`eventID`)
 );
 
-CREATE TABLE `sportim`.`SoccerTime` (
+CREATE TABLE IF NOT EXISTS `SoccerTime` (
   `eventID` INT NOT NULL,
   `start` BIGINT NOT NULL DEFAULT -1,
   `half_end` BIGINT NOT NULL DEFAULT -1,

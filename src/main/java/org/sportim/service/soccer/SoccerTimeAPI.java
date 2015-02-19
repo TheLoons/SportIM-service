@@ -71,6 +71,78 @@ public class SoccerTimeAPI {
         return new ResponseBean(500, "Unable to start game");
     }
 
+    @POST
+    @Produces("application/json")
+    @Path("halfend/{eventID}")
+    public ResponseBean endHalf(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
+                                @HeaderParam("token") final String token, GameBean halfEnd) {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        if (!SoccerUtil.isValidSession(session, eventID)) {
+            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+        }
+
+        boolean success = false;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("UPDATE SoccerTime SET half_end = ? WHERE eventID = ?");
+            stmt.setLong(1, halfEnd.getTimestampMillis());
+            stmt.setInt(2, eventID);
+            success = stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            success = false;
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+
+        if (success) {
+            return new ResponseBean(200, "");
+        }
+        return new ResponseBean(500, "Unable to end half. Make sure the game was started.");
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("halfstart/{eventID}")
+    public ResponseBean startHalf(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
+                                @HeaderParam("token") final String token, GameBean halfStart) {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        if (!SoccerUtil.isValidSession(session, eventID)) {
+            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+        }
+
+        boolean success = false;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("UPDATE SoccerTime SET half_start = ? WHERE eventID = ?");
+            stmt.setLong(1, halfStart.getTimestampMillis());
+            stmt.setInt(2, eventID);
+            success = stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            success = false;
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+
+        if (success) {
+            return new ResponseBean(200, "");
+        }
+        return new ResponseBean(500, "Unable to start half. Make sure the game was started.");
+    }
+
     private void addStarterBatch(PreparedStatement stmt, int eventID, List<String> players, int teamID, long time) throws SQLException {
         for (String login : players) {
             stmt.setInt(1, eventID);
@@ -107,17 +179,16 @@ public class SoccerTimeAPI {
             stmt.setLong(3, gameEnd.getTimestampMillis());
             success = stmt.executeUpdate() > 0;
 
-            long start = 0, half_end = 0, half_start = 0, end = 0;
+            long half_end = 0, half_start = 0, end = 0;
             if (success) {
                 // Update minutes played for all players - get the times of this game
-                stmt = conn.prepareStatement("SELECT 'start', 'half_end', 'half_start', 'end' FROM SoccerTime WHERE eventID = ?");
+                stmt = conn.prepareStatement("SELECT 'half_end', 'half_start', 'end' FROM SoccerTime WHERE eventID = ?");
                 stmt.setInt(1, eventID);
                 rs = stmt.executeQuery();
                 if (rs.next()) {
-                    start = rs.getLong(1);
-                    half_end = rs.getLong(2);
-                    half_start = rs.getLong(3);
-                    end = rs.getLong(4);
+                    half_end = rs.getLong(1);
+                    half_start = rs.getLong(2);
+                    end = rs.getLong(3);
                 } else {
                     success = false;
                 }
