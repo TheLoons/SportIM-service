@@ -18,10 +18,20 @@ CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `fouls` INT NOT NULL DEFAULT 0,
   `red` INT NOT NULL DEFAULT 0,
   `yellow` INT NOT NULL DEFAULT 0,
+  `timeOn` INT NOT NULL DEFAULT -1,
   PRIMARY KEY (`eventID`, `teamID`, `player`));
 
 CREATE TABLE IF NOT EXISTS `SoccerSessions` (
   `eventID` INT NOT NULL,
   `sessionID` VARCHAR(255),
+  PRIMARY KEY (`eventID`)
+);
+
+CREATE TABLE IF NOT EXISTS `SoccerTime` (
+  `eventID` INT NOT NULL,
+  `start` BIGINT NOT NULL DEFAULT -1,
+  `half_end` BIGINT NOT NULL DEFAULT -1,
+  `half_start` BIGINT NOT NULL DEFAULT -1,
+  `end` BIGINT NOT NULL DEFAULT -1,
   PRIMARY KEY (`eventID`)
 );
