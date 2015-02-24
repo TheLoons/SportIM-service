@@ -149,6 +149,7 @@ public class SoccerTimeAPI {
             stmt.setInt(2, teamID);
             stmt.setString(3, login);
             stmt.setLong(4, time);
+            stmt.setLong(5, time);
             stmt.addBatch();
         }
     }
@@ -182,7 +183,7 @@ public class SoccerTimeAPI {
             long half_end = 0, half_start = 0, end = 0;
             if (success) {
                 // Update minutes played for all players - get the times of this game
-                stmt = conn.prepareStatement("SELECT 'half_end', 'half_start', 'end' FROM SoccerTime WHERE eventID = ?");
+                stmt = conn.prepareStatement("SELECT half_end, half_start, end FROM SoccerTime WHERE eventID = ?");
                 stmt.setInt(1, eventID);
                 rs = stmt.executeQuery();
                 if (rs.next()) {
@@ -197,8 +198,8 @@ public class SoccerTimeAPI {
 
             if (success) {
                 // first get anybody with a timeOn and no minutes played (these were subbed on and not subbed off)
-                stmt = conn.prepareStatement("SELECT teamID, player, timeOn, minutes FROM SoccerStats WHERE eventID = ? " +
-                        "AND minutes = 0");
+                stmt = conn.prepareStatement("SELECT teamID, player, timeOn, minutes, eventID FROM SoccerStats WHERE eventID = ? " +
+                        "AND minutes = 0", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 stmt.setInt(1, eventID);
                 rs = stmt.executeQuery();
 
@@ -244,7 +245,7 @@ public class SoccerTimeAPI {
         long half_end = 0, half_start = 0;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT 'half_end', 'half_start' FROM SoccerTime WHERE eventID = ?");
+            stmt = conn.prepareStatement("SELECT half_end, half_start FROM SoccerTime WHERE eventID = ?");
             stmt.setInt(1, eventID);
             rs = stmt.executeQuery();
             if (rs.next()) {
@@ -258,8 +259,8 @@ public class SoccerTimeAPI {
             APIUtils.closeResources(rs, stmt);
 
             // calculate minutes played for subbed off player
-            stmt = conn.prepareStatement("SELECT teamID, timeOn, minutes FROM SoccerStats WHERE eventID = ? " +
-                    "AND player = ?");
+            stmt = conn.prepareStatement("SELECT teamID, timeOn, minutes, eventID, player FROM SoccerStats WHERE eventID = ? " +
+                    "AND player = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             stmt.setInt(1, eventID);
             stmt.setString(2, sub.subOff);
             rs = stmt.executeQuery();
@@ -279,6 +280,7 @@ public class SoccerTimeAPI {
             stmt.setString(2, sub.subOn);
             stmt.setInt(3, sub.teamID);
             stmt.setLong(4, sub.getTimestampMillis());
+            stmt.setLong(5, sub.getTimestampMillis());
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
             // TODO log
