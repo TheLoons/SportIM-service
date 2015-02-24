@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `red` INT NOT NULL DEFAULT 0,
   `yellow` INT NOT NULL DEFAULT 0,
   `timeOn` INT NOT NULL DEFAULT -1,
+  `saves` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`eventID`, `teamID`, `player`));
 
 CREATE TABLE IF NOT EXISTS `SoccerSessions` (
