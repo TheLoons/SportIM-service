@@ -1,3 +1,5 @@
+drop table alertjob;
+drop table alertssent;
 drop table PlayerEvent;
 drop table TeamEvent;
 drop table Event;

@@ -104,3 +104,18 @@ CREATE TABLE PlayerEvent(
         ON DELETE CASCADE, 
     PRIMARY KEY (EventId, Login)
 );
+
+CREATE TABLE AlertJob(
+    IsRunning TINYINT(1) PRIMARY KEY (IsRunning) NOT NULL
+);
+
+CREATE TABLE alertssent (
+  eventId int(11) NOT NULL,
+  login varchar(50) NOT NULL,
+  start bigint(20) NOT NULL,
+  PRIMARY KEY (eventId,login,start),
+  KEY login_idx (login),
+  CONSTRAINT eventId FOREIGN KEY (eventId) REFERENCES event (EventId) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT login FOREIGN KEY (login) REFERENCES player (Login) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
