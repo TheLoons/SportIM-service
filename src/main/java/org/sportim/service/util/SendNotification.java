@@ -8,6 +8,12 @@ package org.sportim.service.util;
 
 
 import com.sendgrid.*;
+import com.twilio.sdk.TwilioRestClient;
+import com.twilio.sdk.TwilioRestException;
+import com.twilio.sdk.resource.factory.MessageFactory;
+import com.twilio.sdk.resource.instance.Message;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,6 +65,36 @@ public class SendNotification
 
 
         return sentEmail;
+    }
+
+    /*
+        Simple function to send email and return true if it successfully tried to send an email
+     */
+    public static boolean sendText(String toPhone, String fromPhone, String body)
+    {
+
+
+        boolean sentText = true;
+        String twilio_acct_id = System.getenv("TWILIO_ACCOUNT_SID");
+        String twilio_auth_token = System.getenv("TWILIO_AUTH_TOKEN");
+        try {
+            TwilioRestClient client = new TwilioRestClient(twilio_acct_id, twilio_auth_token);
+
+            // Build a filter for the MessageList
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("Body", body));
+            params.add(new BasicNameValuePair("To", "+1" + toPhone));
+            params.add(new BasicNameValuePair("From", "+1" + fromPhone));
+
+            MessageFactory messageFactory = client.getAccount().getMessageFactory();
+            Message message = messageFactory.create(params);
+            sentText = true;
+        } catch (TwilioRestException e) {
+            System.out.println(e.getMessage());
+        }
+
+
+        return sentText;
     }
 
     /*
@@ -121,7 +158,8 @@ public class SendNotification
                             Date eventDate = new Date(res.getLong("test3.StartDate"));
 
                             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                            if(sendEmail(res.getString("test3.Login"), "theloons.sportim@gmail.com", res.getString("test3.EventName"), "This is your notification for Event: " + res.getString("test3.EventName") + " on " + dateFormat.format(eventDate)))
+                            String body = "This is your notification for Event: " + res.getString("test3.EventName") + " on " + dateFormat.format(eventDate);
+                            if(sendEmail(res.getString("test3.Login"), "theloons.sportim@gmail.com", res.getString("test3.EventName"), body))
                             {
                                 stmt = conn.prepareStatement("INSERT INTO alertssent (eventId, login, start) VALUES (?,?,?)");
                                 stmt.setInt(1, res.getInt("test3.eventId"));
@@ -130,6 +168,17 @@ public class SendNotification
                                 stmt.addBatch();
                                 stmts.add(stmt);
 
+                            }
+                            String fromNumber = "3853991636";
+                            if(sendText(res.getString("test3.Phone"), fromNumber, body))
+                            {
+                                //TODO Update AlertSent Table
+                                stmt = conn.prepareStatement("INSERT INTO alertssent (eventId, login, start) VALUES (?,?,?)");
+                                stmt.setInt(1, res.getInt("test3.eventId"));
+                                stmt.setString(2, login);
+                                stmt.setLong(3, currentTime);
+                                stmt.addBatch();
+                                stmts.add(stmt);
                             }
 
                         }
