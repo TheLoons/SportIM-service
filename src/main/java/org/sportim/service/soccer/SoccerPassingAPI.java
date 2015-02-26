@@ -119,7 +119,45 @@ public class SoccerPassingAPI {
     }
 
     private List<TeamPassingBean> getEventPassingStats(final int eventID) {
-        return null;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<TeamPassingBean> eventPasses = new ArrayList<TeamPassingBean>();
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT sp.to, sp.from, ss.teamID, SUM(sp.passes) " +
+                    "FROM SoccerPassing sp INNER JOIN SoccerStats ss " +
+                    "ON sp.eventID = ss.eventID AND sp.from = ss.player " +
+                    "WHERE sp.eventID = ? " +
+                    "GROUP BY sp.to, sp.from, ss.teamID");
+            stmt.setInt(1, eventID);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int teamID = rs.getInt(3);
+                int count = rs.getInt(4);
+                TeamPassingBean teamPasses = new TeamPassingBean(teamID);
+                int i = eventPasses.indexOf(teamPasses);
+                if (i >= 0) {
+                    teamPasses = eventPasses.get(i);
+                } else {
+                    eventPasses.add(teamPasses);
+                }
+                teamPasses.totalPasses += count;
+                PassBean pass = new PassBean();
+                pass.to = rs.getString(1);
+                pass.from = rs.getString(2);
+                pass.count = count;
+                teamPasses.passes.add(pass);
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            eventPasses = null;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+        return eventPasses;
     }
 
     private PlayerPassingBean getPlayerPassingStats(final String player) {
