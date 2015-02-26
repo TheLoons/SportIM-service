@@ -141,6 +141,51 @@ public class PrivilegeUtil {
     }
 
     /**
+     * Check if a user can view a team
+     * @param token the user's token
+     * @param teamID the team ID
+     * @return true if the user can view
+     */
+    public static boolean hasTeamView(String token, int teamID) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (user == null) {
+            return false;
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        boolean res = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT COUNT(Team.TeamId) FROM Team INNER JOIN PlaysFor " +
+                    "WHERE (PlaysFor.Login = ? AND Team.TeamId = ?) OR Team.TeamOwner = ?");
+            stmt.setString(1, user);
+            stmt.setInt(2, teamID);
+            stmt.setString(3, user);
+            rs = stmt.executeQuery();
+            res = rs.next() && rs.getInt(1) > 0;
+
+            if (!res) {
+                APIUtils.closeResources(rs, stmt);
+                stmt = conn.prepareStatement("SELECT COUNT(Team.TeamId) " +
+                        "FROM Team INNER JOIN TeamBelongsTo INNER JOIN League " +
+                        "WHERE League.LeagueOwner = ? AND Team.TeamId = ?");
+                stmt.setString(1, user);
+                stmt.setInt(2, teamID);
+                rs = stmt.executeQuery();
+                res = rs.next() && rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+        return res;
+    }
+
+    /**
      * Check if a user can update a tournament
      * @param token the user's token
      * @param tournamentID the tournament ID

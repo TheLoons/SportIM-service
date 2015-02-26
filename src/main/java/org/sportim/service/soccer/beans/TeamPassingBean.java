@@ -3,19 +3,15 @@ package org.sportim.service.soccer.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
- * Bean for passes
+ * Bean for player passing stats
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class PassBean {
-    @NotNull public String to;
-    @NotNull public String from;
-    public int count = 0;
-
-    public boolean validate() {
-        return (to != null) && (from != null);
-    }
+public class TeamPassingBean {
+    public int teamID;
+    public int totalPasses;
+    public List<PassBean> passes;
 }

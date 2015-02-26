@@ -1,14 +1,12 @@
 package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.sportim.service.soccer.beans.AggregateEventBean;
-import org.sportim.service.soccer.beans.PlayerStatsBean;
-import org.sportim.service.soccer.beans.TeamStatsBean;
+import org.sportim.service.soccer.beans.*;
 
 import java.util.List;
 
 /**
- * Created by hannah on 12/4/14.
+ * Catch-all response bean - includes status
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class ResponseBean {
@@ -29,6 +27,9 @@ public class ResponseBean {
     private AggregateEventBean eventStats;
     private PlayerStatsBean playerStats;
     private TeamStatsBean teamStats;
+    private PlayerPassingBean playerPasses;
+    private TeamPassingBean teamPasses;
+    private List<TeamPassingBean> eventPasses;
 
     public ResponseBean(){
     }
@@ -166,5 +167,29 @@ public class ResponseBean {
 
     public void setUsers(List<UserBean> users) {
         this.users = users;
+    }
+
+    public PlayerPassingBean getPlayerPasses() {
+        return playerPasses;
+    }
+
+    public void setPlayerPasses(PlayerPassingBean playerPasses) {
+        this.playerPasses = playerPasses;
+    }
+
+    public TeamPassingBean getTeamPasses() {
+        return teamPasses;
+    }
+
+    public void setTeamPasses(TeamPassingBean teamPasses) {
+        this.teamPasses = teamPasses;
+    }
+
+    public List<TeamPassingBean> getEventPasses() {
+        return eventPasses;
+    }
+
+    public void setEventPasses(List<TeamPassingBean> eventPasses) {
+        this.eventPasses = eventPasses;
     }
 }

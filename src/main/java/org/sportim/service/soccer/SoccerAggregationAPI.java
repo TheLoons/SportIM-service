@@ -43,7 +43,7 @@ public class SoccerAggregationAPI {
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                    "SUM(fouls), SUM(yellow), SUM(red) FROM SoccerStats " +
+                    "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
                     "WHERE eventID = ? " +
                     "GROUP BY teamID");
             stmt.setInt(1, eventID);
@@ -59,6 +59,7 @@ public class SoccerAggregationAPI {
                 teamStats.fouls = rs.getInt(6);
                 teamStats.yellow = rs.getInt(7);
                 teamStats.red = rs.getInt(8);
+                teamStats.saves = rs.getInt(9);
                 eventStats.teamStats.add(teamStats);
 
                 eventStats.totalGoals += teamStats.goals;
@@ -69,7 +70,7 @@ public class SoccerAggregationAPI {
             APIUtils.closeResources(rs, stmt);
             for (TeamStatsBean team : eventStats.teamStats) {
                 stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists) FROM SoccerStats " +
+                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(minutes), SUM(saves) FROM SoccerStats " +
                         "WHERE eventID = ? AND teamID = ? " +
                         "GROUP BY player");
                 stmt.setInt(1, eventID);
@@ -87,6 +88,8 @@ public class SoccerAggregationAPI {
                     playerStats.yellow = rs.getInt(7);
                     playerStats.red = rs.getInt(8);
                     playerStats.assists = rs.getInt(9);
+                    playerStats.minutes = rs.getInt(10);
+                    playerStats.saves = rs.getInt(11);
                     team.playerStats.add(playerStats);
                 }
                 APIUtils.closeResources(rs, stmt);
@@ -125,13 +128,13 @@ public class SoccerAggregationAPI {
             conn = provider.getConnection();
             if (teamID < 1) {
                 stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists) FROM SoccerStats " +
+                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(saves), SUM(minutes) FROM SoccerStats " +
                         "WHERE player = ?" +
                         "GROUP BY player");
                 stmt.setString(1, login);
             } else {
                 stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists) FROM SoccerStats " +
+                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(saves), SUM(minutes) FROM SoccerStats " +
                         "WHERE player = ? AND teamID = ? " +
                         "GROUP BY player");
                 stmt.setString(1, login);
@@ -148,6 +151,8 @@ public class SoccerAggregationAPI {
                 playerStats.yellow = rs.getInt(7);
                 playerStats.red = rs.getInt(8);
                 playerStats.assists = rs.getInt(9);
+                playerStats.saves = rs.getInt(10);
+                playerStats.minutes = rs.getInt(11);
             }
             success = true;
         } catch (Exception e) {
@@ -181,7 +186,7 @@ public class SoccerAggregationAPI {
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                    "SUM(fouls), SUM(yellow), SUM(red) FROM SoccerStats " +
+                    "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
                     "WHERE teamID = ?" +
                     "GROUP BY teamID");
             stmt.setInt(1, teamID);
@@ -195,6 +200,7 @@ public class SoccerAggregationAPI {
                 teamStats.fouls = rs.getInt(6);
                 teamStats.yellow = rs.getInt(7);
                 teamStats.red = rs.getInt(8);
+                teamStats.saves = rs.getInt(9);
             }
             success = true;
         } catch (Exception e) {
