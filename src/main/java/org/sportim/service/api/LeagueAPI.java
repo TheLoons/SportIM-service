@@ -385,8 +385,7 @@ public class LeagueAPI {
     @Produces("application/json")
     public ResponseBean removeTeamFromLeague(@QueryParam("leagueId") final int leagueId,
                                              @QueryParam("teamId") final int teamId,
-                                             @HeaderParam("token") final String token)
-    {
+                                             @HeaderParam("token") final String token) {
         if (!PrivilegeUtil.hasLeagueUpdate(token, leagueId)) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -421,6 +420,77 @@ public class LeagueAPI {
             APIUtils.closeResource(conn);
         }
         return new ResponseBean(status, message);
+    }
+
+    @POST
+    @Path("table/{id}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean addLeagueTable(TournamentBean table, @PathParam("id") final int leagueId,
+                                       @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, leagueId)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+        if (leagueId < 1 || table.getTournamentID() < 1 || table.getDesc() == null || table.getDesc().isEmpty()) {
+            return new ResponseBean(400, "Bad request");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        boolean ok = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("INSERT IGNORE INTO LeagueTable (LeagueId, TournamentId, Description) " +
+                    "VALUES (?,?,?)");
+            stmt.setInt(1, leagueId);
+            stmt.setInt(2, table.getTournamentID());
+            stmt.setString(3, table.getDesc());
+            ok = stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+
+        if (!ok) {
+            return new ResponseBean(500, "Unable to add league schedule. Make sure the league and tournament exist.");
+        }
+        return new ResponseBean(200, "");
+    }
+
+    @DELETE
+    @Path("table/{id}")
+    @Produces("application/json")
+    public ResponseBean deleteLeagueTable(@PathParam("id") final int leagueId, @QueryParam("tableId") final int tableId,
+                                          @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasLeagueUpdate(token, leagueId)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+        if (leagueId < 1 || tableId < 1) {
+            return new ResponseBean(400, "Bad request");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        boolean ok = false;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("DELETE FROM LeagueTable WHERE LeagueId = ? AND TournamentId = ?");
+            stmt.setInt(1, leagueId);
+            stmt.setInt(2, tableId);
+            ok = stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+
+        if (!ok) {
+            return new ResponseBean(500, "Unable to delete league table. Make sure it exists first.");
+        }
+        return new ResponseBean(200, "");
     }
 
     /**
