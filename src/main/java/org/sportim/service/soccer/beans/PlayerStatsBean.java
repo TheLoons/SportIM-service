@@ -18,4 +18,6 @@ public class PlayerStatsBean {
     public int fouls = 0;
     public int yellow = 0;
     public int red = 0;
+    public int saves = 0;
+    public int minutes = 0;
 }
