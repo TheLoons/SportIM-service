@@ -125,11 +125,10 @@ public class SoccerPassingAPI {
         List<TeamPassingBean> eventPasses = new ArrayList<TeamPassingBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT sp.to, sp.from, ss.teamID, SUM(sp.passes) " +
+            stmt = conn.prepareStatement("SELECT DISTINCT sp.to, sp.from, ss.teamID, sp.passes " +
                     "FROM SoccerPassing sp INNER JOIN SoccerStats ss " +
-                    "ON sp.eventID = ss.eventID AND sp.from = ss.player " +
-                    "WHERE sp.eventID = ? " +
-                    "GROUP BY sp.to, sp.from, ss.teamID");
+                    "ON sp.eventID = ss.eventID AND (sp.from = ss.player OR sp.to = ss.player) " +
+                    "WHERE sp.eventID = ? ");
             stmt.setInt(1, eventID);
             rs = stmt.executeQuery();
 
