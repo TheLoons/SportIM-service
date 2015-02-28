@@ -109,7 +109,7 @@ CREATE TABLE AlertJob(
     IsRunning TINYINT(1) PRIMARY KEY (IsRunning) NOT NULL
 );
 
-CREATE TABLE alertssent (
+CREATE TABLE AlertsSent (
   eventId int(11) NOT NULL,
   login varchar(50) NOT NULL,
   start bigint(20) NOT NULL,
@@ -119,3 +119,15 @@ CREATE TABLE alertssent (
   CONSTRAINT login FOREIGN KEY (login) REFERENCES player (Login) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE LeagueTable (
+  LeagueId INTEGER,
+      FOREIGN KEY (LeagueId) REFERENCES League (LeagueId)
+      ON UPDATE CASCADE
+      ON DELETE CASCADE,
+  TournamentId INTEGER,
+      FOREIGN KEY (TournamentId) REFERENCES Tournament (TournamentId)
+      ON UPDATE CASCADE
+      ON DELETE CASCADE,
+  Description VARCHAR(255),
+  PRIMARY KEY (LeagueId, TournamentId)
+);
