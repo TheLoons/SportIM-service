@@ -30,6 +30,8 @@ public class ResponseBean {
     private PlayerPassingBean playerPasses;
     private TeamPassingBean teamPasses;
     private List<TeamPassingBean> eventPasses;
+    private List<TeamResultsBean> tournamentResults;
+    private List<TournamentBean> tables;
 
     public ResponseBean(){
     }
@@ -191,5 +193,21 @@ public class ResponseBean {
 
     public void setEventPasses(List<TeamPassingBean> eventPasses) {
         this.eventPasses = eventPasses;
+    }
+
+    public List<TournamentBean> getTables() {
+        return tables;
+    }
+
+    public void setTables(List<TournamentBean> tables) {
+        this.tables = tables;
+    }
+
+    public List<TeamResultsBean> getTournamentResults() {
+        return tournamentResults;
+    }
+
+    public void setTournamentResults(List<TeamResultsBean> tournamentResults) {
+        this.tournamentResults = tournamentResults;
     }
 }

@@ -4,7 +4,9 @@ import org.sportim.service.beans.*;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
+import javax.xml.transform.Result;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -457,6 +459,48 @@ public class LeagueAPI {
             return new ResponseBean(500, "Unable to add league schedule. Make sure the league and tournament exist.");
         }
         return new ResponseBean(200, "");
+    }
+
+    @GET
+    @Path("table/{id}")
+    @Produces("application/json")
+    public ResponseBean getLeagueTables(@PathParam("id") final int leagueId, @HeaderParam("token") final String token) {
+        if ((AuthenticationUtil.validateToken(token)) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        boolean ok = false;
+        List<TournamentBean> tables = new ArrayList<TournamentBean>();
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT TournamentId, Description FROM LeagueTable WHERE LeagueId = ?");
+            stmt.setInt(1, leagueId);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                TournamentBean t = new TournamentBean();
+                t.setLeagueId(leagueId);
+                t.setTournamentID(rs.getInt(1));
+                t.setDesc(rs.getString(2));
+                tables.add(t);
+            }
+            ok = true;
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        if (!ok) {
+            return new ResponseBean(500, "Unable to get league tables. Please make sure the league exists.");
+        }
+
+        ResponseBean resp = new ResponseBean(200, "");
+        resp.setTables(tables);
+        return resp;
     }
 
     @DELETE
