@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.soccer.beans.*;
 
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Catch-all response bean - includes status
@@ -30,7 +31,7 @@ public class ResponseBean {
     private PlayerPassingBean playerPasses;
     private TeamPassingBean teamPasses;
     private List<TeamPassingBean> eventPasses;
-    private List<TeamResultsBean> tournamentResults;
+    private SortedSet<TeamResultsBean> tournamentResults;
     private List<TournamentBean> tables;
 
     public ResponseBean(){
@@ -203,11 +204,11 @@ public class ResponseBean {
         this.tables = tables;
     }
 
-    public List<TeamResultsBean> getTournamentResults() {
+    public SortedSet<TeamResultsBean> getTournamentResults() {
         return tournamentResults;
     }
 
-    public void setTournamentResults(List<TeamResultsBean> tournamentResults) {
+    public void setTournamentResults(SortedSet<TeamResultsBean> tournamentResults) {
         this.tournamentResults = tournamentResults;
     }
 }

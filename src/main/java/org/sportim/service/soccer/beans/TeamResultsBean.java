@@ -9,14 +9,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TeamResultsBean implements Comparable<TeamResultsBean> {
-    int teamID = 0;
-    int rank = 0;
-    int wins = 0;
-    int losses = 0;
-    int ties = 0;
-    int goalsFor = 0;
-    int goalsAgainst = 0;
-    int points = 0;
+    public int teamID = 0;
+    public int rank = 0;
+    public int wins = 0;
+    public int losses = 0;
+    public int ties = 0;
+    public int goalsFor = 0;
+    public int goalsAgainst = 0;
+    public int points = 0;
+
+    public TeamResultsBean(int teamID) {
+        this.teamID = teamID;
+    }
 
     @Override
     public boolean equals(Object o) {
