@@ -187,7 +187,7 @@ public class SoccerAggregationAPI {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
                     "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
-                    "WHERE teamID = ?" +
+                    "WHERE teamID = ? " +
                     "GROUP BY teamID");
             stmt.setInt(1, teamID);
             rs = stmt.executeQuery();
