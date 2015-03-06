@@ -1,14 +1,14 @@
 package org.sportim.service.api;
 
 import org.sportim.service.beans.*;
+import org.sportim.service.soccer.SoccerTableAPI;
+import org.sportim.service.soccer.beans.TeamResultsBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 import javax.xml.transform.Result;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * API for league management
@@ -500,6 +500,65 @@ public class LeagueAPI {
 
         ResponseBean resp = new ResponseBean(200, "");
         resp.setTables(tables);
+        return resp;
+    }
+
+    @GET
+    @Path("table/{leagueID}/{tableID}")
+    @Produces("application/json")
+    public ResponseBean getTableResults(@PathParam("leagueID") final int leagueID, @PathParam("tableID") final int tableID,
+                                        @HeaderParam("token") final String token) {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        List<Integer> events = (new TournamentAPI(provider)).getEventsForTournament(tableID);
+        if (events == null) {
+            ResponseBean resp = new ResponseBean(200, "");
+            resp.setTournamentResults(new TreeSet<TeamResultsBean>());
+            return resp;
+        }
+
+        // Get the table from the correct results plug in
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        String sport = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT Sport From League WHERE LeagueId = ?");
+            stmt.setInt(1, leagueID);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                sport = rs.getString(1);
+            } else {
+                sport = "other";
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            sport = null;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        if (sport == null) {
+            return new ResponseBean(500, "Unable to get league table results.");
+        }
+
+        SortedSet<TeamResultsBean> table;
+        if (sport.equals("soccer")) {
+            table = (new SoccerTableAPI(provider)).getTableForEvents(events);
+        } else {
+            return new ResponseBean(400, "Unable to get table results for a league with an unsupported sport.");
+        }
+
+        if (table == null) {
+            return new ResponseBean(500, "Error retrieving table results.");
+        }
+
+        ResponseBean resp = new ResponseBean(200, "");
+        resp.setTournamentResults(table);
         return resp;
     }
 

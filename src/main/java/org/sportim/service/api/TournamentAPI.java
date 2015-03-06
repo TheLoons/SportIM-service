@@ -8,6 +8,7 @@ import org.sportim.service.util.*;
 import javax.ws.rs.*;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -78,6 +79,30 @@ public class TournamentAPI {
             resp.setStatus(s);
         }
         return resp;
+    }
+
+    public List<Integer> getEventsForTournament(final int tournamentID) {
+        List<Integer> events = new ArrayList<Integer>();
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT EventId FROM Event WHERE TournamentId = ?");
+            stmt.setInt(1, tournamentID);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                events.add(rs.getInt(1));
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            events = null;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+        return events;
     }
 
     @POST
