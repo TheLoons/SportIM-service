@@ -359,7 +359,6 @@ public class LeagueAPI {
         int status = 200;
         String message = "";
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -425,7 +424,7 @@ public class LeagueAPI {
     }
 
     @POST
-    @Path("table/{id}")
+    @Path("{id}/table")
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean addLeagueTable(TournamentBean table, @PathParam("id") final int leagueId,
@@ -462,7 +461,7 @@ public class LeagueAPI {
     }
 
     @GET
-    @Path("table/{id}")
+    @Path("{id}/table")
     @Produces("application/json")
     public ResponseBean getLeagueTables(@PathParam("id") final int leagueId, @HeaderParam("token") final String token) {
         if ((AuthenticationUtil.validateToken(token)) == null) {
@@ -504,7 +503,7 @@ public class LeagueAPI {
     }
 
     @GET
-    @Path("table/{leagueID}/{tableID}")
+    @Path("{leagueID}/table/{tableID}")
     @Produces("application/json")
     public ResponseBean getTableResults(@PathParam("leagueID") final int leagueID, @PathParam("tableID") final int tableID,
                                         @HeaderParam("token") final String token) {
@@ -563,7 +562,7 @@ public class LeagueAPI {
     }
 
     @DELETE
-    @Path("table/{id}")
+    @Path("{id}/table")
     @Produces("application/json")
     public ResponseBean deleteLeagueTable(@PathParam("id") final int leagueId, @QueryParam("tableId") final int tableId,
                                           @HeaderParam("token") final String token) {

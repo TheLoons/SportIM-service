@@ -89,4 +89,15 @@ public class APIUtils {
         DateTime dt = new DateTime(millis, DateTimeZone.UTC);
         return dt.toString();
     }
+
+    public static String createParamString(int numParams) {
+        String params = "";
+        for (int i = 0; i < numParams; i++) {
+            if (!params.isEmpty()) {
+                params += ",";
+            }
+            params += "?";
+        }
+        return params;
+    }
 }

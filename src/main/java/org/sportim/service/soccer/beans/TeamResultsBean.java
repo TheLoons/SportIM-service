@@ -33,10 +33,14 @@ public class TeamResultsBean implements Comparable<TeamResultsBean> {
 
     @Override
     public int compareTo(TeamResultsBean teamResultsBean) {
+        if (teamID == teamResultsBean.teamID) {
+            return 0;
+        }
+
         if (points > teamResultsBean.points) {
             return -1;
         }
-        if (points < teamResultsBean.ties) {
+        if (points < teamResultsBean.points) {
             return 1;
         }
         // Tie breakers
@@ -48,7 +52,7 @@ public class TeamResultsBean implements Comparable<TeamResultsBean> {
 
         if (losses < teamResultsBean.losses) {
             return -1;
-        } else if (losses < teamResultsBean.losses) {
+        } else if (losses > teamResultsBean.losses) {
             return 1;
         }
 
@@ -64,6 +68,6 @@ public class TeamResultsBean implements Comparable<TeamResultsBean> {
             return 1;
         }
 
-        return 0;
+        return (teamID < teamResultsBean.teamID) ? -1 : 1;
     }
 }

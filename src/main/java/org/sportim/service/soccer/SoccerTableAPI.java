@@ -30,9 +30,8 @@ public class SoccerTableAPI {
     }
 
     @GET
-    @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean getTableForEvents(List<Integer> events, @HeaderParam("token") final String token) {
+    public ResponseBean getTableForEvents(@BeanParam List<Integer> events, @HeaderParam("token") final String token) {
         for (int i : events) {
             if (!PrivilegeUtil.hasEventView(token, i)) {
                 return new ResponseBean(401, "Not authorized");
@@ -63,7 +62,7 @@ public class SoccerTableAPI {
             rs = stmt.executeQuery();
 
             // Collect the team and event results
-            collectResults(eventResults, teamResults, rs);
+            collectResults(eventResults, teamResults, rs, events);
 
             // Calculate event winners and add them to the team results
             calculatePoints(eventResults, teamResults);
@@ -89,13 +88,7 @@ public class SoccerTableAPI {
     }
 
     private PreparedStatement createEventStatQuery(List<Integer> events, Connection conn) throws SQLException {
-        String query = "";
-        for (int i = 0; i < events.size(); i++) {
-            if (!query.isEmpty()) {
-                query += ",";
-            }
-            query += "?";
-        }
+        String query = APIUtils.createParamString(events.size());
         query = "SELECT teamID, eventID, SUM(goals), SUM(goalsagainst) FROM SoccerStats WHERE eventID IN (" + query + ") " +
                 "GROUP BY teamID, eventID";
 
@@ -108,7 +101,34 @@ public class SoccerTableAPI {
     }
 
     private void collectResults(Map<Integer, Map<Integer,Integer>> eventResults, Map<Integer, TeamResultsBean> teamResults,
-                                ResultSet rs) throws SQLException {
+                                ResultSet rs, List<Integer> events) throws Exception {
+        // Get all teams so we can fill in with zeros if needed
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet allTeamsRs = null;
+        Set<Integer> allTeamsInTournament = new HashSet<Integer>();
+        Exception ex = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT DISTINCT(TeamId) FROM TeamEvent " +
+                    "WHERE EventId IN (" + APIUtils.createParamString(events.size()) + ")");
+            int i = 0;
+            for (int id : events) {
+                stmt.setInt(++i, id);
+            }
+            allTeamsRs = stmt.executeQuery();
+            while (allTeamsRs.next()) {
+                allTeamsInTournament.add(allTeamsRs.getInt(1));
+            }
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            APIUtils.closeResources(allTeamsRs, stmt, conn);
+            if (ex != null) {
+                throw ex;
+            }
+        }
+
         while (rs.next()) {
             int teamID = rs.getInt(1);
             int eventID = rs.getInt(2);
@@ -132,9 +152,17 @@ public class SoccerTableAPI {
             if (teamRes == null) {
                 teamRes = new TeamResultsBean(teamID);
                 teamResults.put(teamID, teamRes);
+                allTeamsInTournament.remove(teamID);
             }
             teamRes.goalsFor += goals;
             teamRes.goalsAgainst += goalsagainst;
+        }
+
+        for (int team : allTeamsInTournament) {
+            TeamResultsBean teamRes = new TeamResultsBean(team);
+            teamRes.goalsAgainst = 0;
+            teamRes.goalsFor = 0;
+            teamResults.put(team, teamRes);
         }
     }
 
