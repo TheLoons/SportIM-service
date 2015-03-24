@@ -76,6 +76,10 @@ CREATE TABLE Event(
     EndDate BIGINT NOT NULL, 
     TournamentId INTEGER, 
 	FOREIGN KEY (TournamentId) REFERENCES Tournament (TournamentId), 
+    NextEventId INTEGER, 
+	FOREIGN KEY (EventId) REFERENCES Event (EventId)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE, 
     FOREIGN KEY (EventOwner) REFERENCES Player (Login)
         ON UPDATE CASCADE,
     PRIMARY KEY(EventId)
