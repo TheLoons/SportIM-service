@@ -44,13 +44,15 @@ public class SingleEventAPI {
         List<UserBean> players = new LinkedList<UserBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner FROM Event " +
+            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner, Location, EventType FROM Event " +
                                          "WHERE EventId = ?");
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
 
             if(rs.next()) {
                 event = new EventBean(rs);
+                event.setLocation(rs.getString("Location"));
+                event.setType(rs.getString("EventType"));
                 if (PrivilegeUtil.hasEventUpdate(token, id)) {
                     event.setEditable(true);
                 }
@@ -324,7 +326,7 @@ public class SingleEventAPI {
 
         // update event stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
-                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, EventOwner = ? " +
+                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, EventOwner = ?, Location = ?, EventType = ? " +
                 "WHERE EventId = ?");
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
@@ -335,7 +337,9 @@ public class SingleEventAPI {
             stmt.setNull(4, Types.INTEGER);
         }
         stmt.setString(5, event.getOwner());
-        stmt.setInt(6, event.getId());
+        stmt.setString(6, event.getLocation());
+        stmt.setString(7, event.getType());
+        stmt.setInt(8, event.getId());
         stmt.addBatch();
         stmts.add(stmt);
 
@@ -433,14 +437,17 @@ public class SingleEventAPI {
      * @throws SQLException
      */
     private static boolean verifyPlayers(List<String> players, Connection conn) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(Login) FROM Player WHERE Login IN(" +
+         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(Login) FROM Player WHERE Login IN(" +
                 generateArgs(players.size()) + ")");
         for (int i = 1; i <= players.size(); i++) {
             stmt.setString(i, players.get(i - 1));
         }
         ResultSet rs = stmt.executeQuery();
         boolean res = true;
+
         if (rs.next() && rs.getInt(1) != players.size()) {
+
+            String temp = rs.getInt(1) + "\t\t" + stmt.toString();
             res = false;
         }
         APIUtils.closeResource(rs);
@@ -477,7 +484,7 @@ public class SingleEventAPI {
      */
     private static int addEvent(EventBean event, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO Event (EventName, StartDate, EndDate, TournamentId, " +
-                "EventOwner) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                "EventOwner, Location, EventType) VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
         stmt.setLong(3, event.getEndMillis());
@@ -488,6 +495,8 @@ public class SingleEventAPI {
             stmt.setNull(4, Types.INTEGER);
         }
         stmt.setString(5, event.getOwner());
+        stmt.setString(6, event.getLocation());
+        stmt.setString(7, event.getType());
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();
 

@@ -126,7 +126,7 @@ public class MultiEventAPI {
     }
 
     private static PreparedStatement getEventQuery(Set<Integer> teams, Connection conn) throws SQLException {
-        String query = "SELECT DISTINCT e.EventName, e.StartDate, e.EndDate, e.TournamentId, e.EventId, e.EventOwner " +
+        String query = "SELECT DISTINCT e.EventName, e.StartDate, e.EndDate, e.TournamentId, e.EventId, e.EventOwner, e.Location, e.EventType " +
                         "FROM Event e LEFT OUTER JOIN TeamEvent te ON te.EventId = e.EventId " +
                         "LEFT OUTER JOIN PlayerEvent pe ON e.EventId = pe.EventId " +
                         "WHERE StartDate < ? AND EndDate > ? AND (e.EventOwner = ? OR pe.Login = ?";

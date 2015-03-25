@@ -173,7 +173,7 @@ public class UserAPI {
         UserBean user = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone, GameAlert, PracticeAlert, MeetingAlert, OtherAlert FROM Player " +
+            stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone, GameAlert, PracticeAlert, MeetingAlert, OtherAlert, ReceiveEmail, ReceiveText FROM Player " +
                     "WHERE Login = ?");
             stmt.setString(1, login);
             rs = stmt.executeQuery();
@@ -184,6 +184,8 @@ public class UserAPI {
                 user.setPracticeAlert(rs.getLong(5) / millisPerHour);
                 user.setMeetingAlert(rs.getLong(6) / millisPerHour);
                 user.setOtherAlert(rs.getLong(7) / millisPerHour);
+                user.setReceiveEmail(rs.getInt(8));
+                user.setReceiveText(rs.getInt(9));
             }
             else {
                 status = 404;
@@ -285,16 +287,16 @@ public class UserAPI {
         try {
             conn = provider.getConnection();
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ? WHERE Login = ?");
-                stmt.setString(8, user.getLogin());
+                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ?, ReceiveEmail = ?, ReceiveText = ? WHERE Login = ?");
+                stmt.setString(10, user.getLogin());
             } else {
-                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ?, Password = ?, Salt = ? " +
+                stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ?, ReceiveEmail = ?, ReceiveText = ?, Password = ?, Salt = ? " +
                         "WHERE Login = ?");
                 byte[] salt = AuthenticationUtil.getSalt();
                 byte[] hash = AuthenticationUtil.saltHashPassword(salt, user.getPassword());
-                stmt.setString(8, AuthenticationUtil.byteArrayToHexString(hash));
-                stmt.setString(9, AuthenticationUtil.byteArrayToHexString(salt));
-                stmt.setString(10, user.getLogin());
+                stmt.setString(10, AuthenticationUtil.byteArrayToHexString(hash));
+                stmt.setString(11, AuthenticationUtil.byteArrayToHexString(salt));
+                stmt.setString(12, user.getLogin());
             }
             stmt.setString(1, user.getFirstName());
             stmt.setString(2, user.getLastName());
@@ -303,6 +305,9 @@ public class UserAPI {
             stmt.setLong(5, user.getPracticeAlert() * millisPerHour);
             stmt.setLong(6, user.getMeetingAlert() * millisPerHour);
             stmt.setLong(7, user.getOtherAlert() * millisPerHour);
+            stmt.setInt(8, user.getReceiveEmail());
+            stmt.setInt(9, user.getReceiveText());
+            String statement = stmt.toString();
             int res = stmt.executeUpdate();
             if (res < 1) {
                 message = "No change to user.";

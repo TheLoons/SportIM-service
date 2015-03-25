@@ -22,6 +22,8 @@ public class UserBean {
     private long practiceAlert = -1;
     private long meetingAlert = -1;
     private long otherAlert = -1;
+    private int receiveEmail = 0;
+    private int receiveText = 0;
 
 
     /**
@@ -135,4 +137,12 @@ public class UserBean {
     public long getOtherAlert() {return otherAlert;}
 
     public void setOtherAlert(long otherAlert) { this.otherAlert = otherAlert;}
+
+    public int getReceiveEmail() {return receiveEmail;}
+
+    public void setReceiveEmail(int receiveEmail) { this.receiveEmail = receiveEmail;}
+
+    public int getReceiveText() {return receiveText;}
+
+    public void setReceiveText(int receiveText) { this.receiveText = receiveText;}
 }

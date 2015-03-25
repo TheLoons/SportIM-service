@@ -26,6 +26,8 @@ public class EventBean {
     private int tournamentID = 0;
     private int id;
     private boolean editable = false;
+    private String location = "";
+    private String type = "";
 
     public EventBean() {
     }
@@ -144,4 +146,13 @@ public class EventBean {
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
+
+    public String getLocation() {return location;}
+
+    public void setLocation(String location) {this.location = location;}
+
+    public String getType() {return type;}
+
+    public void setType(String type) {this.type = type;}
+
 }
