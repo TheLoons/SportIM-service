@@ -27,6 +27,8 @@ public class EventBean {
     private int id;
     private int nextEventID = 0;
     private boolean editable = false;
+    private String location = "";
+    private String type = "";
 
     public EventBean() {
     }
@@ -159,4 +161,12 @@ public class EventBean {
     public void setNextEventID(int nextEventID) {
         this.nextEventID = nextEventID;
     }
+
+    public String getLocation() {return location;}
+
+    public void setLocation(String location) {this.location = location;}
+
+    public String getType() {return type;}
+
+    public void setType(String type) {this.type = type;}
 }

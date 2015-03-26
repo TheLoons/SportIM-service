@@ -44,8 +44,8 @@ public class SendNotification
     {
         String username = System.getenv("SENDGRID_USERNAME");
         String password = System.getenv("SENDGRID_PASSWORD");
-        username = "app33243554@heroku.com";
-        password = "caade2au";
+//        username = "app33243554@heroku.com";
+//        password = "caade2au";
 
         boolean sentEmail = true;
         SendGrid sendgrid = new SendGrid(username, password);
