@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by Doug on 12/7/14.
@@ -17,6 +18,7 @@ public class TournamentBean
     String tournamentName;
     int leagueId;
     String desc;
+    List<EventBean> events;
 
     public TournamentBean() {
     }
@@ -53,6 +55,10 @@ public class TournamentBean
     public int getLeagueId() {return leagueId;}
 
     public void setLeagueId(int leagueId) {this.leagueId = leagueId;}
+
+    public List<EventBean> getEvents() { return events;}
+
+    public void setEvents(List<EventBean> events) { this.events = events; }
 
     public String validate() {
 

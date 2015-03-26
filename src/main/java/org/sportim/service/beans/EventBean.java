@@ -62,6 +62,8 @@ public class EventBean {
         this.start = APIUtils.parseDateTime(start).getMillis();
     }
 
+    public void setStartMillis(long millis) { this.start = millis; }
+
     public String getEnd() {
         return APIUtils.millisToUTCString(end);
     }
@@ -74,6 +76,8 @@ public class EventBean {
     public void setEnd(String end) {
         this.end = APIUtils.parseDateTime(end).getMillis();
     }
+
+    public void setEndMillis(long millis) { this.end = millis; }
 
     public List<Integer> getTeamIDs() {
         return teamIDs;

@@ -1,16 +1,12 @@
 package org.sportim.service.api;
 
-import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.beans.StatusBean;
-import org.sportim.service.beans.TournamentBean;
+import org.sportim.service.beans.*;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Path("/tournament")
 /**
@@ -52,6 +48,10 @@ public class TournamentAPI {
             if (rs.next()) {
                 tournament = new TournamentBean(rs);
             }
+
+            if (tournament != null) {
+                tournament.setEvents(getFullEventsForTournament(tournamentId));
+            }
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve tournament. SQL error.";
@@ -79,6 +79,51 @@ public class TournamentAPI {
             resp.setStatus(s);
         }
         return resp;
+    }
+
+    public List<EventBean> getFullEventsForTournament(final int tournamentId) throws SQLException {
+        Connection conn = provider.getConnection();
+        // get events
+        PreparedStatement stmt = conn.prepareStatement("SELECT e.EventId, e.EventName, e.StartDate, e.EndDate, e.EventOwner, e.NextEventId " +
+                "FROM Event e WHERE e.TournamentId = ?");
+        stmt.setInt(1, tournamentId);
+        ResultSet rs = stmt.executeQuery();
+        List<EventBean> events = new ArrayList<EventBean>();
+        while (rs.next()) {
+            EventBean event = new EventBean();
+            event.setId(rs.getInt(1));
+            event.setTitle(rs.getString(2));
+            event.setStartMillis(rs.getLong(3));
+            event.setEndMillis(rs.getLong(4));
+            event.setOwner(rs.getString(5));
+            event.setNextEventID(rs.getInt(6));
+            events.add(event);
+        }
+        APIUtils.closeResources(rs, stmt);
+
+        // get teams for the events
+        for (EventBean event : events) {
+            event.setTeams(new ArrayList<TeamBean>());
+            Set<Integer> teams = new HashSet<Integer>();
+            stmt = conn.prepareStatement("SELECT t.TeamId, t.TeamName " +
+                    "FROM Event e INNER JOIN TeamEvent te ON te.EventId = e.EventId INNER JOIN Team t ON te.TeamId = t.TeamId " +
+                    "WHERE e.EventId = ?");
+            stmt.setInt(1, event.getId());
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                int teamID = rs.getInt(1);
+                if (!teams.contains(teamID)) {
+                    teams.add(teamID);
+                    TeamBean team = new TeamBean();
+                    team.setId(teamID);
+                    team.setName(rs.getString(2));
+                    event.getTeams().add(team);
+                }
+            }
+        }
+        APIUtils.closeResources(rs, stmt, conn);
+
+        return events;
     }
 
     public List<Integer> getEventsForTournament(final int tournamentID) {
