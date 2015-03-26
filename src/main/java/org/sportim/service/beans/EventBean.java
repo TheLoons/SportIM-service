@@ -25,6 +25,7 @@ public class EventBean {
     private List<UserBean> players;
     private int tournamentID = 0;
     private int id;
+    private int nextEventID = -1;
     private boolean editable = false;
 
     public EventBean() {
@@ -143,5 +144,14 @@ public class EventBean {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
+    public int getNextEventID() {
+        return nextEventID;
+    }
+
+    public void setNextEventID(int nextEventID) {
+        this.nextEventID = nextEventID;
     }
 }

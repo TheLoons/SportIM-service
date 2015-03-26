@@ -37,6 +37,8 @@ public class MultiEventAPI {
         if (user == null) {
             return new ResponseBean(401, "Not authorized");
         }
+
+        Map<Integer, Integer> origIdToDatabaseId = new HashMap<Integer, Integer>();
         ResponseBean resp = new ResponseBean(200, "");
         List<Integer> ids = new ArrayList<Integer>(events.size());
         for (EventBean event : events) {
@@ -46,8 +48,23 @@ public class MultiEventAPI {
                 return sresp;
             }
             ids.add(sresp.getId());
+            origIdToDatabaseId.put(event.getId(), sresp.getId());
         }
         resp.setIds(ids);
+
+        // Now, see if we need to put in bracket info for these events
+        for (EventBean event : events) {
+            if (event.getNextEventID() == -1) {
+                continue;
+            }
+            int dbId = origIdToDatabaseId.get(event.getId()) != null ? origIdToDatabaseId.get(event.getId()) : -1;
+            int nextDbId = origIdToDatabaseId.get(event.getNextEventID()) != null ? origIdToDatabaseId.get(event.getNextEventID()) : -1;
+            if (dbId == -1 || nextDbId == -1) {
+                continue;
+            }
+            SingleEventAPI.updateNextEventId(dbId, nextDbId, provider);
+        }
+
         return resp;
     }
 

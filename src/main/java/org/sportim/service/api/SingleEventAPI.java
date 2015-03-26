@@ -324,7 +324,7 @@ public class SingleEventAPI {
 
         // update event stmt
         PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
-                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, EventOwner = ? " +
+                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, EventOwner = ?, NextEventId = ? " +
                 "WHERE EventId = ?");
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
@@ -335,7 +335,12 @@ public class SingleEventAPI {
             stmt.setNull(4, Types.INTEGER);
         }
         stmt.setString(5, event.getOwner());
-        stmt.setInt(6, event.getId());
+        if (event.getNextEventID() > 0) {
+            stmt.setInt(6, event.getNextEventID());
+        } else {
+            stmt.setNull(6, Types.INTEGER);
+        }
+        stmt.setInt(7, event.getId());
         stmt.addBatch();
         stmts.add(stmt);
 
@@ -477,7 +482,7 @@ public class SingleEventAPI {
      */
     private static int addEvent(EventBean event, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO Event (EventName, StartDate, EndDate, TournamentId, " +
-                "EventOwner) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                "EventOwner, NextEventId) VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
         stmt.setLong(3, event.getEndMillis());
@@ -488,6 +493,11 @@ public class SingleEventAPI {
             stmt.setNull(4, Types.INTEGER);
         }
         stmt.setString(5, event.getOwner());
+        if (event.getNextEventID() > 0) {
+            stmt.setInt(6, event.getNextEventID());
+        } else {
+            stmt.setNull(6, Types.INTEGER);
+        }
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();
 
@@ -498,6 +508,28 @@ public class SingleEventAPI {
         APIUtils.closeResource(rs);
         APIUtils.closeResource(stmt);
         return id;
+    }
+
+    public static boolean updateNextEventId(int eventID, int nextEventID, ConnectionProvider provider) {
+        PreparedStatement stmt = null;
+        Connection conn = null;
+        boolean ok = true;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("UPDATE Event SET NextEventId = ? WHERE EventId = ?");
+            if (nextEventID > 0) {
+                stmt.setInt(1, nextEventID);
+            } else {
+                stmt.setNull(1, Types.INTEGER);
+            }
+            stmt.setInt(2, eventID);
+            ok = stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            ok = false;
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+        return ok;
     }
 
     private static String generateArgs(int count) {
