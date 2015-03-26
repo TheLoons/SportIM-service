@@ -118,6 +118,8 @@ public class MultiEventAPI {
 
             while(rs.next()) {
                 EventBean e = new EventBean(rs);
+                e.setLocation(rs.getString("e.Location"));
+                e.setType(rs.getString("e.EventType"));
                 if (user.equals(e.getOwner())) {
                     e.setEditable(true);
                 }
@@ -143,7 +145,7 @@ public class MultiEventAPI {
     }
 
     private static PreparedStatement getEventQuery(Set<Integer> teams, Connection conn) throws SQLException {
-        String query = "SELECT DISTINCT e.EventName, e.StartDate, e.EndDate, e.TournamentId, e.EventId, e.EventOwner, e.Location, e.EventType " +
+        String query = "SELECT DISTINCT e.EventName, e.StartDate, e.EndDate, e.TournamentId, e.EventId, e.EventOwner, e.NextEventId, e.Location, e.EventType " +
                         "FROM Event e LEFT OUTER JOIN TeamEvent te ON te.EventId = e.EventId " +
                         "LEFT OUTER JOIN PlayerEvent pe ON e.EventId = pe.EventId " +
                         "WHERE StartDate < ? AND EndDate > ? AND (e.EventOwner = ? OR pe.Login = ?";
