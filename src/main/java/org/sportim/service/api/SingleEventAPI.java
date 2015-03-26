@@ -44,7 +44,7 @@ public class SingleEventAPI {
         List<UserBean> players = new LinkedList<UserBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner FROM Event " +
+            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner, NextEventId FROM Event " +
                                          "WHERE EventId = ?");
             stmt.setInt(1, id);
             rs = stmt.executeQuery();

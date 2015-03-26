@@ -54,12 +54,12 @@ public class MultiEventAPI {
 
         // Now, see if we need to put in bracket info for these events
         for (EventBean event : events) {
-            if (event.getNextEventID() == -1) {
+            if (event.getNextEventID() < 1) {
                 continue;
             }
-            int dbId = origIdToDatabaseId.get(event.getId()) != null ? origIdToDatabaseId.get(event.getId()) : -1;
-            int nextDbId = origIdToDatabaseId.get(event.getNextEventID()) != null ? origIdToDatabaseId.get(event.getNextEventID()) : -1;
-            if (dbId == -1 || nextDbId == -1) {
+            int dbId = origIdToDatabaseId.get(event.getId()) != null ? origIdToDatabaseId.get(event.getId()) : 0;
+            int nextDbId = origIdToDatabaseId.get(event.getNextEventID()) != null ? origIdToDatabaseId.get(event.getNextEventID()) : 0;
+            if (dbId < 1 || nextDbId < 1) {
                 continue;
             }
             SingleEventAPI.updateNextEventId(dbId, nextDbId, provider);

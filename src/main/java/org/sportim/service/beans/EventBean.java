@@ -25,7 +25,7 @@ public class EventBean {
     private List<UserBean> players;
     private int tournamentID = 0;
     private int id;
-    private int nextEventID = -1;
+    private int nextEventID = 0;
     private boolean editable = false;
 
     public EventBean() {
@@ -38,6 +38,7 @@ public class EventBean {
         tournamentID = rs.getInt(4);
         id = rs.getInt(5);
         owner = rs.getString(6);
+        nextEventID = rs.getInt(7);
     }
 
     public String getTitle() {
