@@ -1,4 +1,4 @@
-CREATE TABLE Player(
+CREATE TABLE IF NOT EXISTS Player(
     Login VARCHAR(50) PRIMARY KEY, 
     Password CHAR(64) NOT NULL, 
     FirstName VARCHAR(255) NOT NULL, 
@@ -11,12 +11,12 @@ CREATE TABLE Player(
     OtherAlert BIGINT(20)
 );
 
-CREATE TABLE Auth(
+CREATE TABLE IF NOT EXISTS Auth(
     Login VARCHAR(50) PRIMARY KEY, 
     Token VARCHAR(255) NOT NULL 
 );
 
-CREATE TABLE Team(
+CREATE TABLE IF NOT EXISTS Team(
     TeamId INTEGER NOT NULL AUTO_INCREMENT, 
     TeamName VARCHAR(50), 
     TeamOwner VARCHAR(50), 
@@ -26,7 +26,7 @@ CREATE TABLE Team(
     PRIMARY KEY(TeamId)
 );
 
-CREATE TABLE PlaysFor(
+CREATE TABLE IF NOT EXISTS PlaysFor(
     Login VARCHAR(50) NOT NULL, 
         FOREIGN KEY (Login) REFERENCES Player (Login)
         ON UPDATE CASCADE
@@ -38,7 +38,7 @@ CREATE TABLE PlaysFor(
     PRIMARY KEY (Login, TeamId)
 );
 
-CREATE TABLE League(
+CREATE TABLE IF NOT EXISTS League(
     LeagueId INTEGER NOT NULL AUTO_INCREMENT, 
     LeagueName VARCHAR(50), 
     LeagueOwner VARCHAR(50), 
@@ -47,7 +47,7 @@ CREATE TABLE League(
     PRIMARY KEY (LeagueId)
 );
 
-CREATE TABLE TeamBelongsTo(
+CREATE TABLE IF NOT EXISTS TeamBelongsTo(
     TeamId INTEGER, 
         FOREIGN KEY (TeamId) REFERENCES Team (TeamId)
         ON UPDATE CASCADE
@@ -59,7 +59,7 @@ CREATE TABLE TeamBelongsTo(
     PRIMARY KEY (TeamId, LeagueId)
 );
 
-CREATE TABLE Tournament(
+CREATE TABLE IF NOT EXISTS Tournament(
     TournamentId INTEGER NOT NULL AUTO_INCREMENT, 
     TournamentName VARCHAR (50), 
     LeagueId INTEGER, 
@@ -68,7 +68,7 @@ CREATE TABLE Tournament(
     FOREIGN KEY (LeagueId) REFERENCES League (LeagueId)
 );
 
-CREATE TABLE Event(
+CREATE TABLE IF NOT EXISTS Event(
     EventId INTEGER NOT NULL AUTO_INCREMENT, 
 	EventOwner VARCHAR(50),
     EventName VARCHAR (50), 
@@ -78,16 +78,22 @@ CREATE TABLE Event(
 	FOREIGN KEY (TournamentId) REFERENCES Tournament (TournamentId), 
     EventType VARCHAR(10),
     Location VARCHAR(255),
-    NextEventId INTEGER, 
-	FOREIGN KEY (EventId) REFERENCES Event (EventId)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE, 
+    NextEventId INTEGER,
     FOREIGN KEY (EventOwner) REFERENCES Player (Login)
         ON UPDATE CASCADE,
     PRIMARY KEY(EventId)
 );
 
-CREATE TABLE TeamEvent(
+ALTER TABLE `Event`
+ADD INDEX `fk_event_1_idx` (`NextEventId` ASC);
+ALTER TABLE Event 
+ADD CONSTRAINT `fk_event_1`
+  FOREIGN KEY (`NextEventId`)
+  REFERENCES `Event` (`EventId`)
+  ON DELETE SET NULL
+  ON UPDATE CASCADE;
+
+CREATE TABLE IF NOT EXISTS TeamEvent(
     EventId INTEGER, 
         FOREIGN KEY (EventId) REFERENCES Event (EventId) 
         ON UPDATE CASCADE 
@@ -99,7 +105,7 @@ CREATE TABLE TeamEvent(
     PRIMARY KEY (EventId, TeamId)
 );
 
-CREATE TABLE PlayerEvent(
+CREATE TABLE IF NOT EXISTS PlayerEvent(
     EventId INTEGER, 
         FOREIGN KEY (EventId) REFERENCES Event (EventId)
         ON UPDATE CASCADE
@@ -111,11 +117,12 @@ CREATE TABLE PlayerEvent(
     PRIMARY KEY (EventId, Login)
 );
 
-CREATE TABLE AlertJob(
-    IsRunning TINYINT(1) PRIMARY KEY (IsRunning) NOT NULL
+CREATE TABLE IF NOT EXISTS AlertJob(
+    IsRunning TINYINT(1) NOT NULL,
+    PRIMARY KEY (IsRunning)
 );
 
-CREATE TABLE AlertsSent (
+CREATE TABLE IF NOT EXISTS AlertsSent (
   eventId int(11) NOT NULL,
   login varchar(50) NOT NULL,
   start bigint(20) NOT NULL,
@@ -125,7 +132,7 @@ CREATE TABLE AlertsSent (
   CONSTRAINT login FOREIGN KEY (login) REFERENCES player (Login) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE LeagueTable (
+CREATE TABLE IF NOT EXISTS LeagueTable (
   LeagueId INTEGER,
       FOREIGN KEY (LeagueId) REFERENCES League (LeagueId)
       ON UPDATE CASCADE
