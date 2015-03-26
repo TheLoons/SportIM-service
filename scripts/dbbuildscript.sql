@@ -76,6 +76,8 @@ CREATE TABLE Event(
     EndDate BIGINT NOT NULL, 
     TournamentId INTEGER, 
 	FOREIGN KEY (TournamentId) REFERENCES Tournament (TournamentId), 
+    EventType VARCHAR(10),
+    Location VARCHAR(255),
     NextEventId INTEGER, 
 	FOREIGN KEY (EventId) REFERENCES Event (EventId)
         ON DELETE SET NULL
