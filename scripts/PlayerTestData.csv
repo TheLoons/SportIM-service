@@ -1,114 +1,527 @@
-FirstName,LastName,Team
-Jozy,Altidore,United States
-Matt,Besler,United States
-Steve,Birnbaum,United States
-Michael,Bradley,United States
-Clint,Dempsey,United States
-Mix,Diskerud,United States
-Luis,Gil,United States
-Matt,Hedges,United States
-Miguel,Ibarra,United States
-Sean,Johnson,United States
-Jermaine,Jones,United States
-Jon,Kempin,United States
-Perry,Kitchen,United States
-Lee,Nguyen,United States
-Shane,O'Neill,United States
-Nick,Rimando,United States
-Dillon,Serna,United States
-Brek,Shea,United States
-Wil,Trapp,United States
-Chris,Wondolowski,United States
-Bobby,Wood,United States
-Gyasi,Zardes,United States
-DeAndre,Yedlin,United States
-Neuer,Manuel,Germany
-Weidenfeller,Roman,Germany
-Zieler,Ron-Robert,Germany
-Adler,René,Germany
-Lahm,Philipp,Germany
-Boateng,Jérôme,Germany
-Höwedes,Benedikt,Germany
-Schmelzer,Marcel,Germany
-Badstuber,Holger,Germany
-Jung,Sebastian,Germany
-Schwaab,Daniel,Germany
-Hummels,Mats,Germany
-Bender,Sven,Germany
-Mertesacker,Per,Germany
-Wollscheid,Philipp,Germany
-Tasci,Serdar,Germany
-Huth,Robert,Germany
-Friedrich,Manuel,Germany
-Bender,Lars,Germany
-Schweinsteiger,Bastian,Germany
-Kroos,Toni,Germany
-Khedira,Sami,Germany
-Gündoğan,Ilkay,Germany
-Reus,Marco,Germany
-Özil,Mesut,Germany
-Müller,Thomas,Germany
-Götze,Mario,Germany
-Podolski,Lukas,Germany
-Kiessling,Stefan,Germany
-Gómez,Mario,Germany
-Hart,Joe,England
-Forster,Fraser,England
-Foster,Ben,England
-Ruddy,John,England
-Baines,Leighton,England
-Johnson,Glen,England
-Cole,Ashley,England
-Lescott,Joleon,England
-Carrick,Michael,England
-Terry,John,England
-Cahill,Gary,England
-Jagielka,Phil,England
-Richards,Micah,England
-Smalling,Chris,England
-Barry,Gareth,England
-Shawcross,Ryan,England
-Dawson,Michael,England
-Turner,Michael,England
-Young,Ashley,England
-Lampard,Frank,England
-Gerrard,Steven,England
-Milner,James,England
-Rooney,Wayne,England
-Wilshere,Jack,England
-Welbeck,Danny,England
-Lennon,Aaron,England
-Walcott,Theo,England
-Sturridge,Daniel,England
-Lambert,Rickie,England
-Defoe,Jermain,England
-Ochoa,Guillermo,Mexico
-Corona,Jesús,Mexico
-Muñoz,Moisés,Mexico
-Talavera,Alfredo,Mexico
-Guardado,Andrés,Mexico
-Layún,Miguel,Mexico
-Torres Nilo,Jorge,Mexico
-Salcido,Carlos,Mexico
-Aguilar,Paul,Mexico
-Aldrete,Adrián,Mexico
-Velarde,Efraín,Mexico
-Magallón,Jonny,Mexico
-Chavez,Dárvin,Mexico
-Moreno,Héctor,Mexico
-Reyes,Diego,Mexico
-Marquez,Rafael,Mexico
-Maza,Rodríguez,Mexico
-Domínguez,Julio,Mexico
-Mier,Hiram,Mexico
-Huiqui,Joel,Mexico
-Valenzuela,Juan Carlos,Mexico
-Rodríguez,Chato,Mexico
-Herrera,Héctor,Mexico
-Vela,Carlos,Mexico
-Dos Santos,Giovani,Mexico
-Aquino,Javier,Mexico
-Jiménez,Raúl,Mexico
-Hernández,Javier,Mexico
-Peralta,Oribe,Mexico
-Orozco,Javier,Mexico
+FirstName,LastName,Phone,Password,Team,Login
+Alec,Kann    ,auto,auto,Chicago Fire,auto
+Matt,Polster    ,auto,auto,Chicago Fire,auto
+Joevin,Jones    ,auto,auto,Chicago Fire,auto
+Adaílton    ,Adaílton    ,auto,auto,Chicago Fire,auto
+Lovel,Palmer    ,auto,auto,Chicago Fire,auto
+Eric,Gehrig    ,auto,auto,Chicago Fire,auto
+Alex    ,Alex,auto,auto,Chicago Fire,auto
+Matt,Watson    ,auto,auto,Chicago Fire,auto
+Mike,Magee    ,auto,auto,Chicago Fire,auto
+Shaun,Maloney ,auto,auto,Chicago Fire,auto
+David,Accam,auto,auto,Chicago Fire,auto
+Patrick,Nyarko    ,auto,auto,Chicago Fire,auto
+Greg,Cochrane    ,auto,auto,Chicago Fire,auto
+Collin,Fernandez,auto,auto,Chicago Fire,auto
+Jon,Busch    ,auto,auto,Chicago Fire,auto
+Harry,Shipp,auto,auto,Chicago Fire,auto
+Jeff,Larentowicz    ,auto,auto,Chicago Fire,auto
+Chris,Ritter ,auto,auto,Chicago Fire,auto
+Guly,do Prado,auto,auto,Chicago Fire,auto
+Quincy,Amarikwa    ,auto,auto,Chicago Fire,auto
+Sean,Johnson    ,auto,auto,Chicago Fire,auto
+Michael,Stephens    ,auto,auto,Chicago Fire,auto
+Răzvan,Cociș    ,auto,auto,Chicago Fire,auto
+Kennedy,Igboananike   ,auto,auto,Chicago Fire,auto
+Kingsley,Bryce    ,auto,auto,Chicago Fire,auto
+Steve,Clark,auto,auto,Columbus Crew SC,auto
+Tyson,Wahl,auto,auto,Columbus Crew SC,auto
+Chris,Klute,auto,auto,Columbus Crew SC,auto
+Michael,Parkhurst,auto,auto,Columbus Crew SC,auto
+Emanuel,Pogatetz,auto,auto,Columbus Crew SC,auto
+Tony,Tchani,auto,auto,Columbus Crew SC,auto
+Kristinn,Steindórsson,auto,auto,Columbus Crew SC,auto
+Mohammed,Saeid,auto,auto,Columbus Crew SC,auto
+Justin,Meram,auto,auto,Columbus Crew SC,auto
+Federico,Higuaín,auto,auto,Columbus Crew SC,auto
+Kevan,George,auto,auto,Columbus Crew SC,auto
+Ethan,Finlay,auto,auto,Columbus Crew SC,auto
+Waylon,Francis,auto,auto,Columbus Crew SC,auto
+Hector,Jiménez,auto,auto,Columbus Crew SC,auto
+Ben,Speas,auto,auto,Columbus Crew SC,auto
+Aaron,Schoenfeld,auto,auto,Columbus Crew SC,auto
+Romain,Gall,auto,auto,Columbus Crew SC,auto
+Wil,Trapp,auto,auto,Columbus Crew SC,auto
+Chad,Barson,auto,auto,Columbus Crew SC,auto
+Kei,Kamara,auto,auto,Columbus Crew SC,auto
+Sergio,Campbell,auto,auto,Columbus Crew SC,auto
+Ben,Swanson,auto,auto,Columbus Crew SC,auto
+Hernán,Grana,auto,auto,Columbus Crew SC,auto
+Matt,Lampson,auto,auto,Columbus Crew SC,auto
+Adam,Bedell,auto,auto,Columbus Crew SC,auto
+Brad,Stuver,auto,auto,Columbus Crew SC,auto
+Taylor,Kemp,auto,auto,D.C. United,auto
+Markus,Halsti,auto,auto,D.C. United,auto
+Sean,Franklin,auto,auto,D.C. United,auto
+Kofi,Opare,auto,auto,D.C. United,auto
+Eddie,Johnson,auto,auto,D.C. United,auto
+Davy,Arnaud,auto,auto,D.C. United,auto
+Fabián,Espíndola,auto,auto,D.C. United,auto
+Luis,Silva,auto,auto,D.C. United,auto
+Michael,Farfan,auto,auto,D.C. United,auto
+Chris,Pontius,auto,auto,D.C. United,auto
+Nick,DeLeon,auto,auto,D.C. United,auto
+Steve,Birnbaum,auto,auto,D.C. United,auto
+Miguel,Aguilar,auto,auto,D.C. United,auto
+Chris,Rolfe,auto,auto,D.C. United,auto
+Jairo,Arrieta,auto,auto,D.C. United,auto
+Chris,Korb,auto,auto,D.C. United,auto
+Perry,Kitchen,auto,auto,D.C. United,auto
+Jared,Jeffrey,auto,auto,D.C. United,auto
+Bill,Hamid,auto,auto,D.C. United,auto
+Michael,Seaton,auto,auto,D.C. United,auto
+Conor,Doyle,auto,auto,D.C. United,auto
+Bobby,Boswell,auto,auto,D.C. United,auto
+Andrew,Dykstra,auto,auto,D.C. United,auto
+Evan,Bush,auto,auto,Montreal Impact,auto
+Eric,Miller,auto,auto,Montreal Impact,auto
+Ambroise,Oyongo,auto,auto,Montreal Impact,auto
+Bakary,Soumaré,auto,auto,Montreal Impact,auto
+Hassoun,Camara,auto,auto,Montreal Impact,auto
+Dominic,Oduro,auto,auto,Montreal Impact,auto
+Patrice,Bernier,auto,auto,Montreal Impact,auto
+Ignacio,Piatti,auto,auto,Montreal Impact,auto
+Dilly,Duka,auto,auto,Montreal Impact,auto
+Nigel,Reo-Coker,auto,auto,Montreal Impact,auto
+Andrés,Romero,auto,auto,Montreal Impact,auto
+Calum,Mallace,auto,auto,Montreal Impact,auto
+Romario,Williams,auto,auto,Montreal Impact,auto
+Blake,Smith,auto,auto,Montreal Impact,auto
+Justin,Mapp,auto,auto,Montreal Impact,auto
+Eric,Kronberg,auto,auto,Montreal Impact,auto
+Laurent,Ciman,auto,auto,Montreal Impact,auto
+Anthony,Jackson-Hamel,auto,auto,Montreal Impact,auto
+Donny,Toia,auto,auto,Montreal Impact,auto
+Adrián,López,auto,auto,Montreal Impact,auto
+Louis,Béland-Goyette,auto,auto,Montreal Impact,auto
+Jérémy,Gagnon-Laparé,auto,auto,Montreal Impact,auto
+Eric,Alexander,auto,auto,Montreal Impact,auto
+Kristian,Nicht,auto,auto,Montreal Impact,auto
+Marco,Donadel,auto,auto,Montreal Impact,auto
+Víctor,Cabrera,auto,auto,Montreal Impact,auto
+Cameron,Porter,auto,auto,Montreal Impact,auto
+Maxime,Crépeau,auto,auto,Montreal Impact,auto
+Maxim,Tissot,auto,auto,Montreal Impact,auto
+Wandrille,Lefèvre,auto,auto,Montreal Impact,auto
+Jack,McInerney,auto,auto,Montreal Impact,auto
+Santiago,González,auto,auto,Montreal Impact,auto
+Andrew,Farrell,auto,auto,New England Revolution,auto
+Steve,Neumann,auto,auto,New England Revolution,auto
+Jeremy,Hall,auto,auto,New England Revolution,auto
+Scott,Caldwell,auto,auto,New England Revolution,auto
+Sean,Okoli,auto,auto,New England Revolution,auto
+Chris,Tierney,auto,auto,New England Revolution,auto
+Charlie,Davies,auto,auto,New England Revolution,auto
+Teal,Bunbury,auto,auto,New England Revolution,auto
+Kelyn,Rowe,auto,auto,New England Revolution,auto
+Andy,Dorman,auto,auto,New England Revolution,auto
+Jermaine,Jones,auto,auto,New England Revolution,auto
+Diego,Fagúndez,auto,auto,New England Revolution,auto
+Daigo,Kobayashi,auto,auto,New England Revolution,auto
+Juan,Agudelo,auto,auto,New England Revolution,auto
+Brad,Knighton,auto,auto,New England Revolution,auto
+Bobby,Shuttleworth,auto,auto,New England Revolution,auto
+José,Gonçalves,auto,auto,New England Revolution,auto
+Lee,Nguyen,auto,auto,New England Revolution,auto
+Darrius,Barnes,auto,auto,New England Revolution,auto
+Trevor,Spangenberg,auto,auto,New England Revolution,auto
+London,Woodberry,auto,auto,New England Revolution,auto
+Tyler,Rudy,auto,auto,New England Revolution,auto
+Kevin,Alston,auto,auto,New England Revolution,auto
+Donnie,Smith,auto,auto,New England Revolution,auto
+Timi,Mulgrew,auto,auto,New England Revolution,auto
+Akira,Fitzgerald,auto,auto,New York City FC,auto
+Andrés,Mendoza,auto,auto,New York City FC,auto
+Kwame,Watson-Siriboe,auto,auto,New York City FC,auto
+Andrew,Jacobson,auto,auto,New York City FC,auto
+Jeb,Brovsky,auto,auto,New York City FC,auto
+George,John,auto,auto,New York City FC,auto
+David,Villa,auto,auto,New York City FC,auto
+Mix,Diskerud,auto,auto,New York City FC,auto
+Ned,Grabavoy,auto,auto,New York City FC,auto
+Josh,Saunders,auto,auto,New York City FC,auto
+Josh,Williams,auto,auto,New York City FC,auto
+Patrick,Mullins,auto,auto,New York City FC,auto
+Tommy,McNamara,auto,auto,New York City FC,auto
+Connor,Brandt,auto,auto,New York City FC,auto
+Chris,Wingert,auto,auto,New York City FC,auto
+Ryan,Meara,auto,auto,New York City FC,auto
+Khiry,Shelton,auto,auto,New York City FC,auto
+Mehdi,Ballouchy,auto,auto,New York City FC,auto
+Jason,Hernandez,auto,auto,New York City FC,auto
+Pablo,Álvarez,auto,auto,New York City FC,auto
+Matt,Dunn,auto,auto,New York City FC,auto
+Shay,Facey,auto,auto,New York City FC,auto
+Sebastián,Velásquez,auto,auto,New York City FC,auto
+Javier,Calle,auto,auto,New York City FC,auto
+Adam,Nemec,auto,auto,New York City FC,auto
+Kwadwo,Poku,auto,auto,New York City FC,auto
+Tony,Taylor,auto,auto,New York City FC,auto
+Shawn,McLaws,auto,auto,New York Red Bulls,auto
+Connor,Lade,auto,auto,New York Red Bulls,auto
+Roy,Miller,auto,auto,New York Red Bulls,auto
+Felipe,Felipe,auto,auto,New York Red Bulls,auto
+Anatole,Abang,auto,auto,New York Red Bulls,auto
+Lloyd,Sam,auto,auto,New York Red Bulls,auto
+Dax,McCarty,auto,auto,New York Red Bulls,auto
+Mike,Grella,auto,auto,New York Red Bulls,auto
+Sal,Zizzo,auto,auto,New York Red Bulls,auto
+Sacha,Kljestan,auto,auto,New York Red Bulls,auto
+Manolo,Sanchez,auto,auto,New York Red Bulls,auto
+Kyle,Reynish,auto,auto,New York Red Bulls,auto
+Leo,Stolz,auto,auto,New York Red Bulls,auto
+Matt,Miazga,auto,auto,New York Red Bulls,auto
+Marius,Obekop,auto,auto,New York Red Bulls,auto
+Karl,Ouimette,auto,auto,New York Red Bulls,auto
+Ronald,Zubar,auto,auto,New York Red Bulls,auto
+Santiago,Castaño,auto,auto,New York Red Bulls,auto
+Chris,Duvall,auto,auto,New York Red Bulls,auto
+Sean,Davis,auto,auto,New York Red Bulls,auto
+Luis,Robles,auto,auto,New York Red Bulls,auto
+Andrew,Jean-Baptiste,auto,auto,New York Red Bulls,auto
+Damien,Perrinelle,auto,auto,New York Red Bulls,auto
+Dane,Richards,auto,auto,New York Red Bulls,auto
+Kemar,Lawrence,auto,auto,New York Red Bulls,auto
+Bradley,Wright-Phillips,auto,auto,New York Red Bulls,auto
+Anthony,Wallace,auto,auto,New York Red Bulls,auto
+Peguy,Luyindula,auto,auto,New York Red Bulls,auto
+Donovan,Ricketts,auto,auto,Orlando City SC,auto
+Tyler,Turner,auto,auto,Orlando City SC,auto
+Seb,Hines,auto,auto,Orlando City SC,auto
+Sean,St,auto,auto,Orlando City SC,auto
+Amobi,Okugo,auto,auto,Orlando City SC,auto
+Tony,Cascio,auto,auto,Orlando City SC,auto
+Cristian,Higuita,auto,auto,Orlando City SC,auto
+Harrison,Heath,auto,auto,Orlando City SC,auto
+Martin,Paterson,auto,auto,Orlando City SC,auto
+Kaká,(DP),auto,auto,Orlando City SC,auto
+Carlos,Rivas,auto,auto,Orlando City SC,auto
+Eric,Avila,auto,auto,Orlando City SC,auto
+Luke,Boden,auto,auto,Orlando City SC,auto
+Pedro,Ribeiro,auto,auto,Orlando City SC,auto
+Darwin,Cerén,auto,auto,Orlando City SC,auto
+Kevin,Molino,auto,auto,Orlando City SC,auto
+Danny,Mwanga,auto,auto,Orlando City SC,auto
+Brek,Shea,auto,auto,Orlando City SC,auto
+Cyle,Larin,auto,auto,Orlando City SC,auto
+Tally,Hall,auto,auto,Orlando City SC,auto
+Conor,Donovan,auto,auto,Orlando City SC,auto
+Lewis,Neal,auto,auto,Orlando City SC,auto
+Sidney,Rivera,auto,auto,Orlando City SC,auto
+Rafael,Ramos,auto,auto,Orlando City SC,auto
+Tommy,Redding,auto,auto,Orlando City SC,auto
+Bryan,Róchez,auto,auto,Orlando City SC,auto
+Earl,Edwards,auto,auto,Orlando City SC,auto
+Josh,Ford,auto,auto,Orlando City SC,auto
+Estrela,Estrela,auto,auto,Orlando City SC,auto
+Aurélien,Collin,auto,auto,Orlando City SC,auto
+Andre,Blake,auto,auto,Philadelphia Union,auto
+Raymond,Lee,auto,auto,Philadelphia Union,auto
+Vincent,Nogueira,auto,auto,Philadelphia Union,auto
+Conor,Casey,auto,auto,Philadelphia Union,auto
+Brian,Carroll,auto,auto,Philadelphia Union,auto
+Maurice,Edu,auto,auto,Philadelphia Union,auto
+Sébastien,Le,auto,auto,Philadelphia Union,auto
+Cristian,Maidana,auto,auto,Philadelphia Union,auto
+Andrew,Wenger,auto,auto,Philadelphia Union,auto
+Michael,Lahoud,auto,auto,Philadelphia Union,auto
+Eric,Ayuk,auto,auto,Philadelphia Union,auto
+Ethan,White,auto,auto,Philadelphia Union,auto
+Richie,Marquez,auto,auto,Philadelphia Union,auto
+C.J.,Sapong,auto,auto,Philadelphia Union,auto
+Fernando,Aristeguieta,auto,auto,Philadelphia Union,auto
+Dzenan,Catic,auto,auto,Philadelphia Union,auto
+Jimmy,McLaughlin,auto,auto,Philadelphia Union,auto
+Eric,Bird,auto,auto,Philadelphia Union,auto
+Steven,Vitória,auto,auto,Philadelphia Union,auto
+Sheanon,Williams,auto,auto,Philadelphia Union,auto
+Zach,Pfeffer,auto,auto,Philadelphia Union,auto
+Ray,Gaddis,auto,auto,Philadelphia Union,auto
+Antoine,Hoppenot,auto,auto,Philadelphia Union,auto
+Fabinho,Fabinho,auto,auto,Philadelphia Union,auto
+John,McCarthy,auto,auto,Philadelphia Union,auto
+Fred,Fred,auto,auto,Philadelphia Union,auto
+Raïs,M'Bolhi,auto,auto,Philadelphia Union,auto
+Chris,Konopka,auto,auto,Toronto FC,auto
+Justin,Morrow,auto,auto,Toronto FC,auto
+Warren,Creavalle,auto,auto,Toronto FC,auto
+Michael,Bradley,auto,auto,Toronto FC,auto
+Nick,Hagglund,auto,auto,Toronto FC,auto
+Bright,Dike,auto,auto,Toronto FC,auto
+Benoît,Cheyrou,auto,auto,Toronto FC,auto
+Sebastian,Giovinco,auto,auto,Toronto FC,auto
+Jackson,Jackson,auto,auto,Toronto FC,auto
+Joe,Bendik,auto,auto,Toronto FC,auto
+Steven,Caldwell,auto,auto,Toronto FC,auto
+Eriq,Zavaleta,auto,auto,Toronto FC,auto
+Jozy,Altidore,auto,auto,Toronto FC,auto
+Marco,Delgado,auto,auto,Toronto FC,auto
+Daniel,Lovitz,auto,auto,Toronto FC,auto
+Jonathan,Osorio,auto,auto,Toronto FC,auto
+Damien,Perquis,auto,auto,Toronto FC,auto
+Collen,Warner,auto,auto,Toronto FC,auto
+Luke,Moore,auto,auto,Toronto FC,auto
+Mark,Bloom,auto,auto,Toronto FC,auto
+Robbie,Findley,auto,auto,Toronto FC,auto
+Clint,Irwin,auto,auto,Colorado Rapids,auto
+Nick,LaBrocca,auto,auto,Colorado Rapids,auto
+Drew,Moor,auto,auto,Colorado Rapids,auto
+Marc,Burch,auto,auto,Colorado Rapids,auto
+Michael,Harrington,auto,auto,Colorado Rapids,auto
+Sam,Cronin,auto,auto,Colorado Rapids,auto
+Vicente,Sánchez,auto,auto,Colorado Rapids,auto
+Dillon,Powers,auto,auto,Colorado Rapids,auto
+Gabriel,Torres,auto,auto,Colorado Rapids,auto
+Marcelo,Sarvas,auto,auto,Colorado Rapids,auto
+John,Berner,auto,auto,Colorado Rapids,auto
+Ben,Newnam,auto,auto,Colorado Rapids,auto
+Dominique,Badji,auto,auto,Colorado Rapids,auto
+Juan,Ramírez,auto,auto,Colorado Rapids,auto
+James,Riley,auto,auto,Colorado Rapids,auto
+Dillon,Serna,auto,auto,Colorado Rapids,auto
+Zac,MacMath,auto,auto,Colorado Rapids,auto
+Charles,Eloundou,auto,auto,Colorado Rapids,auto
+Lucas,Pittinari,auto,auto,Colorado Rapids,auto
+Bobby,Burling,auto,auto,Colorado Rapids,auto
+Shane,O'Neill,auto,auto,Colorado Rapids,auto
+Caleb,Calvert,auto,auto,Colorado Rapids,auto
+Jared,Watts,auto,auto,Colorado Rapids,auto
+Axel,Sjöberg,auto,auto,Colorado Rapids,auto
+Carlos,Alvarez,auto,auto,Colorado Rapids,auto
+Marlon,Hairston,auto,auto,Colorado Rapids,auto
+Dan,Kennedy,auto,auto,FC Dallas,auto
+Moises,Hernandez,auto,auto,FC Dallas,auto
+Kyle,Bekker,auto,auto,FC Dallas,auto
+Blas,Pérez,auto,auto,FC Dallas,auto
+Victor,Ulloa,auto,auto,FC Dallas,auto
+David,Texeira,auto,auto,FC Dallas,auto
+Mauro,Díaz,auto,auto,FC Dallas,auto
+Fabián,Castillo,auto,auto,FC Dallas,auto
+Ryan,Hollingshead,auto,auto,FC Dallas,auto
+Tesho,Akindele,auto,auto,FC Dallas,auto
+Atiba,Harris,auto,auto,FC Dallas,auto
+Coy,Craft,auto,auto,FC Dallas,auto
+Zach,Loyd,auto,auto,FC Dallas,auto
+Chris,Seitz,auto,auto,FC Dallas,auto
+Michael,Barrios,auto,auto,FC Dallas,auto
+Stephen,Keel,auto,auto,FC Dallas,auto
+Kellyn,Acosta,auto,auto,FC Dallas,auto
+Matt,Hedges,auto,auto,FC Dallas,auto
+Walker,Zimmerman,auto,auto,FC Dallas,auto
+Danny,Garcia,auto,auto,FC Dallas,auto
+Je-Vaughn,Watson,auto,auto,FC Dallas,auto
+Alejandro,Zendejas,auto,auto,FC Dallas,auto
+Michel,Michel,auto,auto,FC Dallas,auto
+Otis,Earle,auto,auto,FC Dallas,auto
+Jesse,Gonzalez,auto,auto,FC Dallas,auto
+Tyler,Deric,auto,auto,Houston Dynamo,auto
+Kofi,Sarkodie,auto,auto,Houston Dynamo,auto
+Oumar,Ballo,auto,auto,Houston Dynamo,auto
+Jermaine,Taylor,auto,auto,Houston Dynamo,auto
+Raúl,Rodríguez,auto,auto,Houston Dynamo,auto
+Nathan,Sturgis,auto,auto,Houston Dynamo,auto
+DaMarcus,Beasley,auto,auto,Houston Dynamo,auto
+Luis,Garrido,auto,auto,Houston Dynamo,auto
+Giles,Barnes,auto,auto,Houston Dynamo,auto
+Brad,Davis,auto,auto,Houston Dynamo,auto
+Will,Bruin,auto,auto,Houston Dynamo,auto
+Ricardo,Clark,auto,auto,Houston Dynamo,auto
+Jason,Johnson,auto,auto,Houston Dynamo,auto
+Alexander,López,auto,auto,Houston Dynamo,auto
+A.J.,Cochran,auto,auto,Houston Dynamo,auto
+Chandler,Hoffman,auto,auto,Houston Dynamo,auto
+David,Horst,auto,auto,Houston Dynamo,auto
+Rob,Lovejoy,auto,auto,Houston Dynamo,auto
+Zach,Steinberger,auto,auto,Houston Dynamo,auto
+Taylor,Hunter,auto,auto,Houston Dynamo,auto
+Corey,Ashe,auto,auto,Houston Dynamo,auto
+Boniek,García,auto,auto,Houston Dynamo,auto
+Memo,Rodriguez,auto,auto,Houston Dynamo,auto
+Michael,Lisch,auto,auto,Houston Dynamo,auto
+Joe,Willis,auto,auto,Houston Dynamo,auto
+Leonel,Miranda,auto,auto,Houston Dynamo,auto
+Brian,Perk,auto,auto,LA Galaxy,auto
+Todd,Dunivant,auto,auto,LA Galaxy,auto
+Mika,Vayrynen,auto,auto,LA Galaxy,auto
+Omar,Gonzalez,auto,auto,LA Galaxy,auto
+Jose,Villarreal,auto,auto,LA Galaxy,auto
+Baggio,Husidić,auto,auto,LA Galaxy,auto
+Robbie,Keane,auto,auto,LA Galaxy,auto
+Alan,Gordon,auto,auto,LA Galaxy,auto
+Gyasi,Zardes,auto,auto,LA Galaxy,auto
+Brian,Rowe,auto,auto,LA Galaxy,auto
+Robbie,Rogers,auto,auto,LA Galaxy,auto
+Ignacio,Maganto,auto,auto,LA Galaxy,auto
+Edson,Buddle,auto,auto,LA Galaxy,auto
+Jaime,Penedo,auto,auto,LA Galaxy,auto
+Juninho,Juninho,auto,auto,LA Galaxy,auto
+A.J.,DeLaGarza,auto,auto,LA Galaxy,auto
+Tommy,Meyer,auto,auto,LA Galaxy,auto
+Leonardo,Leonardo,auto,auto,LA Galaxy,auto
+Stefan,Ishizaki,auto,auto,LA Galaxy,auto
+Rafael,Garcia,auto,auto,LA Galaxy,auto
+Jack,McBean,auto,auto,LA Galaxy,auto
+Dan,Gargan,auto,auto,LA Galaxy,auto
+Kenney,Walker,auto,auto,LA Galaxy,auto
+Oscar,Sorto,auto,auto,LA Galaxy,auto
+Bradford,Jamieson,auto,auto,LA Galaxy,auto
+Raul,Mendiola,auto,auto,LA Galaxy,auto
+Alvas,Powell,auto,auto,Portland Timbers,auto
+Will,Johnson,auto,auto,Portland Timbers,auto
+Darlington,Nagbe,auto,auto,Portland Timbers,auto
+Nat,Borchers,auto,auto,Portland Timbers,auto
+Diego,Valeri,auto,auto,Portland Timbers,auto
+Fanendo,Adi,auto,auto,Portland Timbers,auto
+Gastón,Fernández,auto,auto,Portland Timbers,auto
+Dairon,Asprilla,auto,auto,Portland Timbers,auto
+Adam,Larsen Kwarasey,auto,auto,Portland Timbers,auto
+Jack,Jewsbury,auto,auto,Portland Timbers,auto
+Ben,Zemanski,auto,auto,Portland Timbers,auto
+Jeanderson,Jeanderson,auto,auto,Portland Timbers,auto
+Michael,Nanchoff,auto,auto,Portland Timbers,auto
+Jorge,Villafaña,auto,auto,Portland Timbers,auto
+Taylor,Peay,auto,auto,Portland Timbers,auto
+Diego,Chará,auto,auto,Portland Timbers,auto
+Rodney,Wallace,auto,auto,Portland Timbers,auto
+Norberto,Paparatto,auto,auto,Portland Timbers,auto
+Liam,Ridgewell,auto,auto,Portland Timbers,auto
+George,Fochive,auto,auto,Portland Timbers,auto
+Nick,Besler,auto,auto,Portland Timbers,auto
+Andy,Thoma,auto,auto,Portland Timbers,auto
+Schillo,Tshuma,auto,auto,Portland Timbers,auto
+Andrew,Weber,auto,auto,Portland Timbers,auto
+Anthony,Manning,auto,auto,Portland Timbers,auto
+Maximiliano,Urruti,auto,auto,Portland Timbers,auto
+Jake,Gleeson,auto,auto,Portland Timbers,auto
+Lalo,Fernández,auto,auto,Real Salt Lake,auto
+Tony,Beltran,auto,auto,Real Salt Lake,auto
+Phanuel,Kavita,auto,auto,Real Salt Lake,auto
+Jámison,Olave,auto,auto,Real Salt Lake,auto
+Kyle,Beckerman,auto,auto,Real Salt Lake,auto
+Boyd,Okwuonu,auto,auto,Real Salt Lake,auto
+Jordan,Allen,auto,auto,Real Salt Lake,auto
+Joao,Plata,auto,auto,Real Salt Lake,auto
+Luis,Gil,auto,auto,Real Salt Lake,auto
+Javier,Morales,auto,auto,Real Salt Lake,auto
+Elías,Vásquez,auto,auto,Real Salt Lake,auto
+Olmes,García,auto,auto,Real Salt Lake,auto
+Justen,Glad,auto,auto,Real Salt Lake,auto
+Álvaro,Saborío,auto,auto,Real Salt Lake,auto
+Pecka,Pecka,auto,auto,Real Salt Lake,auto
+Demar,Phillips,auto,auto,Real Salt Lake,auto
+Nick,Rimando,auto,auto,Real Salt Lake,auto
+Luke,Mulholland,auto,auto,Real Salt Lake,auto
+Aaron,Maund,auto,auto,Real Salt Lake,auto
+Sebastián,Jaime,auto,auto,Real Salt Lake,auto
+Jeff,Attinella,auto,auto,Real Salt Lake,auto
+Adolfo,Ovalle,auto,auto,Real Salt Lake,auto
+John,Stertzer,auto,auto,Real Salt Lake,auto
+Chris,Schuler,auto,auto,Real Salt Lake,auto
+Abdoulie,Mansally,auto,auto,Real Salt Lake,auto
+Devon,Sandoval,auto,auto,Real Salt Lake,auto
+Sebastian,Saucedo,auto,auto,Real Salt Lake,auto
+David,Bingham,auto,auto,San Jose Earthquakes,auto
+Ty,Harden,auto,auto,San Jose Earthquakes,auto
+Jordan,Stewart,auto,auto,San Jose Earthquakes,auto
+Marvell,Wynne,auto,auto,San Jose Earthquakes,auto
+Víctor,Bernárdez,auto,auto,San Jose Earthquakes,auto
+Shea,Salinas,auto,auto,San Jose Earthquakes,auto
+Cordell,Cato,auto,auto,San Jose Earthquakes,auto
+Chris,Wondolowski,auto,auto,San Jose Earthquakes,auto
+Khari,Stephenson,auto,auto,San Jose Earthquakes,auto
+Matías,Pérez Garcia,auto,auto,San Jose Earthquakes,auto
+Innocent,Emeghara,auto,auto,San Jose Earthquakes,auto
+Mark,Sherrod,auto,auto,San Jose Earthquakes,auto
+Bryan,Meredith,auto,auto,San Jose Earthquakes,auto
+Adam,Jahn,auto,auto,San Jose Earthquakes,auto
+J.J.,Koval,auto,auto,San Jose Earthquakes,auto
+Sanna,Nyassi,auto,auto,San Jose Earthquakes,auto
+Mike,Fucito,auto,auto,San Jose Earthquakes,auto
+Shaun,Francis,auto,auto,San Jose Earthquakes,auto
+Clarence,Goodson,auto,auto,San Jose Earthquakes,auto
+Tommy,Thompson,auto,auto,San Jose Earthquakes,auto
+Leandro,Barrera,auto,auto,San Jose Earthquakes,auto
+Steven,Lenhart,auto,auto,San Jose Earthquakes,auto
+Fatai,Alashe,auto,auto,San Jose Earthquakes,auto
+Paulo,Renato,auto,auto,San Jose Earthquakes,auto
+Jean-Baptiste,Pierazzi,auto,auto,San Jose Earthquakes,auto
+Troy,Perkins,auto,auto,Seattle Sounders FC,auto
+Clint,Dempsey,auto,auto,Seattle Sounders FC,auto
+Brad,Evans,auto,auto,Seattle Sounders FC,auto
+Tyrone,Mears,auto,auto,Seattle Sounders FC,auto
+Andy,Rose,auto,auto,Seattle Sounders FC,auto
+Osvaldo,Alonso,auto,auto,Seattle Sounders FC,auto
+Cristian,Roldan,auto,auto,Seattle Sounders FC,auto
+Gonzalo,Pineda,auto,auto,Seattle Sounders FC,auto
+Obafemi,Martins,auto,auto,Seattle Sounders FC,auto
+Marco,Pappa,auto,auto,Seattle Sounders FC,auto
+Aaron,Kovar,auto,auto,Seattle Sounders FC,auto
+Leonardo,González,auto,auto,Seattle Sounders FC,auto
+Andrés,Correa,auto,auto,Seattle Sounders FC,auto
+Chad,Marshall,auto,auto,Seattle Sounders FC,auto
+Dylan,Remick,auto,auto,Seattle Sounders FC,auto
+Darwin,Jones,auto,auto,Seattle Sounders FC,auto
+Chad,Barrett,auto,auto,Seattle Sounders FC,auto
+Zach,Scott,auto,auto,Seattle Sounders FC,auto
+Jimmy,Ockford,auto,auto,Seattle Sounders FC,auto
+Charlie,Lyon,auto,auto,Seattle Sounders FC,auto
+Stefan,Frei,auto,auto,Seattle Sounders FC,auto
+Lamar,Neagle,auto,auto,Seattle Sounders FC,auto
+Damion,Lowe,auto,auto,Seattle Sounders FC,auto
+Kenny,Cooper,auto,auto,Seattle Sounders FC,auto
+Micheal,Azira,auto,auto,Seattle Sounders FC,auto
+Victor,Mansaray,auto,auto,Seattle Sounders FC,auto
+Oniel,Fisher,auto,auto,Seattle Sounders FC,auto
+Luis,Marín,auto,auto,Sporting KC,auto
+Erik,Palmer-Brown,auto,auto,Sporting KC,auto
+Ike,Opara,auto,auto,Sporting KC,auto
+Kevin,Ellis,auto,auto,Sporting KC,auto
+Matt,Besler,auto,auto,Sporting KC,auto
+Paulo,Nagamura,auto,auto,Sporting KC,auto
+Chance,Myers,auto,auto,Sporting KC,auto
+Graham,Zusi,auto,auto,Sporting KC,auto
+Krisztián,Németh,auto,auto,Sporting KC,auto
+Benny,Feilhaber,auto,auto,Sporting KC,auto
+Bernardo,Añor,auto,auto,Sporting KC,auto
+Amadou,Dia,auto,auto,Sporting KC,auto
+Dom,Dwyer,auto,auto,Sporting KC,auto
+Seth,Sinovic,auto,auto,Sporting KC,auto
+Servando,Carrasco,auto,auto,Sporting KC,auto
+Saad,Abdul-Salaam,auto,auto,Sporting KC,auto
+James,Rogers,auto,auto,Sporting KC,auto
+Connor,Hallisey,auto,auto,Sporting KC,auto
+Jalil,Anibaba,auto,auto,Sporting KC,auto
+Roger,Espinoza,auto,auto,Sporting KC,auto
+Tim,Melia,auto,auto,Sporting KC,auto
+Jacob,Peterson,auto,auto,Sporting KC,auto
+Marcel,De Jong,auto,auto,Sporting KC,auto
+Soni,Mustivar,auto,auto,Sporting KC,auto
+Jimmy,Medranda,auto,auto,Sporting KC,auto
+David,Ousted,auto,auto,Vancouver Whitecaps FC,auto
+Jordan,Harvey,auto,auto,Vancouver Whitecaps FC,auto
+Sam,Adekugbe,auto,auto,Vancouver Whitecaps FC,auto
+Kendall,Waston,auto,auto,Vancouver Whitecaps FC,auto
+Mauro,Rosales,auto,auto,Vancouver Whitecaps FC,auto
+Nicolás,Mezquida,auto,auto,Vancouver Whitecaps FC,auto
+Darren,Mattocks,auto,auto,Vancouver Whitecaps FC,auto
+Matías,Laba,auto,auto,Vancouver Whitecaps FC,auto
+Diego,Rodríguez,auto,auto,Vancouver Whitecaps FC,auto
+Erik,Hurtado,auto,auto,Vancouver Whitecaps FC,auto
+Deybi,Flores,auto,auto,Vancouver Whitecaps FC,auto
+Christian,Dean,auto,auto,Vancouver Whitecaps FC,auto
+Kekuta,Manneh,auto,auto,Vancouver Whitecaps FC,auto
+Marco,Carducci,auto,auto,Vancouver Whitecaps FC,auto
+Andre,Lewis,auto,auto,Vancouver Whitecaps FC,auto
+Ethen,Sampson,auto,auto,Vancouver Whitecaps FC,auto
+Gershon,Koffie,auto,auto,Vancouver Whitecaps FC,auto
+Octavio,Rivero,auto,auto,Vancouver Whitecaps FC,auto
+Ben,McKendry,auto,auto,Vancouver Whitecaps FC,auto
+Russell,Teibert,auto,auto,Vancouver Whitecaps FC,auto
+Marco,Bustos,auto,auto,Vancouver Whitecaps FC,auto
+Steven,Beitashour,auto,auto,Vancouver Whitecaps FC,auto
+Caleb,Clarke,auto,auto,Vancouver Whitecaps FC,auto
+Kianz,Froese,auto,auto,Vancouver Whitecaps FC,auto
+Pa,Modou,auto,auto,Vancouver Whitecaps FC,auto
+Paolo,Tornaghi,auto,auto,Vancouver Whitecaps FC,auto
+Pedro,Morales,auto,auto,Vancouver Whitecaps FC,auto
+Robert,Earnshaw,auto,auto,Vancouver Whitecaps FC,auto
