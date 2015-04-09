@@ -2,6 +2,7 @@ package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.soccer.beans.AggregateEventBean;
+import org.sportim.service.soccer.beans.LeagueStatsBean;
 import org.sportim.service.soccer.beans.PlayerStatsBean;
 import org.sportim.service.soccer.beans.TeamStatsBean;
 import org.sportim.service.util.*;
@@ -11,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * API for getting aggregated stats
@@ -186,11 +189,20 @@ public class SoccerAggregationAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
+        TeamStatsBean teamStats = getTeamStats(teamID);
+        if (teamStats != null) {
+            ResponseBean resp = new ResponseBean(200, "");
+            resp.setTeamStats(teamStats);
+            return resp;
+        }
+        return new ResponseBean(500, "Unable to retrieve statistics.");
+    }
+
+    private TeamStatsBean getTeamStats(int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         TeamStatsBean teamStats = new TeamStatsBean();
-        boolean success = false;
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
@@ -210,19 +222,73 @@ public class SoccerAggregationAPI {
                 teamStats.red = rs.getInt(8);
                 teamStats.saves = rs.getInt(9);
             }
-            success = true;
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
+            return null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
 
-        if (success) {
-            ResponseBean resp = new ResponseBean(200, "");
-            resp.setTeamStats(teamStats);
-            return resp;
+        return teamStats;
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("league/{leagueID}")
+    public ResponseBean getLeagueStats(@PathParam("leagueID") final int leagueID, @HeaderParam("token") final String token) {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
         }
-        return new ResponseBean(500, "Unable to retrieve statistics.");
+
+        List<Integer> teams = getAllTeamsInLeague(leagueID);
+        if (teams == null) {
+            return new ResponseBean(500, "Unable to retrieve league stats.");
+        }
+
+        LeagueStatsBean leagueStats = new LeagueStatsBean(leagueID);
+        leagueStats.teamStats = new ArrayList<TeamStatsBean>(teams.size());
+        for (Integer teamID : teams) {
+            TeamStatsBean teamStats = getTeamStats(teamID);
+            if (teamStats != null) {
+                leagueStats.teamStats.add(teamStats);
+                if (teamStats.goals > leagueStats.topTeamScore) {
+                    leagueStats.topScoringTeam = teamID;
+                    leagueStats.topTeamScore = teamStats.goals;
+                }
+                leagueStats.goals += teamStats.goals;
+                leagueStats.fouls += teamStats.fouls;
+                leagueStats.yellow += teamStats.yellow;
+                leagueStats.red += teamStats.red;
+                leagueStats.shots += teamStats.shots;
+                leagueStats.shotsOnGoal += teamStats.shotsOnGoal;
+            }
+        }
+
+        ResponseBean resp = new ResponseBean(200, "");
+        resp.setLeagueStats(leagueStats);
+        return resp;
+    }
+
+    private List<Integer> getAllTeamsInLeague(int leagueID) {
+        List<Integer> teams = new LinkedList<Integer>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT TeamId FROM TeamBelongsTo WHERE LeagueId = ?");
+            stmt.setInt(1, leagueID);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                teams.add(rs.getInt(1));
+            }
+        } catch (Exception e) {
+            return null;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        return teams;
     }
 }

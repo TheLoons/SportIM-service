@@ -28,6 +28,7 @@ public class ResponseBean {
     private AggregateEventBean eventStats;
     private PlayerStatsBean playerStats;
     private TeamStatsBean teamStats;
+    private LeagueStatsBean leagueStats;
     private PlayerPassingBean playerPasses;
     private TeamPassingBean teamPasses;
     private List<TeamPassingBean> eventPasses;
@@ -210,5 +211,13 @@ public class ResponseBean {
 
     public void setTournamentResults(SortedSet<TeamResultsBean> tournamentResults) {
         this.tournamentResults = tournamentResults;
+    }
+
+    public LeagueStatsBean getLeagueStats() {
+        return leagueStats;
+    }
+
+    public void setLeagueStats(LeagueStatsBean leagueStats) {
+        this.leagueStats = leagueStats;
     }
 }
