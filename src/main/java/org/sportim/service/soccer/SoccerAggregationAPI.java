@@ -35,13 +35,23 @@ public class SoccerAggregationAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
+        AggregateEventBean eventStats = getEventStats(eventID, provider);
+        if (eventStats != null) {
+            ResponseBean resp = new ResponseBean(200, "");
+            resp.setEventStats(eventStats);
+            return resp;
+        }
+        return new ResponseBean(500, "Unable to retrieve statistics.");
+    }
+
+    protected static AggregateEventBean getEventStats(int eventID, ConnectionProvider connProvider) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         AggregateEventBean eventStats = new AggregateEventBean();
         boolean success = false;
         try {
-            conn = provider.getConnection();
+            conn = connProvider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
                     "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
                     "WHERE eventID = ? " +
@@ -103,11 +113,9 @@ public class SoccerAggregationAPI {
         }
 
         if (success) {
-            ResponseBean resp = new ResponseBean(200, "");
-            resp.setEventStats(eventStats);
-            return resp;
+            return eventStats;
         }
-        return new ResponseBean(500, "Unable to retrieve statistics.");
+        return null;
     }
 
     @GET
