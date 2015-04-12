@@ -1,9 +1,6 @@
 package org.sportim.service.api;
 
-import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.beans.StatusBean;
-import org.sportim.service.beans.TeamBean;
-import org.sportim.service.beans.UserBean;
+import org.sportim.service.beans.*;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -180,6 +177,66 @@ public class TeamAPI {
     }
 
     @GET
+    @Path("{id}/colors")
+    @Produces("application/json")
+    public ResponseBean getTeamColors(@PathParam("id") final int teamId, @HeaderParam("token") final String token)
+    {
+        if (AuthenticationUtil.validateToken(token) == null) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        int status = 200;
+        String message = "";
+        ColorBean team = null;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT t1.TeamId, PrimaryColor, SecondaryColor, TertiaryColor FROM TeamColors t1 " +
+                    "WHERE t1.TeamId = ?");
+            stmt.setInt(1, teamId);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                team = new ColorBean(rs);
+            }
+            else
+            {
+                status = 404;
+                message = "Team Colors not found";
+            }
+
+        } catch (SQLException e) {
+            status = 500;
+            message = "Unable to retrieve team. SQL error.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            status = 500;
+            message = "Unable to connect to datasource.";
+            // TODO log4j 2 log this
+            e.printStackTrace();
+        } finally {
+            boolean ok = APIUtils.closeResource(rs);
+            ok = ok && APIUtils.closeResource(stmt);
+            ok = ok && APIUtils.closeResource(conn);
+            if (!ok) {
+                // TODO implement Log4j 2 and log out error
+            }
+        }
+
+        ResponseBean resp = new ResponseBean(status, message);
+        if (team != null) {
+            resp.setColors(team);
+        } else {
+            StatusBean s = new StatusBean(404, "Team not found.");
+            resp.setStatus(s);
+        }
+        return resp;
+    }
+
+    @GET
     @Produces("application/json")
     public ResponseBean getTeams(@QueryParam(value="league") final int leagueID, @HeaderParam("token") final String token)
     {
@@ -222,6 +279,41 @@ public class TeamAPI {
         ResponseBean resp = new ResponseBean(status, message);
         resp.setTeams(teams);
         return resp;
+    }
+
+    @POST
+    @Path("{id}/colors")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public ResponseBean createColors(ColorBean color) {
+        int status = 200;
+        String message = "";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("INSERT IGNORE INTO TeamColors (TeamId, PrimaryColor, SecondaryColor, TertiaryColor) " +
+                    "VALUES (?,?,?,?)");
+            stmt.setInt(1, color.getId());
+            stmt.setString(2, color.getPrimaryColor());
+            stmt.setString(3, color.getSecondaryColor());
+            stmt.setString(4, color.getTertiaryColor());
+            int res = stmt.executeUpdate();
+            if (res < 1) {
+                message = "Color with that login already exists.";
+                status = 400;
+            }
+        } catch (SQLException e) {
+            // TODO log4j this
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to add user. SQL error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+
+        return new ResponseBean(status, message);
     }
 
     @POST
@@ -424,6 +516,60 @@ public class TeamAPI {
             e.printStackTrace();
             status = 500;
             message = "Unable to update team. SQL Error.";
+        } finally {
+            APIUtils.closeResource(stmt);
+            APIUtils.closeResource(conn);
+        }
+
+        return new ResponseBean(status, message);
+    }
+
+    @PUT
+    @Path("{id}/colors")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseBean updateTeamColors(ColorBean color, @HeaderParam("token") final String token) {
+        String user = AuthenticationUtil.validateToken(token);
+        if (!PrivilegeUtil.hasTeamUpdate(token, color.getId())) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        int status = 200;
+        String message = "";
+
+        if (color.getId() < 1) {
+            status = 400;
+            message = "Invalid team ID.";
+            return new ResponseBean(status, message);
+        }
+
+        if (!(message = color.validate()).isEmpty()) {
+            status = 400;
+            return new ResponseBean(status, message);
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+
+            if (status == 200) {
+                stmt = conn.prepareStatement("UPDATE TeamColors " +
+                        "SET PrimaryColor = ?, SecondaryColor = ?, TertiaryColor = ? " +
+                        "WHERE TeamId = ?");
+                stmt.setString(1, color.getPrimaryColor());
+                stmt.setString(2, color.getSecondaryColor());
+                stmt.setString(3, color.getTertiaryColor());
+                stmt.setInt(4, color.getId());
+                stmt.executeUpdate();
+
+            }
+
+        } catch (SQLException e) {
+            // TODO log
+            e.printStackTrace();
+            status = 500;
+            message = "Unable to update team colors. SQL Error.";
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);

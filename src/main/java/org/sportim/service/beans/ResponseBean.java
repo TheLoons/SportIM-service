@@ -34,6 +34,7 @@ public class ResponseBean {
     private List<TeamPassingBean> eventPasses;
     private SortedSet<TeamResultsBean> tournamentResults;
     private List<TournamentBean> tables;
+    private ColorBean colors;
 
     public ResponseBean(){
     }
@@ -91,6 +92,10 @@ public class ResponseBean {
     public LeagueBean getLeague() {return league;}
 
     public void setTeam(TeamBean team) {this.team = team;}
+
+    public ColorBean getColors() {return colors;}
+
+    public void setColors(ColorBean colorBean) {this.colors = colorBean;}
 
     @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
     public int getId() {
