@@ -7,6 +7,7 @@ import org.sportim.service.util.*;
 import javax.ws.rs.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 /**
  * API for goal tracking
@@ -29,7 +30,7 @@ public class SoccerGoalAPI {
     @Produces("application/json")
     public ResponseBean postGoal(final ScoreBean score, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
-        if (!PrivilegeUtil.hasEventUpdate(token, eventID) || !SoccerUtil.isValidSession(session, eventID)) {
+        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 

@@ -29,7 +29,7 @@ public class SoccerShotAPI {
     @Produces("application/json")
     public ResponseBean postShot(final ShotBean shot, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
-        if (!PrivilegeUtil.hasEventUpdate(token, eventID) || !SoccerUtil.isValidSession(session, eventID)) {
+        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 

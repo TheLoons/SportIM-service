@@ -30,6 +30,31 @@ public class SoccerAggregationAPI {
         this.provider = provider;
     }
 
+    @DELETE
+    @Produces("application/json")
+    @Path("event/{eventID}")
+    public ResponseBean deleteEventStats(@PathParam("eventID") final int eventID, @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasEventTracking(token, eventID)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("DELETE FROM SoccerStats WHERE eventID = ?");
+            stmt.setInt(1, eventID);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            return new ResponseBean(500, "Unable to delete event statistics");
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+        return new ResponseBean(200, "");
+    }
+
     @GET
     @Produces("application/json")
     @Path("event/{eventID}")

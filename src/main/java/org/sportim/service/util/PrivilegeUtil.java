@@ -322,11 +322,6 @@ public class PrivilegeUtil {
      * @return true if the user can update the stats
      */
     public static boolean hasEventTracking(String token, int eventID) {
-        // TODO: See issue #29. We need to update event ownership before this can be really implemented
-        String user = AuthenticationUtil.validateToken(token);
-        if (user == null) {
-            return false;
-        }
-        return true;
+        return hasEventView(token, eventID);
     }
 }
