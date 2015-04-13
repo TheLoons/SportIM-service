@@ -1,6 +1,10 @@
 package org.sportim.service.soccer;
 
+import org.sportim.service.api.AggregationAPI;
 import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.stats.AggregateEventBean;
+import org.sportim.service.beans.stats.LeagueStatsBean;
+import org.sportim.service.beans.stats.PlayerStatsBean;
 import org.sportim.service.beans.stats.TeamStatsBean;
 import org.sportim.service.soccer.beans.SoccerEventBean;
 import org.sportim.service.soccer.beans.SoccerLeagueStatsBean;
@@ -20,7 +24,7 @@ import java.util.List;
  * API for getting aggregated stats
  */
 @Path("stats")
-public class SoccerAggregationAPI {
+public class SoccerAggregationAPI implements AggregationAPI {
     private ConnectionProvider provider;
 
     public SoccerAggregationAPI() {
@@ -34,11 +38,18 @@ public class SoccerAggregationAPI {
     @DELETE
     @Produces("application/json")
     @Path("event/{eventID}")
-    public ResponseBean deleteEventStats(@PathParam("eventID") final int eventID, @HeaderParam("token") final String token) {
+    public ResponseBean deleteEventStatsRest(@PathParam("eventID") final int eventID, @HeaderParam("token") final String token) {
         if (!PrivilegeUtil.hasEventTracking(token, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 
+        if (deleteEventStats(eventID)) {
+            return new ResponseBean(200, "");
+        }
+        return new ResponseBean(500, "Unable to delete event statistics");
+    }
+
+    public boolean deleteEventStats(int eventID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -46,25 +57,29 @@ public class SoccerAggregationAPI {
             stmt = conn.prepareStatement("DELETE FROM SoccerStats WHERE eventID = ?");
             stmt.setInt(1, eventID);
             stmt.executeUpdate();
+            APIUtils.closeResources(stmt);
+            stmt = conn.prepareStatement("DELETE FROM Passing WHERE eventID = ?");
+            stmt.setInt(1, eventID);
+            stmt.executeUpdate();
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
-            return new ResponseBean(500, "Unable to delete event statistics");
+            return false;
         } finally {
             APIUtils.closeResources(stmt, conn);
         }
-        return new ResponseBean(200, "");
+        return true;
     }
 
     @GET
     @Produces("application/json")
     @Path("event/{eventID}")
-    public ResponseBean getEventStats(@PathParam("eventID") final int eventID, @HeaderParam("token") final String token) {
+    public ResponseBean getEventStatsRest(@PathParam("eventID") final int eventID, @HeaderParam("token") final String token) {
         if (!PrivilegeUtil.hasEventView(token, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 
-        SoccerEventBean eventStats = getEventStats(eventID, provider);
+        AggregateEventBean eventStats = getEventStats(eventID);
         if (eventStats != null) {
             ResponseBean resp = new ResponseBean(200, "");
             resp.setEventStats(eventStats);
@@ -73,14 +88,14 @@ public class SoccerAggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
-    protected static SoccerEventBean getEventStats(int eventID, ConnectionProvider connProvider) {
+    public AggregateEventBean getEventStats(int eventID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         SoccerEventBean eventStats = new SoccerEventBean(eventID);
         boolean success = false;
         try {
-            conn = connProvider.getConnection();
+            conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
                     "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
                     "WHERE eventID = ? " +
@@ -148,17 +163,29 @@ public class SoccerAggregationAPI {
     @GET
     @Produces("application/json")
     @Path("player")
-    public ResponseBean getPlayerStats(@QueryParam("login") final String login, @QueryParam("teamID") final int teamID,
+    public ResponseBean getPlayerStatsRest(@QueryParam("login") final String login, @QueryParam("teamID") final int teamID,
                                        @HeaderParam("token") final String token) {
         if (!PrivilegeUtil.hasUserView(token, login)) {
             return new ResponseBean(401, "Not authorized");
         }
 
+        PlayerStatsBean playerStats = getPlayerStats(login, teamID);
+
+        if (playerStats != null) {
+            ResponseBean resp = new ResponseBean(200, "");
+            List<PlayerStatsBean> stats = new ArrayList<PlayerStatsBean>(1);
+            stats.add(playerStats);
+            resp.setPlayerStats(stats);
+            return resp;
+        }
+        return new ResponseBean(500, "Unable to retrieve statistics.");
+    }
+
+    public PlayerStatsBean getPlayerStats(String login, int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        SoccerPlayerStatsBean playerStats = new SoccerPlayerStatsBean(login);
-        boolean success = false;
+        SoccerPlayerStatsBean playerStats = null;
         try {
             conn = provider.getConnection();
             if (teamID < 1) {
@@ -177,6 +204,7 @@ public class SoccerAggregationAPI {
             }
             rs = stmt.executeQuery();
             if (rs.next()) {
+                playerStats = new SoccerPlayerStatsBean(login);
                 playerStats.goals = rs.getInt(2);
                 playerStats.shots = rs.getInt(3);
                 playerStats.shotsOnGoal = rs.getInt(4);
@@ -188,31 +216,25 @@ public class SoccerAggregationAPI {
                 playerStats.saves = rs.getInt(10);
                 playerStats.minutes = rs.getInt(11);
             }
-            success = true;
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
+            playerStats = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
-
-        if (success) {
-            ResponseBean resp = new ResponseBean(200, "");
-            resp.setPlayerStats(playerStats);
-            return resp;
-        }
-        return new ResponseBean(500, "Unable to retrieve statistics.");
+        return playerStats;
     }
 
     @GET
     @Produces("application/json")
     @Path("team/{teamID}")
-    public ResponseBean getTeamsStats(@PathParam("teamID") final int teamID, @HeaderParam("token") final String token) {
+    public ResponseBean getTeamsStatsRest(@PathParam("teamID") final int teamID, @HeaderParam("token") final String token) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
 
-        SoccerTeamStatsBean teamStats = getTeamStats(teamID);
+        TeamStatsBean teamStats = getTeamStats(teamID);
         if (teamStats != null) {
             ResponseBean resp = new ResponseBean(200, "");
             resp.setTeamStats(teamStats);
@@ -221,7 +243,7 @@ public class SoccerAggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
-    private SoccerTeamStatsBean getTeamStats(int teamID) {
+    public TeamStatsBean getTeamStats(int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -259,21 +281,33 @@ public class SoccerAggregationAPI {
     @GET
     @Produces("application/json")
     @Path("league/{leagueID}")
-    public ResponseBean getLeagueStats(@PathParam("leagueID") final int leagueID, @HeaderParam("token") final String token) {
+    public ResponseBean getLeagueStatsRest(@PathParam("leagueID") final int leagueID, @HeaderParam("token") final String token) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
 
+        LeagueStatsBean leagueStats = getLeagueStats(leagueID);
+        if (leagueStats == null) {
+            return new ResponseBean(500, "Unable to retrieve league stats.");
+        }
+
+        ResponseBean resp = new ResponseBean(200, "");
+        resp.setLeagueStats(leagueStats);
+        return resp;
+    }
+
+    public LeagueStatsBean getLeagueStats(int leagueID) {
         List<Integer> teams = getAllTeamsInLeague(leagueID);
         if (teams == null) {
-            return new ResponseBean(500, "Unable to retrieve league stats.");
+            return null;
         }
 
         SoccerLeagueStatsBean leagueStats = new SoccerLeagueStatsBean(leagueID);
         leagueStats.teamStats = new ArrayList<TeamStatsBean>(teams.size());
         for (Integer teamID : teams) {
-            SoccerTeamStatsBean teamStats = getTeamStats(teamID);
-            if (teamStats != null) {
+            TeamStatsBean teamStatsGen = getTeamStats(teamID);
+            if (teamStatsGen != null) {
+                SoccerTeamStatsBean teamStats = (SoccerTeamStatsBean)teamStatsGen;
                 leagueStats.teamStats.add(teamStats);
                 if (teamStats.goals > leagueStats.topTeamScore) {
                     leagueStats.topScoringTeam = teamID;
@@ -287,10 +321,7 @@ public class SoccerAggregationAPI {
                 leagueStats.shotsOnGoal += teamStats.shotsOnGoal;
             }
         }
-
-        ResponseBean resp = new ResponseBean(200, "");
-        resp.setLeagueStats(leagueStats);
-        return resp;
+        return leagueStats;
     }
 
     private List<Integer> getAllTeamsInLeague(int leagueID) {

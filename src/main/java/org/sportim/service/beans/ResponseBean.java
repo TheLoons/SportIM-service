@@ -1,9 +1,7 @@
 package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.sportim.service.beans.stats.AggregateEventBean;
-import org.sportim.service.beans.stats.PlayerPassingBean;
-import org.sportim.service.beans.stats.TeamPassingBean;
+import org.sportim.service.beans.stats.*;
 import org.sportim.service.soccer.beans.*;
 
 import java.util.List;
@@ -29,9 +27,9 @@ public class ResponseBean {
     private String token;
     private String session;
     private AggregateEventBean eventStats;
-    private SoccerPlayerStatsBean playerStats;
-    private SoccerTeamStatsBean teamStats;
-    private SoccerLeagueStatsBean leagueStats;
+    private List<PlayerStatsBean> playerStats;
+    private TeamStatsBean teamStats;
+    private LeagueStatsBean leagueStats;
     private PlayerPassingBean playerPasses;
     private TeamPassingBean teamPasses;
     private List<TeamPassingBean> eventPasses;
@@ -150,19 +148,19 @@ public class ResponseBean {
         this.eventStats = eventStats;
     }
 
-    public SoccerPlayerStatsBean getPlayerStats() {
+    public List<PlayerStatsBean> getPlayerStats() {
         return playerStats;
     }
 
-    public void setPlayerStats(SoccerPlayerStatsBean playerStats) {
+    public void setPlayerStats(List<PlayerStatsBean> playerStats) {
         this.playerStats = playerStats;
     }
 
-    public SoccerTeamStatsBean getTeamStats() {
+    public TeamStatsBean getTeamStats() {
         return teamStats;
     }
 
-    public void setTeamStats(SoccerTeamStatsBean teamStats) {
+    public void setTeamStats(TeamStatsBean teamStats) {
         this.teamStats = teamStats;
     }
 
@@ -222,11 +220,11 @@ public class ResponseBean {
         this.tournamentResults = tournamentResults;
     }
 
-    public SoccerLeagueStatsBean getLeagueStats() {
+    public LeagueStatsBean getLeagueStats() {
         return leagueStats;
     }
 
-    public void setLeagueStats(SoccerLeagueStatsBean leagueStats) {
+    public void setLeagueStats(LeagueStatsBean leagueStats) {
         this.leagueStats = leagueStats;
     }
 
