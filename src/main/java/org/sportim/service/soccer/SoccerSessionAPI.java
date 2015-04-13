@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.sportim.service.api.StatSessionAPI;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
@@ -17,14 +18,14 @@ import java.util.UUID;
  */
 @Path("/session")
 public class SoccerSessionAPI {
-    private ConnectionProvider provider;
+    private StatSessionAPI statSessionAPI;
 
     public SoccerSessionAPI() {
-        provider = ConnectionManager.getInstance();
+        statSessionAPI = new StatSessionAPI();
     }
 
-    public SoccerSessionAPI(ConnectionProvider provider) {
-        this.provider = provider;
+    public SoccerSessionAPI(StatSessionAPI statSessionAPI) {
+        this.statSessionAPI = statSessionAPI;
     }
 
     @GET
@@ -32,41 +33,7 @@ public class SoccerSessionAPI {
     @Produces("application/json")
     public ResponseBean startEventSession(@PathParam("eventID") final int eventID,
                                           @HeaderParam("token") final String token) {
-        if (!PrivilegeUtil.hasEventTracking(token, eventID)) {
-            return new ResponseBean(401, "Not authorized");
-        }
-
-        String sessionID = UUID.randomUUID().toString();
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int res = -1;
-        try {
-            conn = provider.getConnection();
-            stmt = conn.prepareStatement("INSERT IGNORE INTO SoccerSessions (eventID, sessionID) VALUES (?,?)");
-            stmt.setInt(1, eventID);
-            stmt.setString(2, sessionID);
-            res = stmt.executeUpdate();
-        } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
-        } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
-        }
-
-        ResponseBean resp;
-        if (res == 1) {
-            resp = new ResponseBean(200, "");
-            resp.setSession(sessionID);
-        } else if (res == 0) {
-            resp = new ResponseBean(409, "Session already started");
-        } else {
-            resp = new ResponseBean(500, "Unable to start session");
-        }
-        return resp;
+        return statSessionAPI.startEventSession(eventID, token);
     }
 
     @GET
@@ -74,39 +41,7 @@ public class SoccerSessionAPI {
     @Produces("application/json")
     public ResponseBean restartEventSession(@PathParam("eventID") final int eventID,
                                             @HeaderParam("token") final String token) {
-        if (!PrivilegeUtil.hasEventTracking(token, eventID)) {
-            return new ResponseBean(401, "Not authorized");
-        }
-
-        String sessionID = UUID.randomUUID().toString();
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int res = -1;
-        try {
-            conn = provider.getConnection();
-            stmt = conn.prepareStatement("INSERT INTO SoccerSessions (eventID, sessionID) VALUES (?,?) " +
-                    "ON DUPLICATE KEY UPDATE sessionID = ?");
-            stmt.setInt(1, eventID);
-            stmt.setString(2, sessionID);
-            stmt.setString(3, sessionID);
-            res = stmt.executeUpdate();
-        } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
-        } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
-        }
-
-        if (res < 1) {
-            return new ResponseBean(500, "Unable to reset stat session");
-        }
-        ResponseBean resp = new ResponseBean(200, "");
-        resp.setSession(sessionID);
-        return resp;
+        return statSessionAPI.restartEventSession(eventID, token);
     }
 
     @DELETE
@@ -115,32 +50,6 @@ public class SoccerSessionAPI {
     public ResponseBean endEventSession(@PathParam("eventID") final int eventID,
                                         @HeaderParam("token") final String token,
                                         @HeaderParam("session") final String session) {
-        if (!PrivilegeUtil.hasEventTracking(token, eventID)) {
-            return new ResponseBean(401, "Not authorized");
-        }
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int res = -1;
-        try {
-            conn = provider.getConnection();
-            stmt = conn.prepareStatement("DELETE FROM SoccerSessions WHERE eventID = ? AND sessionID = ?");
-            stmt.setInt(1, eventID);
-            stmt.setString(2, session);
-            res = stmt.executeUpdate();
-        } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
-        } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
-        }
-
-        if (res < 1) {
-            return new ResponseBean(500, "Unable to end stat session");
-        }
-        return new ResponseBean(200, "");
+        return statSessionAPI.endEventSession(eventID, token, session);
     }
 }

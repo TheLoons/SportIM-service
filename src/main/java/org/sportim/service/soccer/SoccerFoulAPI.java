@@ -2,10 +2,7 @@ package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.soccer.beans.SoccerFoulBean;
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.AuthenticationUtil;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 import java.sql.Connection;
@@ -35,7 +32,7 @@ public class SoccerFoulAPI {
     @Produces("application/json")
     public ResponseBean postFoul(final SoccerFoulBean foul, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
-        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
+        if (AuthenticationUtil.validateToken(token) == null || !StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 

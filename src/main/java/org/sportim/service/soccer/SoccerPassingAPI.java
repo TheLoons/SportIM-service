@@ -35,7 +35,7 @@ public class SoccerPassingAPI {
     @Produces("application/json")
     public ResponseBean postPass(final PassBean pass, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
-        if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
+        if (AuthenticationUtil.validateToken(token) == null || !StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
         }
 

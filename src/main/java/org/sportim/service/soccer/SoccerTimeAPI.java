@@ -38,7 +38,7 @@ public class SoccerTimeAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        if (!SoccerUtil.isValidSession(session, eventID)) {
+        if (!StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
         }
 
@@ -83,7 +83,7 @@ public class SoccerTimeAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        if (!SoccerUtil.isValidSession(session, eventID)) {
+        if (!StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
         }
 
@@ -119,7 +119,7 @@ public class SoccerTimeAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        if (!SoccerUtil.isValidSession(session, eventID)) {
+        if (!StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
         }
 
@@ -166,7 +166,7 @@ public class SoccerTimeAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        if (!SoccerUtil.isValidSession(session, eventID)) {
+        if (!StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
         }
 
@@ -239,7 +239,7 @@ public class SoccerTimeAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        if (!SoccerUtil.isValidSession(session, eventID)) {
+        if (!StatUtil.isValidSession(session, eventID)) {
             return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
         }
 

@@ -1,8 +1,4 @@
-package org.sportim.service.soccer;
-
-import org.sportim.service.util.APIUtils;
-import org.sportim.service.util.ConnectionManager;
-import org.sportim.service.util.ConnectionProvider;
+package org.sportim.service.util;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,11 +7,11 @@ import java.sql.ResultSet;
 /**
  * Utilities for the soccer stat tracking API.
  */
-public class SoccerUtil {
+public class StatUtil {
     private static ConnectionProvider provider = ConnectionManager.getInstance();
 
     public static void setConnectionProvider(ConnectionProvider provider) {
-        SoccerUtil.provider = provider;
+        StatUtil.provider = provider;
     }
 
     /**
@@ -35,7 +31,7 @@ public class SoccerUtil {
         boolean valid = false;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT COUNT(sessionID) FROM SoccerSessions " +
+            stmt = conn.prepareStatement("SELECT COUNT(sessionID) FROM StatSessions " +
                     "WHERE eventID = ? and sessionID = ?");
             stmt.setInt(1, eventID);
             stmt.setString(2, sessionID);
