@@ -1,9 +1,9 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.AggregateEventBean;
-import org.sportim.service.soccer.beans.GameBean;
-import org.sportim.service.soccer.beans.TeamStatsBean;
+import org.sportim.service.soccer.beans.SoccerEventBean;
+import org.sportim.service.soccer.beans.SoccerGameBean;
+import org.sportim.service.soccer.beans.SoccerTeamStatsBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -33,7 +33,7 @@ public class SoccerTimeAPI {
     @Produces("application/json")
     @Path("start/{eventID}")
     public ResponseBean startGame(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
-                                  @HeaderParam("token") final String token, GameBean gameStart) {
+                                  @HeaderParam("token") final String token, SoccerGameBean gameStart) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -78,7 +78,7 @@ public class SoccerTimeAPI {
     @Produces("application/json")
     @Path("halfend/{eventID}")
     public ResponseBean endHalf(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
-                                @HeaderParam("token") final String token, GameBean halfEnd) {
+                                @HeaderParam("token") final String token, SoccerGameBean halfEnd) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -114,7 +114,7 @@ public class SoccerTimeAPI {
     @Produces("application/json")
     @Path("halfstart/{eventID}")
     public ResponseBean startHalf(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
-                                @HeaderParam("token") final String token, GameBean halfStart) {
+                                @HeaderParam("token") final String token, SoccerGameBean halfStart) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -161,7 +161,7 @@ public class SoccerTimeAPI {
     @Produces("application/json")
     @Path("end/{eventID}")
     public ResponseBean endGame(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
-                                  @HeaderParam("token") final String token, GameBean gameEnd) {
+                                  @HeaderParam("token") final String token, SoccerGameBean gameEnd) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -234,7 +234,7 @@ public class SoccerTimeAPI {
     @Produces("application/json")
     @Path("sub/{eventID}")
     public ResponseBean substitute(@PathParam("eventID") final int eventID, @HeaderParam("session") final String session,
-                                   @HeaderParam("token") final String token, GameBean sub) {
+                                   @HeaderParam("token") final String token, SoccerGameBean sub) {
         if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -315,7 +315,7 @@ public class SoccerTimeAPI {
     }
 
     private boolean fillNextBracketEvent(int eventID) {
-        AggregateEventBean eventStats = SoccerAggregationAPI.getEventStats(eventID, provider);
+        SoccerEventBean eventStats = SoccerAggregationAPI.getEventStats(eventID, provider);
         if (eventStats == null || eventStats.teamStats == null) {
             return false;
         }
@@ -330,7 +330,7 @@ public class SoccerTimeAPI {
         int winner = -1;
         int maxScore = -1;
         List<Integer> losers = new ArrayList<Integer>(eventStats.teamStats.size() - 1);
-        for (TeamStatsBean team : eventStats.teamStats) {
+        for (SoccerTeamStatsBean team : eventStats.teamStats) {
             if (team.goals > maxScore) {
                 if (winner != -1) {
                     losers.add(winner);

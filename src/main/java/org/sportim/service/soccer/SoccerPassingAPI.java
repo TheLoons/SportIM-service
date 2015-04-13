@@ -1,11 +1,10 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.PassBean;
-import org.sportim.service.soccer.beans.PlayerPassingBean;
-import org.sportim.service.soccer.beans.TeamPassingBean;
+import org.sportim.service.beans.stats.PassBean;
+import org.sportim.service.beans.stats.PlayerPassingBean;
+import org.sportim.service.beans.stats.TeamPassingBean;
 import org.sportim.service.util.*;
-import sun.net.www.protocol.http.AuthenticationInfo;
 
 import javax.ws.rs.*;
 import java.sql.Connection;
@@ -49,7 +48,7 @@ public class SoccerPassingAPI {
         PreparedStatement stmt = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("INSERT INTO SoccerPassing (`to`, `from`, eventID, passes) VALUES (?, ?, ?, ?) " +
+            stmt = conn.prepareStatement("INSERT INTO Passing (`to`, `from`, eventID, passes) VALUES (?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE passes = passes + 1");
             stmt.setString(1, pass.to);
             stmt.setString(2, pass.from);
@@ -126,7 +125,7 @@ public class SoccerPassingAPI {
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT DISTINCT sp.to, sp.from, ss.teamID, sp.passes " +
-                    "FROM SoccerPassing sp INNER JOIN SoccerStats ss " +
+                    "FROM Passing sp INNER JOIN SoccerStats ss " +
                     "ON sp.eventID = ss.eventID AND (sp.from = ss.player OR sp.to = ss.player) " +
                     "WHERE sp.eventID = ? ");
             stmt.setInt(1, eventID);
@@ -166,9 +165,9 @@ public class SoccerPassingAPI {
         PlayerPassingBean passes = new PlayerPassingBean();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT SoccerPassing.to, SoccerPassing.from, passes " +
-                    "FROM SoccerPassing " +
-                    "WHERE SoccerPassing.to = ? OR SoccerPassing.from = ?");
+            stmt = conn.prepareStatement("SELECT Passing.to, Passing.from, passes " +
+                    "FROM Passing " +
+                    "WHERE Passing.to = ? OR Passing.from = ?");
             stmt.setString(1, player);
             stmt.setString(2, player);
             rs = stmt.executeQuery();
@@ -208,7 +207,7 @@ public class SoccerPassingAPI {
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT sp.to, sp.from, SUM(sp.passes) " +
-                    "FROM SoccerPassing sp INNER JOIN SoccerStats ss " +
+                    "FROM Passing sp INNER JOIN SoccerStats ss " +
                     "ON sp.eventID = ss.eventID AND sp.to = ss.player " +
                     "WHERE ss.teamID = ? " +
                     "GROUP BY sp.to, sp.from");

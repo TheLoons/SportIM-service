@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class TeamResultsBean implements Comparable<TeamResultsBean> {
+public class SoccerTeamResultsBean implements Comparable<SoccerTeamResultsBean> {
     public int teamID = 0;
     public int rank = 0;
     public int wins = 0;
@@ -18,21 +18,21 @@ public class TeamResultsBean implements Comparable<TeamResultsBean> {
     public int goalsAgainst = 0;
     public int points = 0;
 
-    public TeamResultsBean(int teamID) {
+    public SoccerTeamResultsBean(int teamID) {
         this.teamID = teamID;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof  TeamResultsBean) {
-            TeamResultsBean other = (TeamResultsBean)o;
+        if (o instanceof SoccerTeamResultsBean) {
+            SoccerTeamResultsBean other = (SoccerTeamResultsBean)o;
             return teamID == other.teamID;
         }
         return false;
     }
 
     @Override
-    public int compareTo(TeamResultsBean teamResultsBean) {
+    public int compareTo(SoccerTeamResultsBean teamResultsBean) {
         if (teamID == teamResultsBean.teamID) {
             return 0;
         }

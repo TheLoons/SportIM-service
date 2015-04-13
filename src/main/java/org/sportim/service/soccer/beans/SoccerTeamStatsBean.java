@@ -2,6 +2,8 @@ package org.sportim.service.soccer.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.sportim.service.beans.stats.StatsType;
+import org.sportim.service.beans.stats.TeamStatsBean;
 
 import java.util.List;
 
@@ -10,8 +12,7 @@ import java.util.List;
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class TeamStatsBean {
-    public int teamID = 0;
+public class SoccerTeamStatsBean extends TeamStatsBean {
     public int goals = 0;
     public int goalsAgainst = 0;
     public int shots = 0;
@@ -20,5 +21,9 @@ public class TeamStatsBean {
     public int yellow = 0;
     public int red = 0;
     public int saves = 0;
-    public List<PlayerStatsBean> playerStats = null;
+
+    public SoccerTeamStatsBean(int teamID) {
+        super(teamID);
+        this.type = StatsType.SOCCER;
+    }
 }

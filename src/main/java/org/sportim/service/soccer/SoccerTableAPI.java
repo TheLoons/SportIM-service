@@ -1,7 +1,7 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.TeamResultsBean;
+import org.sportim.service.soccer.beans.SoccerTeamResultsBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
 import org.sportim.service.util.ConnectionProvider;
@@ -38,7 +38,7 @@ public class SoccerTableAPI {
             }
         }
 
-        SortedSet<TeamResultsBean> results = getTableForEvents(events);
+        SortedSet<SoccerTeamResultsBean> results = getTableForEvents(events);
         if (results == null) {
             return new ResponseBean(500, "Unable to get table results.");
         }
@@ -47,15 +47,15 @@ public class SoccerTableAPI {
         return resp;
     }
 
-    public SortedSet<TeamResultsBean> getTableForEvents(List<Integer> events) {
-        SortedSet<TeamResultsBean> table = new TreeSet<>();
+    public SortedSet<SoccerTeamResultsBean> getTableForEvents(List<Integer> events) {
+        SortedSet<SoccerTeamResultsBean> table = new TreeSet<>();
 
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         Map<Integer, Map<Integer, Integer>> eventResults = new HashMap<Integer, Map<Integer, Integer>>();
-        Map<Integer, TeamResultsBean> teamResults = new HashMap<Integer, TeamResultsBean>();
+        Map<Integer, SoccerTeamResultsBean> teamResults = new HashMap<Integer, SoccerTeamResultsBean>();
         try {
             conn = provider.getConnection();
             stmt = createEventStatQuery(events, conn);
@@ -68,12 +68,12 @@ public class SoccerTableAPI {
             calculatePoints(eventResults, teamResults);
 
             // Add results to the table, then update ranks
-            for (TeamResultsBean team : teamResults.values()) {
+            for (SoccerTeamResultsBean team : teamResults.values()) {
                 table.add(team);
             }
 
             int rank = 0;
-            for (TeamResultsBean team : table) {
+            for (SoccerTeamResultsBean team : table) {
                 team.rank = ++rank;
             }
         } catch (Exception e) {
@@ -100,7 +100,7 @@ public class SoccerTableAPI {
         return stmt;
     }
 
-    private void collectResults(Map<Integer, Map<Integer,Integer>> eventResults, Map<Integer, TeamResultsBean> teamResults,
+    private void collectResults(Map<Integer, Map<Integer,Integer>> eventResults, Map<Integer, SoccerTeamResultsBean> teamResults,
                                 ResultSet rs, List<Integer> events) throws Exception {
         // Get all teams so we can fill in with zeros if needed
         Connection conn = null;
@@ -148,9 +148,9 @@ public class SoccerTableAPI {
             eventRes.put(teamID, eventGoals + goals);
 
             // Increment team goal count
-            TeamResultsBean teamRes = teamResults.get(teamID);
+            SoccerTeamResultsBean teamRes = teamResults.get(teamID);
             if (teamRes == null) {
-                teamRes = new TeamResultsBean(teamID);
+                teamRes = new SoccerTeamResultsBean(teamID);
                 teamResults.put(teamID, teamRes);
                 allTeamsInTournament.remove(teamID);
             }
@@ -159,14 +159,14 @@ public class SoccerTableAPI {
         }
 
         for (int team : allTeamsInTournament) {
-            TeamResultsBean teamRes = new TeamResultsBean(team);
+            SoccerTeamResultsBean teamRes = new SoccerTeamResultsBean(team);
             teamRes.goalsAgainst = 0;
             teamRes.goalsFor = 0;
             teamResults.put(team, teamRes);
         }
     }
 
-    private void calculatePoints(Map<Integer, Map<Integer, Integer>> eventResults, Map<Integer, TeamResultsBean> teamResults) {
+    private void calculatePoints(Map<Integer, Map<Integer, Integer>> eventResults, Map<Integer, SoccerTeamResultsBean> teamResults) {
         for (Map<Integer, Integer> event : eventResults.values()) {
             Set<Integer> maxTeams = new HashSet<Integer>();
             int max = -1;
@@ -185,7 +185,7 @@ public class SoccerTableAPI {
 
             // Store results
             for (int teamID : event.keySet()) {
-                TeamResultsBean teamRes = teamResults.get(teamID);
+                SoccerTeamResultsBean teamRes = teamResults.get(teamID);
                 if (teamRes == null) {
                     continue;
                 }

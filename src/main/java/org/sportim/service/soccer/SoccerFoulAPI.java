@@ -1,7 +1,7 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.FoulBean;
+import org.sportim.service.soccer.beans.SoccerFoulBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.AuthenticationUtil;
 import org.sportim.service.util.ConnectionManager;
@@ -33,7 +33,7 @@ public class SoccerFoulAPI {
     @Path("{eventID}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean postFoul(final FoulBean foul, @PathParam("eventID") final int eventID,
+    public ResponseBean postFoul(final SoccerFoulBean foul, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
         if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
@@ -70,7 +70,7 @@ public class SoccerFoulAPI {
      * @return a PreparedStatement for updating the database based on the foul
      * @throws SQLException
      */
-    public PreparedStatement createUpdateQuery(final int eventID, final FoulBean foul,
+    public PreparedStatement createUpdateQuery(final int eventID, final SoccerFoulBean foul,
                                                Connection conn) throws SQLException {
         String extraColNames = "";
         String params = "";

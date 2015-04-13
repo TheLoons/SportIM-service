@@ -1,13 +1,12 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.ScoreBean;
+import org.sportim.service.soccer.beans.SoccerScoreBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.List;
 
 /**
  * API for goal tracking
@@ -28,7 +27,7 @@ public class SoccerGoalAPI {
     @Path("{eventID}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean postGoal(final ScoreBean score, @PathParam("eventID") final int eventID,
+    public ResponseBean postGoal(final SoccerScoreBean score, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
         if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");

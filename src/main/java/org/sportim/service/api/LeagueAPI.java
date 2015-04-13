@@ -2,11 +2,10 @@ package org.sportim.service.api;
 
 import org.sportim.service.beans.*;
 import org.sportim.service.soccer.SoccerTableAPI;
-import org.sportim.service.soccer.beans.TeamResultsBean;
+import org.sportim.service.soccer.beans.SoccerTeamResultsBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
-import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.*;
 
@@ -517,7 +516,7 @@ public class LeagueAPI {
         List<Integer> events = (new TournamentAPI(provider)).getEventsForTournament(tableID);
         if (events == null) {
             ResponseBean resp = new ResponseBean(200, "");
-            resp.setTournamentResults(new TreeSet<TeamResultsBean>());
+            resp.setTournamentResults(new TreeSet<SoccerTeamResultsBean>());
             return resp;
         }
 
@@ -548,7 +547,7 @@ public class LeagueAPI {
             return new ResponseBean(500, "Unable to get league table results.");
         }
 
-        SortedSet<TeamResultsBean> table;
+        SortedSet<SoccerTeamResultsBean> table;
         if (sport.equals("soccer")) {
             table = (new SoccerTableAPI(provider)).getTableForEvents(events);
         } else {

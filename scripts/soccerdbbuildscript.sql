@@ -1,10 +1,3 @@
-CREATE TABLE IF NOT EXISTS `SoccerPassing` (
-  `from` VARCHAR(50) NOT NULL,
-  `to` VARCHAR(50) NOT NULL,
-  `eventID` INT NOT NULL,
-  `passes` INT NOT NULL,
-  PRIMARY KEY (`from`, `to`, `eventID`));
-
 CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `eventID` INT NOT NULL,
   `teamID` INT NOT NULL,
@@ -21,12 +14,6 @@ CREATE TABLE IF NOT EXISTS `SoccerStats` (
   `timeOn` INT NOT NULL DEFAULT -1,
   `saves` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`eventID`, `teamID`, `player`));
-
-CREATE TABLE IF NOT EXISTS `SoccerSessions` (
-  `eventID` INT NOT NULL,
-  `sessionID` VARCHAR(255),
-  PRIMARY KEY (`eventID`)
-);
 
 CREATE TABLE IF NOT EXISTS `SoccerTime` (
   `eventID` INT NOT NULL,

@@ -1,10 +1,11 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.AggregateEventBean;
-import org.sportim.service.soccer.beans.LeagueStatsBean;
-import org.sportim.service.soccer.beans.PlayerStatsBean;
-import org.sportim.service.soccer.beans.TeamStatsBean;
+import org.sportim.service.beans.stats.TeamStatsBean;
+import org.sportim.service.soccer.beans.SoccerEventBean;
+import org.sportim.service.soccer.beans.SoccerLeagueStatsBean;
+import org.sportim.service.soccer.beans.SoccerPlayerStatsBean;
+import org.sportim.service.soccer.beans.SoccerTeamStatsBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -63,7 +64,7 @@ public class SoccerAggregationAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        AggregateEventBean eventStats = getEventStats(eventID, provider);
+        SoccerEventBean eventStats = getEventStats(eventID, provider);
         if (eventStats != null) {
             ResponseBean resp = new ResponseBean(200, "");
             resp.setEventStats(eventStats);
@@ -72,11 +73,11 @@ public class SoccerAggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
-    protected static AggregateEventBean getEventStats(int eventID, ConnectionProvider connProvider) {
+    protected static SoccerEventBean getEventStats(int eventID, ConnectionProvider connProvider) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        AggregateEventBean eventStats = new AggregateEventBean();
+        SoccerEventBean eventStats = new SoccerEventBean(eventID);
         boolean success = false;
         try {
             conn = connProvider.getConnection();
@@ -86,10 +87,9 @@ public class SoccerAggregationAPI {
                     "GROUP BY teamID");
             stmt.setInt(1, eventID);
             rs = stmt.executeQuery();
-            eventStats.teamStats = new ArrayList<TeamStatsBean>(2);
+            eventStats.teamStats = new ArrayList<SoccerTeamStatsBean>(2);
             while(rs.next()) {
-                TeamStatsBean teamStats = new TeamStatsBean();
-                teamStats.teamID = rs.getInt(1);
+                SoccerTeamStatsBean teamStats = new SoccerTeamStatsBean(rs.getInt(1));
                 teamStats.goals = rs.getInt(2);
                 teamStats.shots = rs.getInt(3);
                 teamStats.shotsOnGoal = rs.getInt(4);
@@ -106,7 +106,7 @@ public class SoccerAggregationAPI {
             }
 
             APIUtils.closeResources(rs, stmt);
-            for (TeamStatsBean team : eventStats.teamStats) {
+            for (SoccerTeamStatsBean team : eventStats.teamStats) {
                 stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
                         "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(minutes), SUM(saves) FROM SoccerStats " +
                         "WHERE eventID = ? AND teamID = ? " +
@@ -114,10 +114,9 @@ public class SoccerAggregationAPI {
                 stmt.setInt(1, eventID);
                 stmt.setInt(2, team.teamID);
                 rs = stmt.executeQuery();
-                team.playerStats = new ArrayList<PlayerStatsBean>();
+                team.playerStats = new ArrayList<SoccerPlayerStatsBean>();
                 while(rs.next()) {
-                    PlayerStatsBean playerStats = new PlayerStatsBean();
-                    playerStats.login = rs.getString(1);
+                    SoccerPlayerStatsBean playerStats = new SoccerPlayerStatsBean(rs.getString(1));
                     playerStats.goals = rs.getInt(2);
                     playerStats.shots = rs.getInt(3);
                     playerStats.shotsOnGoal = rs.getInt(4);
@@ -158,7 +157,7 @@ public class SoccerAggregationAPI {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        PlayerStatsBean playerStats = new PlayerStatsBean();
+        SoccerPlayerStatsBean playerStats = new SoccerPlayerStatsBean(login);
         boolean success = false;
         try {
             conn = provider.getConnection();
@@ -178,7 +177,6 @@ public class SoccerAggregationAPI {
             }
             rs = stmt.executeQuery();
             if (rs.next()) {
-                playerStats.login = rs.getString(1);
                 playerStats.goals = rs.getInt(2);
                 playerStats.shots = rs.getInt(3);
                 playerStats.shotsOnGoal = rs.getInt(4);
@@ -214,7 +212,7 @@ public class SoccerAggregationAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
-        TeamStatsBean teamStats = getTeamStats(teamID);
+        SoccerTeamStatsBean teamStats = getTeamStats(teamID);
         if (teamStats != null) {
             ResponseBean resp = new ResponseBean(200, "");
             resp.setTeamStats(teamStats);
@@ -223,11 +221,11 @@ public class SoccerAggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
-    private TeamStatsBean getTeamStats(int teamID) {
+    private SoccerTeamStatsBean getTeamStats(int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        TeamStatsBean teamStats = new TeamStatsBean();
+        SoccerTeamStatsBean teamStats = new SoccerTeamStatsBean(teamID);
         try {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
@@ -271,10 +269,10 @@ public class SoccerAggregationAPI {
             return new ResponseBean(500, "Unable to retrieve league stats.");
         }
 
-        LeagueStatsBean leagueStats = new LeagueStatsBean(leagueID);
+        SoccerLeagueStatsBean leagueStats = new SoccerLeagueStatsBean(leagueID);
         leagueStats.teamStats = new ArrayList<TeamStatsBean>(teams.size());
         for (Integer teamID : teams) {
-            TeamStatsBean teamStats = getTeamStats(teamID);
+            SoccerTeamStatsBean teamStats = getTeamStats(teamID);
             if (teamStats != null) {
                 leagueStats.teamStats.add(teamStats);
                 if (teamStats.goals > leagueStats.topTeamScore) {

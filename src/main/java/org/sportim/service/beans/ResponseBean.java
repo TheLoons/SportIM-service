@@ -1,6 +1,9 @@
 package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.sportim.service.beans.stats.AggregateEventBean;
+import org.sportim.service.beans.stats.PlayerPassingBean;
+import org.sportim.service.beans.stats.TeamPassingBean;
 import org.sportim.service.soccer.beans.*;
 
 import java.util.List;
@@ -26,13 +29,13 @@ public class ResponseBean {
     private String token;
     private String session;
     private AggregateEventBean eventStats;
-    private PlayerStatsBean playerStats;
-    private TeamStatsBean teamStats;
-    private LeagueStatsBean leagueStats;
+    private SoccerPlayerStatsBean playerStats;
+    private SoccerTeamStatsBean teamStats;
+    private SoccerLeagueStatsBean leagueStats;
     private PlayerPassingBean playerPasses;
     private TeamPassingBean teamPasses;
     private List<TeamPassingBean> eventPasses;
-    private SortedSet<TeamResultsBean> tournamentResults;
+    private SortedSet<SoccerTeamResultsBean> tournamentResults;
     private List<TournamentBean> tables;
     private ColorBean colors;
 
@@ -146,19 +149,19 @@ public class ResponseBean {
         this.eventStats = eventStats;
     }
 
-    public PlayerStatsBean getPlayerStats() {
+    public SoccerPlayerStatsBean getPlayerStats() {
         return playerStats;
     }
 
-    public void setPlayerStats(PlayerStatsBean playerStats) {
+    public void setPlayerStats(SoccerPlayerStatsBean playerStats) {
         this.playerStats = playerStats;
     }
 
-    public TeamStatsBean getTeamStats() {
+    public SoccerTeamStatsBean getTeamStats() {
         return teamStats;
     }
 
-    public void setTeamStats(TeamStatsBean teamStats) {
+    public void setTeamStats(SoccerTeamStatsBean teamStats) {
         this.teamStats = teamStats;
     }
 
@@ -210,19 +213,19 @@ public class ResponseBean {
         this.tables = tables;
     }
 
-    public SortedSet<TeamResultsBean> getTournamentResults() {
+    public SortedSet<SoccerTeamResultsBean> getTournamentResults() {
         return tournamentResults;
     }
 
-    public void setTournamentResults(SortedSet<TeamResultsBean> tournamentResults) {
+    public void setTournamentResults(SortedSet<SoccerTeamResultsBean> tournamentResults) {
         this.tournamentResults = tournamentResults;
     }
 
-    public LeagueStatsBean getLeagueStats() {
+    public SoccerLeagueStatsBean getLeagueStats() {
         return leagueStats;
     }
 
-    public void setLeagueStats(LeagueStatsBean leagueStats) {
+    public void setLeagueStats(SoccerLeagueStatsBean leagueStats) {
         this.leagueStats = leagueStats;
     }
 }

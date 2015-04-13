@@ -6,17 +6,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.validation.constraints.NotNull;
 
 /**
- * Bean for fouls/cards
+ * Bean used for passing score information
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class FoulBean {
-    public @NotNull String player;
+public class SoccerScoreBean {
     public int teamID;
-    public boolean yellow;
-    public boolean red;
+    public int goalieTeamID;
+    public @NotNull String player;
+    public @NotNull String assist;
+    public @NotNull String goalkeeper;
 
     public boolean validate() {
-        return (player != null);
+        return (player != null) && (assist != null) && (goalkeeper != null);
     }
 }

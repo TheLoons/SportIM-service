@@ -1,7 +1,7 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
-import org.sportim.service.soccer.beans.ShotBean;
+import org.sportim.service.soccer.beans.SoccerShotBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -27,7 +27,7 @@ public class SoccerShotAPI {
     @Path("{eventID}")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean postShot(final ShotBean shot, @PathParam("eventID") final int eventID,
+    public ResponseBean postShot(final SoccerShotBean shot, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
         if (AuthenticationUtil.validateToken(token) == null || !SoccerUtil.isValidSession(session, eventID)) {
             return new ResponseBean(401, "Not authorized");
