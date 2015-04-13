@@ -44,15 +44,19 @@ public class SingleEventAPI {
         List<UserBean> players = new LinkedList<UserBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT EventName, StartDate, EndDate, TournamentId, EventId, EventOwner, NextEventID, Location, EventType FROM Event " +
-                                         "WHERE EventId = ?");
+            stmt = conn.prepareStatement("SELECT e.EventName, e.StartDate, e.EndDate, e.TournamentId, e.EventId, " +
+                                         "e.EventOwner, e.NextEventID, e.Location, e.EventType, t.Sport " +
+                                         "FROM Event e LEFT OUTER JOIN TeamEvent te ON e.EventId = te.EventId " +
+                                         "LEFT OUTER JOIN Team t ON te.TeamId = t.TeamId " +
+                                         "WHERE e.EventId = ?");
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
 
             if(rs.next()) {
                 event = new EventBean(rs);
-                event.setLocation(rs.getString("Location"));
-                event.setType(rs.getString("EventType"));
+                event.setLocation(rs.getString("e.Location"));
+                event.setType(rs.getString("e.EventType"));
+                event.setSport(rs.getString("t.Sport"));
                 if (PrivilegeUtil.hasEventUpdate(token, id)) {
                     event.setEditable(true);
                 }

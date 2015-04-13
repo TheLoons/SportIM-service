@@ -17,6 +17,7 @@ import java.util.List;
 public class EventBean {
     private String title;
     private String owner;
+    private String sport;
     private long start;
     private long end;
     private List<Integer> teamIDs;
@@ -169,4 +170,12 @@ public class EventBean {
     public String getType() {return type;}
 
     public void setType(String type) {this.type = type;}
+
+    public String getSport() {
+        return sport;
+    }
+
+    public void setSport(String sport) {
+        this.sport = sport;
+    }
 }

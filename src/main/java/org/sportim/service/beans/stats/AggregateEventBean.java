@@ -10,6 +10,6 @@ public class AggregateEventBean {
         this.eventID = eventID;
     }
 
-    public StatsType type = StatsType.UNKNOWN;
+    public SportType type = SportType.UNKNOWN;
     public int eventID = -1;
 }

@@ -2,10 +2,8 @@ package org.sportim.service.soccer.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.sportim.service.beans.stats.StatsType;
+import org.sportim.service.beans.stats.SportType;
 import org.sportim.service.beans.stats.TeamStatsBean;
-
-import java.util.List;
 
 /**
  * Bean for team stats
@@ -24,6 +22,6 @@ public class SoccerTeamStatsBean extends TeamStatsBean {
 
     public SoccerTeamStatsBean(int teamID) {
         super(teamID);
-        this.type = StatsType.SOCCER;
+        this.type = SportType.SOCCER;
     }
 }

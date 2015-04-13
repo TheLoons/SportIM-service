@@ -1,13 +1,13 @@
 package org.sportim.service.beans.stats;
 
-public enum StatsType {
-    SOCCER("soccer"),
-    ULTIMATE_FRISBEE("ultimate frisbee"),
+public enum SportType {
+    SOCCER("Soccer"),
+    ULTIMATE_FRISBEE("Ultimate Frisbee"),
     UNKNOWN("unknown");
 
     private final String type;
 
-    private StatsType(final String type) {
+    private SportType(final String type) {
         this.type = type;
     }
 

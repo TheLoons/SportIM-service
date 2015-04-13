@@ -38,6 +38,7 @@ public class ResponseBean {
     private SortedSet<SoccerTeamResultsBean> tournamentResults;
     private List<TournamentBean> tables;
     private ColorBean colors;
+    private List<String> sports;
 
     public ResponseBean(){
     }
@@ -227,5 +228,13 @@ public class ResponseBean {
 
     public void setLeagueStats(SoccerLeagueStatsBean leagueStats) {
         this.leagueStats = leagueStats;
+    }
+
+    public List<String> getSports() {
+        return sports;
+    }
+
+    public void setSports(List<String> sports) {
+        this.sports = sports;
     }
 }
