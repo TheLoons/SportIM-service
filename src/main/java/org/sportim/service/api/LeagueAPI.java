@@ -475,7 +475,9 @@ public class LeagueAPI {
         List<TournamentBean> tables = new ArrayList<TournamentBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT TournamentId, Description FROM LeagueTable WHERE LeagueId = ?");
+            stmt = conn.prepareStatement("SELECT lt.TournamentId, lt.Description, t.TournamentName " +
+                    "FROM LeagueTable lt INNER JOIN Tournament t ON lt.TournamentId = t.TournamentId " +
+                    "WHERE lt.LeagueId = ?");
             stmt.setInt(1, leagueId);
             rs = stmt.executeQuery();
             while (rs.next()) {
@@ -483,6 +485,7 @@ public class LeagueAPI {
                 t.setLeagueId(leagueId);
                 t.setTournamentID(rs.getInt(1));
                 t.setDesc(rs.getString(2));
+                t.setTournamentName(rs.getString(3));
                 tables.add(t);
             }
             ok = true;
