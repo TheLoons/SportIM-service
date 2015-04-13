@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Path("/pass")
 public class PassingAPI {
     private ConnectionProvider provider;
 
@@ -120,7 +121,7 @@ public class PassingAPI {
         List<TeamPassingBean> eventPasses = new ArrayList<TeamPassingBean>();
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT DISTINCT sp.to, sp.from, ss.teamID, sp.passes " +
+            stmt = conn.prepareStatement("SELECT DISTINCT sp.to, sp.from, t.TeamId, sp.passes " +
                     "FROM Passing sp INNER JOIN TeamEvent t ON sp.eventID = t.EventId " +
                     "INNER JOIN PlaysFor pf ON pf.TeamId = t.TeamId AND (pf.Login = sp.from OR pf.Login = sp.to) " +
                     "WHERE sp.eventID = ? ");

@@ -1,6 +1,7 @@
 package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.stats.AggregateEventBean;
 import org.sportim.service.soccer.beans.SoccerEventBean;
 import org.sportim.service.soccer.beans.SoccerGameBean;
 import org.sportim.service.soccer.beans.SoccerTeamStatsBean;
@@ -20,13 +21,16 @@ import java.util.List;
 @Path("/time")
 public class SoccerTimeAPI {
     private ConnectionProvider provider;
+    private SoccerAggregationAPI soccerStatAPI;
 
     public SoccerTimeAPI() {
         provider = ConnectionManager.getInstance();
+        soccerStatAPI = new SoccerAggregationAPI(provider);
     }
 
     public SoccerTimeAPI(ConnectionProvider provider) {
         this.provider = provider;
+        soccerStatAPI = new SoccerAggregationAPI(provider);
     }
 
     @POST
@@ -315,8 +319,12 @@ public class SoccerTimeAPI {
     }
 
     private boolean fillNextBracketEvent(int eventID) {
-        SoccerEventBean eventStats = SoccerAggregationAPI.getEventStats(eventID, provider);
-        if (eventStats == null || eventStats.teamStats == null) {
+        AggregateEventBean eventStatsGen = soccerStatAPI.getEventStats(eventID);
+        if (eventStatsGen == null) {
+            return false;
+        }
+        SoccerEventBean eventStats = (SoccerEventBean)eventStatsGen;
+        if (eventStats.teamStats == null) {
             return false;
         }
 

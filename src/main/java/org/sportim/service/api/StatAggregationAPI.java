@@ -11,9 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 
+@Path("/stats")
 public class StatAggregationAPI {
     private ConnectionProvider provider;
-    private PassingAPI passingAPI;
     private static Map<SportType, AggregationAPI> apiMap = new HashMap<SportType, AggregationAPI>();
     private boolean initialized = false;
 
@@ -28,8 +28,6 @@ public class StatAggregationAPI {
     }
 
     private void initialize() {
-        passingAPI = new PassingAPI(provider);
-
         if (initialized) {
             return;
         }
