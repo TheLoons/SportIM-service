@@ -1,6 +1,8 @@
 package org.sportim.service.soccer;
 
+import org.sportim.service.api.TableAPI;
 import org.sportim.service.beans.ResponseBean;
+import org.sportim.service.beans.stats.AbstractTeamResultsBean;
 import org.sportim.service.soccer.beans.SoccerTeamResultsBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
@@ -18,7 +20,7 @@ import java.util.*;
  * API for grabbing table results
  */
 @Path("table")
-public class SoccerTableAPI {
+public class SoccerTableAPI implements TableAPI {
     private ConnectionProvider provider;
 
     public SoccerTableAPI() {
@@ -38,7 +40,7 @@ public class SoccerTableAPI {
             }
         }
 
-        SortedSet<SoccerTeamResultsBean> results = getTableForEvents(events);
+        SortedSet<AbstractTeamResultsBean> results = getTableForEvents(events);
         if (results == null) {
             return new ResponseBean(500, "Unable to get table results.");
         }
@@ -47,8 +49,8 @@ public class SoccerTableAPI {
         return resp;
     }
 
-    public SortedSet<SoccerTeamResultsBean> getTableForEvents(List<Integer> events) {
-        SortedSet<SoccerTeamResultsBean> table = new TreeSet<>();
+    public SortedSet<AbstractTeamResultsBean> getTableForEvents(List<Integer> events) {
+        SortedSet<AbstractTeamResultsBean> table = new TreeSet<>();
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -73,7 +75,7 @@ public class SoccerTableAPI {
             }
 
             int rank = 0;
-            for (SoccerTeamResultsBean team : table) {
+            for (AbstractTeamResultsBean team : table) {
                 team.rank = ++rank;
             }
         } catch (Exception e) {

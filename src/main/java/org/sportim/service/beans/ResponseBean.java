@@ -33,7 +33,7 @@ public class ResponseBean {
     private PlayerPassingBean playerPasses;
     private TeamPassingBean teamPasses;
     private List<TeamPassingBean> eventPasses;
-    private SortedSet<SoccerTeamResultsBean> tournamentResults;
+    private SortedSet<AbstractTeamResultsBean> tournamentResults;
     private List<TournamentBean> tables;
     private ColorBean colors;
     private List<String> sports;
@@ -212,11 +212,11 @@ public class ResponseBean {
         this.tables = tables;
     }
 
-    public SortedSet<SoccerTeamResultsBean> getTournamentResults() {
+    public SortedSet<AbstractTeamResultsBean> getTournamentResults() {
         return tournamentResults;
     }
 
-    public void setTournamentResults(SortedSet<SoccerTeamResultsBean> tournamentResults) {
+    public void setTournamentResults(SortedSet<AbstractTeamResultsBean> tournamentResults) {
         this.tournamentResults = tournamentResults;
     }
 

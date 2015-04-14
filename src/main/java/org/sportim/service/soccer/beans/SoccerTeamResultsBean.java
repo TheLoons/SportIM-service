@@ -2,24 +2,21 @@ package org.sportim.service.soccer.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.sportim.service.beans.stats.AbstractTeamResultsBean;
+import org.sportim.service.beans.stats.SportType;
 
 /**
  * Bean for table results
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class SoccerTeamResultsBean implements Comparable<SoccerTeamResultsBean> {
-    public int teamID = 0;
-    public int rank = 0;
-    public int wins = 0;
-    public int losses = 0;
-    public int ties = 0;
+public class SoccerTeamResultsBean extends AbstractTeamResultsBean {
     public int goalsFor = 0;
     public int goalsAgainst = 0;
     public int points = 0;
 
     public SoccerTeamResultsBean(int teamID) {
-        this.teamID = teamID;
+        super(SportType.SOCCER, teamID);
     }
 
     @Override
@@ -32,7 +29,12 @@ public class SoccerTeamResultsBean implements Comparable<SoccerTeamResultsBean> 
     }
 
     @Override
-    public int compareTo(SoccerTeamResultsBean teamResultsBean) {
+    public int compareTo(AbstractTeamResultsBean abstractTeamResultsBean) {
+        if (!(abstractTeamResultsBean instanceof SoccerTeamResultsBean)) {
+            return 0;
+        }
+        SoccerTeamResultsBean teamResultsBean = (SoccerTeamResultsBean)abstractTeamResultsBean;
+
         if (teamID == teamResultsBean.teamID) {
             return 0;
         }

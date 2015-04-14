@@ -1,6 +1,8 @@
 package org.sportim.service.api;
 
 import org.sportim.service.beans.*;
+import org.sportim.service.beans.stats.AbstractTeamResultsBean;
+import org.sportim.service.beans.stats.SportType;
 import org.sportim.service.soccer.SoccerTableAPI;
 import org.sportim.service.soccer.beans.SoccerTeamResultsBean;
 import org.sportim.service.util.*;
@@ -15,13 +17,16 @@ import java.util.*;
 @Path("/league")
 public class LeagueAPI {
     private ConnectionProvider provider;
+    private StatAPIMapper apiMapper;
 
     public LeagueAPI() {
         provider = ConnectionManager.getInstance();
+        apiMapper = new StatAPIMapper(provider);
     }
 
     public LeagueAPI(ConnectionProvider provider) {
         this.provider = provider;
+        apiMapper = new StatAPIMapper(provider);
     }
 
     @GET
@@ -516,7 +521,7 @@ public class LeagueAPI {
         List<Integer> events = (new TournamentAPI(provider)).getEventsForTournament(tableID);
         if (events == null) {
             ResponseBean resp = new ResponseBean(200, "");
-            resp.setTournamentResults(new TreeSet<SoccerTeamResultsBean>());
+            resp.setTournamentResults(new TreeSet<AbstractTeamResultsBean>());
             return resp;
         }
 
@@ -547,9 +552,10 @@ public class LeagueAPI {
             return new ResponseBean(500, "Unable to get league table results.");
         }
 
-        SortedSet<SoccerTeamResultsBean> table;
-        if (sport.equals("soccer")) {
-            table = (new SoccerTableAPI(provider)).getTableForEvents(events);
+        SortedSet<AbstractTeamResultsBean> table;
+        TableAPI api = apiMapper.getTableAPI(SportType.fromString(sport));
+        if (api != null) {
+            table = api.getTableForEvents(events);
         } else {
             return new ResponseBean(400, "Unable to get table results for a league with an unsupported sport.");
         }

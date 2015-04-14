@@ -14,8 +14,7 @@ import java.util.*;
 @Path("/stats")
 public class StatAggregationAPI {
     private ConnectionProvider provider;
-    private static Map<SportType, AggregationAPI> apiMap = new HashMap<SportType, AggregationAPI>();
-    private boolean initialized = false;
+    private StatAPIMapper apiMapper;
 
     public StatAggregationAPI() {
         provider = ConnectionManager.getInstance();
@@ -28,15 +27,7 @@ public class StatAggregationAPI {
     }
 
     private void initialize() {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
-
-        SoccerAggregationAPI soccerAPI = new SoccerAggregationAPI(provider);
-        apiMap.put(SportType.SOCCER, soccerAPI);
-        // TODO add ultimate API
-
+        apiMapper = new StatAPIMapper(provider);
     }
 
     private SportType getEventSport(int eventID) {
@@ -108,17 +99,17 @@ public class StatAggregationAPI {
 
     private AggregationAPI getAPIForLeague(int teamID) {
         SportType sport = getLeagueSport(teamID);
-        return apiMap.get(sport);
+        return apiMapper.getMainAPI(sport);
     }
 
     private AggregationAPI getAPIForTeam(int teamID) {
         SportType sport = getTeamSport(teamID);
-        return apiMap.get(sport);
+        return apiMapper.getMainAPI(sport);
     }
 
     private AggregationAPI getAPIForEvent(int eventID) {
         SportType sport = getEventSport(eventID);
-        return apiMap.get(sport);
+        return apiMapper.getMainAPI(sport);
     }
 
     private Set<SportType> getUserSports(String login) {
@@ -148,7 +139,7 @@ public class StatAggregationAPI {
         Set<AggregationAPI> apis = new HashSet<AggregationAPI>();
         Set<SportType> sports = getUserSports(login);
         for (SportType sport : sports) {
-            AggregationAPI api = apiMap.get(sport);
+            AggregationAPI api = apiMapper.getMainAPI(sport);
             if (api != null) {
                 apis.add(api);
             }
