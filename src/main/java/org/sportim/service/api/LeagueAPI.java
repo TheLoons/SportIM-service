@@ -431,7 +431,7 @@ public class LeagueAPI {
         if (!PrivilegeUtil.hasLeagueUpdate(token, leagueId)) {
             return new ResponseBean(401, "Not authorized");
         }
-        if (leagueId < 1 || table.getTournamentID() < 1 || table.getDesc() == null || table.getDesc().isEmpty()) {
+        if (leagueId < 1 || table.getTournamentId() < 1 || table.getDesc() == null || table.getDesc().isEmpty()) {
             return new ResponseBean(400, "Bad request");
         }
 
@@ -443,7 +443,7 @@ public class LeagueAPI {
             stmt = conn.prepareStatement("INSERT IGNORE INTO LeagueTable (LeagueId, TournamentId, Description) " +
                     "VALUES (?,?,?)");
             stmt.setInt(1, leagueId);
-            stmt.setInt(2, table.getTournamentID());
+            stmt.setInt(2, table.getTournamentId());
             stmt.setString(3, table.getDesc());
             ok = stmt.executeUpdate() > 0;
         } catch (Exception e) {
@@ -482,7 +482,7 @@ public class LeagueAPI {
             while (rs.next()) {
                 TournamentBean t = new TournamentBean();
                 t.setLeagueId(leagueId);
-                t.setTournamentID(rs.getInt(1));
+                t.setTournamentId(rs.getInt(1));
                 t.setDesc(rs.getString(2));
                 t.setTournamentName(rs.getString(3));
                 tables.add(t);

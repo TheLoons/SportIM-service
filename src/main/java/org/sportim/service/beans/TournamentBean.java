@@ -40,11 +40,11 @@ public class TournamentBean
     }
 
     @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
-    public int getTournamentID() {
+    public int getTournamentId() {
         return tournamentId;
     }
 
-    public void setTournamentID(int tournamentID) {
+    public void setTournamentId(int tournamentID) {
         this.tournamentId = tournamentID;
     }
 

@@ -226,7 +226,7 @@ public class TournamentAPI {
     @Produces("application/json")
     public ResponseBean updateTournament(TournamentBean tournament, @PathParam("id") final int id,
                                          @HeaderParam("token") final String token) {
-        tournament.setTournamentID(id);
+        tournament.setTournamentId(id);
         return updateTournament(tournament, token);
     }
 
@@ -234,14 +234,14 @@ public class TournamentAPI {
     @Consumes("application/json")
     @Produces("application/json")
     public ResponseBean updateTournament(TournamentBean tournament, @HeaderParam("token") final String token) {
-        if (!PrivilegeUtil.hasTournamentUpdate(token, tournament.getTournamentID())) {
+        if (!PrivilegeUtil.hasTournamentUpdate(token, tournament.getTournamentId())) {
             return new ResponseBean(401, "Not authorized");
         }
 
         int status = 200;
         String message = "";
 
-        if (tournament.getTournamentID() < 1) {
+        if (tournament.getTournamentId() < 1) {
             status = 400;
             message = "Invalid tournament ID.";
             return new ResponseBean(status, message);
@@ -335,7 +335,7 @@ public class TournamentAPI {
         stmt.setString(1, tournament.getTournamentName());
         stmt.setInt(2, tournament.getLeagueId());
         stmt.setString(3, tournament.getDesc());
-        stmt.setInt(4, tournament.getTournamentID());
+        stmt.setInt(4, tournament.getTournamentId());
         stmt.addBatch();
         stmts.add(stmt);
         return stmts;
