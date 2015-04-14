@@ -23,7 +23,6 @@ public class SoccerPlayerStatsBean extends PlayerStatsBean {
     public int minutes = 0;
 
     public SoccerPlayerStatsBean(String login) {
-        super(login);
-        this.type = SportType.SOCCER;
+        super(SportType.SOCCER, login);
     }
 }

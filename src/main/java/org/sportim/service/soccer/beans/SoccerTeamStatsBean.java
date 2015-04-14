@@ -21,7 +21,6 @@ public class SoccerTeamStatsBean extends TeamStatsBean {
     public int saves = 0;
 
     public SoccerTeamStatsBean(int teamID) {
-        super(teamID);
-        this.type = SportType.SOCCER;
+        super(SportType.SOCCER, teamID);
     }
 }

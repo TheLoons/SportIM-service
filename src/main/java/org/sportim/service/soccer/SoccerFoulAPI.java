@@ -50,6 +50,7 @@ public class SoccerFoulAPI {
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
+            success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);
         }

@@ -5,6 +5,8 @@ import org.sportim.service.api.TableAPI;
 import org.sportim.service.beans.stats.SportType;
 import org.sportim.service.soccer.SoccerAggregationAPI;
 import org.sportim.service.soccer.SoccerTableAPI;
+import org.sportim.service.ultimatefrisbee.UltimateFrisbeeAggregationAPI;
+import org.sportim.service.ultimatefrisbee.UltimateFrisbeeTableAPI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +22,11 @@ public class StatAPIMapper {
         SoccerTableAPI soccerTableAPI = new SoccerTableAPI(provider);
         tableAPIMap.put(SportType.SOCCER, soccerTableAPI);
 
-        // TODO add ultimate API
+        UltimateFrisbeeAggregationAPI frisbeeAPI = new UltimateFrisbeeAggregationAPI(provider);
+        mainAPIMap.put(SportType.ULTIMATE_FRISBEE, frisbeeAPI);
+
+        UltimateFrisbeeTableAPI frisbeeTableAPI = new UltimateFrisbeeTableAPI(provider);
+        tableAPIMap.put(SportType.ULTIMATE_FRISBEE, frisbeeTableAPI);
     }
 
     public TableAPI getTableAPI(SportType sport) {

@@ -2,6 +2,7 @@ package org.sportim.service.soccer;
 
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.AggregateEventBean;
+import org.sportim.service.beans.stats.TeamStatsBean;
 import org.sportim.service.soccer.beans.SoccerEventBean;
 import org.sportim.service.soccer.beans.SoccerGameBean;
 import org.sportim.service.soccer.beans.SoccerTeamStatsBean;
@@ -338,7 +339,8 @@ public class SoccerTimeAPI {
         int winner = -1;
         int maxScore = -1;
         List<Integer> losers = new ArrayList<Integer>(eventStats.teamStats.size() - 1);
-        for (SoccerTeamStatsBean team : eventStats.teamStats) {
+        for (TeamStatsBean teamGen : eventStats.teamStats) {
+            SoccerTeamStatsBean team = (SoccerTeamStatsBean)teamGen;
             if (team.goals > maxScore) {
                 if (winner != -1) {
                     losers.add(winner);

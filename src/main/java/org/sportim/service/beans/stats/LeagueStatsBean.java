@@ -13,7 +13,8 @@ public class LeagueStatsBean extends StatsBean {
     public int topTeamScore = -1;
     public List<TeamStatsBean> teamStats;
 
-    public LeagueStatsBean (int leagueID) {
+    public LeagueStatsBean (SportType sport, int leagueID) {
         this.leagueID = leagueID;
+        this.type = sport;
     }
 }

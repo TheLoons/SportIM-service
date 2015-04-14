@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class AbstractTeamResultsBean implements Comparable<AbstractTeamResultsBean> {
-    public SportType sport = SportType.UNKNOWN;
+    public SportType type = SportType.UNKNOWN;
     public int teamID = 0;
     public int rank = 0;
     public int wins = 0;
@@ -14,7 +14,7 @@ public abstract class AbstractTeamResultsBean implements Comparable<AbstractTeam
     public int ties = 0;
 
     public AbstractTeamResultsBean(SportType sport, int teamID) {
-        this.sport = sport;
+        this.type = sport;
         this.teamID = teamID;
     }
 }

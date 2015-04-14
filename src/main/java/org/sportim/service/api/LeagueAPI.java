@@ -557,7 +557,7 @@ public class LeagueAPI {
         if (api != null) {
             table = api.getTableForEvents(events);
         } else {
-            return new ResponseBean(400, "Unable to get table results for a league with an unsupported sport.");
+            return new ResponseBean(400, "Unable to get table results for a league with an unsupported type.");
         }
 
         if (table == null) {

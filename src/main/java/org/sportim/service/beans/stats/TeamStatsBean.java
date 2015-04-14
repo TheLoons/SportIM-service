@@ -10,9 +10,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TeamStatsBean extends StatsBean {
     public int teamID = 0;
-    public List<SoccerPlayerStatsBean> playerStats = null;
+    public List<PlayerStatsBean> playerStats = null;
 
-    public TeamStatsBean(int teamID) {
+    public TeamStatsBean(SportType sport, int teamID) {
         this.teamID = teamID;
+        this.type = sport;
     }
 }

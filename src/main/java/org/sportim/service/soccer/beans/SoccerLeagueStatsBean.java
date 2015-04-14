@@ -16,7 +16,6 @@ public class SoccerLeagueStatsBean extends LeagueStatsBean {
     public int red = 0;
 
     public SoccerLeagueStatsBean(int leagueID) {
-        super(leagueID);
-        this.type = SportType.SOCCER;
+        super(SportType.SOCCER, leagueID);
     }
 }

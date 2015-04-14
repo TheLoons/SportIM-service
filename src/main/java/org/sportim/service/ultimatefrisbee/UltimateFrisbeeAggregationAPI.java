@@ -1,4 +1,4 @@
-package org.sportim.service.soccer;
+package org.sportim.service.ultimatefrisbee;
 
 import org.sportim.service.api.AggregationAPI;
 import org.sportim.service.beans.ResponseBean;
@@ -6,10 +6,10 @@ import org.sportim.service.beans.stats.AggregateEventBean;
 import org.sportim.service.beans.stats.LeagueStatsBean;
 import org.sportim.service.beans.stats.PlayerStatsBean;
 import org.sportim.service.beans.stats.TeamStatsBean;
-import org.sportim.service.soccer.beans.SoccerEventBean;
-import org.sportim.service.soccer.beans.SoccerLeagueStatsBean;
-import org.sportim.service.soccer.beans.SoccerPlayerStatsBean;
-import org.sportim.service.soccer.beans.SoccerTeamStatsBean;
+import org.sportim.service.ultimatefrisbee.beans.UltimateEventBean;
+import org.sportim.service.ultimatefrisbee.beans.UltimateLeagueStatsBean;
+import org.sportim.service.ultimatefrisbee.beans.UltimatePlayerStatsBean;
+import org.sportim.service.ultimatefrisbee.beans.UltimateTeamStatsBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -17,21 +17,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-/**
- * API for getting aggregated stats
- */
-@Path("stats")
-public class SoccerAggregationAPI implements AggregationAPI {
+@Path("/stats")
+public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
     private ConnectionProvider provider;
 
-    public SoccerAggregationAPI() {
+    public UltimateFrisbeeAggregationAPI() {
         provider = ConnectionManager.getInstance();
     }
 
-    public SoccerAggregationAPI(ConnectionProvider provider) {
+    public UltimateFrisbeeAggregationAPI(ConnectionProvider provider) {
         this.provider = provider;
     }
 
@@ -49,12 +45,13 @@ public class SoccerAggregationAPI implements AggregationAPI {
         return new ResponseBean(500, "Unable to delete event statistics");
     }
 
+    @Override
     public boolean deleteEventStats(int eventID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("DELETE FROM SoccerStats WHERE eventID = ?");
+            stmt = conn.prepareStatement("DELETE FROM UltimateStats WHERE eventID = ?");
             stmt.setInt(1, eventID);
             stmt.executeUpdate();
             APIUtils.closeResources(stmt);
@@ -88,42 +85,38 @@ public class SoccerAggregationAPI implements AggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
+    @Override
     public AggregateEventBean getEventStats(int eventID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        SoccerEventBean eventStats = new SoccerEventBean(eventID);
+        UltimateEventBean eventStats = new UltimateEventBean(eventID);
         boolean success = false;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                    "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
+            stmt = conn.prepareStatement("SELECT teamID, SUM(pointsthrown), SUM(fouls), FROM UltimateStats " +
                     "WHERE eventID = ? " +
                     "GROUP BY teamID");
             stmt.setInt(1, eventID);
             rs = stmt.executeQuery();
             eventStats.teamStats = new ArrayList<TeamStatsBean>(2);
             while(rs.next()) {
-                SoccerTeamStatsBean teamStats = new SoccerTeamStatsBean(rs.getInt(1));
-                teamStats.goals = rs.getInt(2);
-                teamStats.shots = rs.getInt(3);
-                teamStats.shotsOnGoal = rs.getInt(4);
-                teamStats.goalsAgainst = rs.getInt(5);
-                teamStats.fouls = rs.getInt(6);
-                teamStats.yellow = rs.getInt(7);
-                teamStats.red = rs.getInt(8);
-                teamStats.saves = rs.getInt(9);
-                eventStats.teamStats.add(teamStats);
+                UltimateTeamStatsBean teamStats = new UltimateTeamStatsBean(rs.getInt(1));
+                teamStats.pointsFor = rs.getInt(2);
+                teamStats.fouls = rs.getInt(3);
 
-                eventStats.totalGoals += teamStats.goals;
-                eventStats.totalShots += teamStats.shots;
-                eventStats.totalShotsOnGoal += teamStats.shotsOnGoal;
+                // Add points against for any other team
+                for (TeamStatsBean other : eventStats.teamStats) {
+                    ((UltimateTeamStatsBean)other).pointsAgainst += teamStats.pointsFor;
+                }
+
+                eventStats.teamStats.add(teamStats);
+                eventStats.totalPoints += teamStats.pointsFor;
             }
 
             APIUtils.closeResources(rs, stmt);
             for (TeamStatsBean team : eventStats.teamStats) {
-                stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(minutes), SUM(saves) FROM SoccerStats " +
+                stmt = conn.prepareStatement("SELECT player, SUM(pointsthrown), SUM(pointsreceived), SUM(fouls) FROM UltimateStats " +
                         "WHERE eventID = ? AND teamID = ? " +
                         "GROUP BY player");
                 stmt.setInt(1, eventID);
@@ -131,17 +124,10 @@ public class SoccerAggregationAPI implements AggregationAPI {
                 rs = stmt.executeQuery();
                 team.playerStats = new ArrayList<PlayerStatsBean>();
                 while(rs.next()) {
-                    SoccerPlayerStatsBean playerStats = new SoccerPlayerStatsBean(rs.getString(1));
-                    playerStats.goals = rs.getInt(2);
-                    playerStats.shots = rs.getInt(3);
-                    playerStats.shotsOnGoal = rs.getInt(4);
-                    playerStats.goalsAgainst = rs.getInt(5);
-                    playerStats.fouls = rs.getInt(6);
-                    playerStats.yellow = rs.getInt(7);
-                    playerStats.red = rs.getInt(8);
-                    playerStats.assists = rs.getInt(9);
-                    playerStats.minutes = rs.getInt(10);
-                    playerStats.saves = rs.getInt(11);
+                    UltimatePlayerStatsBean playerStats = new UltimatePlayerStatsBean(rs.getString(1));
+                    playerStats.pointsThrown = rs.getInt(2);
+                    playerStats.pointsReceived = rs.getInt(3);
+                    playerStats.fouls = rs.getInt(4);
                     team.playerStats.add(playerStats);
                 }
                 APIUtils.closeResources(rs, stmt);
@@ -164,7 +150,7 @@ public class SoccerAggregationAPI implements AggregationAPI {
     @Produces("application/json")
     @Path("player")
     public ResponseBean getPlayerStatsRest(@QueryParam("login") final String login, @QueryParam("teamID") final int teamID,
-                                       @HeaderParam("token") final String token) {
+                                           @HeaderParam("token") final String token) {
         if (!PrivilegeUtil.hasUserView(token, login)) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -181,22 +167,21 @@ public class SoccerAggregationAPI implements AggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
+    @Override
     public PlayerStatsBean getPlayerStats(String login, int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        SoccerPlayerStatsBean playerStats = null;
+        UltimatePlayerStatsBean playerStats = null;
         try {
             conn = provider.getConnection();
             if (teamID < 1) {
-                stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(saves), SUM(minutes) FROM SoccerStats " +
+                stmt = conn.prepareStatement("SELECT player, SUM(pointsthrown), SUM(pointsreceived), SUM(fouls) FROM UltimateStats " +
                         "WHERE player = ?" +
                         "GROUP BY player");
                 stmt.setString(1, login);
             } else {
-                stmt = conn.prepareStatement("SELECT player, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                        "SUM(fouls), SUM(yellow), SUM(red), SUM(assists), SUM(saves), SUM(minutes) FROM SoccerStats " +
+                stmt = conn.prepareStatement("SELECT player, SUM(pointsthrown), SUM(pointsreceived), SUM(fouls) FROM UltimateStats " +
                         "WHERE player = ? AND teamID = ? " +
                         "GROUP BY player");
                 stmt.setString(1, login);
@@ -204,17 +189,10 @@ public class SoccerAggregationAPI implements AggregationAPI {
             }
             rs = stmt.executeQuery();
             if (rs.next()) {
-                playerStats = new SoccerPlayerStatsBean(login);
-                playerStats.goals = rs.getInt(2);
-                playerStats.shots = rs.getInt(3);
-                playerStats.shotsOnGoal = rs.getInt(4);
-                playerStats.goalsAgainst = rs.getInt(5);
-                playerStats.fouls = rs.getInt(6);
-                playerStats.yellow = rs.getInt(7);
-                playerStats.red = rs.getInt(8);
-                playerStats.assists = rs.getInt(9);
-                playerStats.saves = rs.getInt(10);
-                playerStats.minutes = rs.getInt(11);
+                playerStats = new UltimatePlayerStatsBean(login);
+                playerStats.pointsThrown = rs.getInt(2);
+                playerStats.pointsReceived = rs.getInt(3);
+                playerStats.fouls = rs.getInt(4);
             }
         } catch (Exception e) {
             // TODO log
@@ -243,29 +221,32 @@ public class SoccerAggregationAPI implements AggregationAPI {
         return new ResponseBean(500, "Unable to retrieve statistics.");
     }
 
+    @Override
     public TeamStatsBean getTeamStats(int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        SoccerTeamStatsBean teamStats = new SoccerTeamStatsBean(teamID);
+        UltimateTeamStatsBean teamStats = new UltimateTeamStatsBean(teamID);
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT teamID, SUM(goals), SUM(shots), SUM(shotsongoal), SUM(goalsagainst), " +
-                    "SUM(fouls), SUM(yellow), SUM(red), SUM(saves) FROM SoccerStats " +
+            stmt = conn.prepareStatement("SELECT teamID, SUM(pointsthrown), SUM(fouls) FROM UltimateStats " +
                     "WHERE teamID = ? " +
                     "GROUP BY teamID");
             stmt.setInt(1, teamID);
             rs = stmt.executeQuery();
             if (rs.next()) {
-                teamStats.teamID = rs.getInt(1);
-                teamStats.goals = rs.getInt(2);
-                teamStats.shots = rs.getInt(3);
-                teamStats.shotsOnGoal = rs.getInt(4);
-                teamStats.goalsAgainst = rs.getInt(5);
-                teamStats.fouls = rs.getInt(6);
-                teamStats.yellow = rs.getInt(7);
-                teamStats.red = rs.getInt(8);
-                teamStats.saves = rs.getInt(9);
+                teamStats.pointsFor = rs.getInt(2);
+                teamStats.fouls = rs.getInt(3);
+            }
+            APIUtils.closeResources(rs, stmt);
+
+            stmt = conn.prepareStatement("SELECT eventID, SUM(pointsthrown) FROM UltimateStats " +
+                    "WHERE teamID != ? " +
+                    "GROUP BY eventID");
+            stmt.setInt(1, teamID);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                teamStats.pointsAgainst = rs.getInt(2);
             }
         } catch (Exception e) {
             // TODO log
@@ -296,29 +277,26 @@ public class SoccerAggregationAPI implements AggregationAPI {
         return resp;
     }
 
+    @Override
     public LeagueStatsBean getLeagueStats(int leagueID) {
         List<Integer> teams = StatUtil.getAllTeamsInLeague(leagueID);
         if (teams == null) {
             return null;
         }
 
-        SoccerLeagueStatsBean leagueStats = new SoccerLeagueStatsBean(leagueID);
+        UltimateLeagueStatsBean leagueStats = new UltimateLeagueStatsBean(leagueID);
         leagueStats.teamStats = new ArrayList<TeamStatsBean>(teams.size());
         for (Integer teamID : teams) {
             TeamStatsBean teamStatsGen = getTeamStats(teamID);
             if (teamStatsGen != null) {
-                SoccerTeamStatsBean teamStats = (SoccerTeamStatsBean)teamStatsGen;
+                UltimateTeamStatsBean teamStats = (UltimateTeamStatsBean)teamStatsGen;
                 leagueStats.teamStats.add(teamStats);
-                if (teamStats.goals > leagueStats.topTeamScore) {
+                if (teamStats.pointsFor > leagueStats.topTeamScore) {
                     leagueStats.topScoringTeam = teamID;
-                    leagueStats.topTeamScore = teamStats.goals;
+                    leagueStats.topTeamScore = teamStats.pointsFor;
                 }
-                leagueStats.goals += teamStats.goals;
+                leagueStats.points += teamStats.pointsFor;
                 leagueStats.fouls += teamStats.fouls;
-                leagueStats.yellow += teamStats.yellow;
-                leagueStats.red += teamStats.red;
-                leagueStats.shots += teamStats.shots;
-                leagueStats.shotsOnGoal += teamStats.shotsOnGoal;
             }
         }
         return leagueStats;

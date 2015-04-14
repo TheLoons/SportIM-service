@@ -16,10 +16,8 @@ public class SoccerEventBean extends AggregateEventBean {
     public int totalGoals = 0;
     public int totalShots = 0;
     public int totalShotsOnGoal = 0;
-    public List<SoccerTeamStatsBean> teamStats = null;
 
     public SoccerEventBean(int eventID) {
-        super(eventID);
-        this.type = SportType.SOCCER;
+        super(SportType.SOCCER, eventID);
     }
 }

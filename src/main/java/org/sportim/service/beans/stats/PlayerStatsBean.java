@@ -8,7 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class PlayerStatsBean extends StatsBean {
     public String login;
 
-    public PlayerStatsBean(String login) {
+    public PlayerStatsBean(SportType sport, String login) {
+        this.type = sport;
         this.login = login;
     }
 }

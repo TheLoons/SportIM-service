@@ -3,6 +3,8 @@ package org.sportim.service.util;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Utilities for the soccer stat tracking API.
@@ -44,5 +46,27 @@ public class StatUtil {
             APIUtils.closeResources(rs, stmt, conn);
         }
         return valid;
+    }
+
+    public static List<Integer> getAllTeamsInLeague(int leagueID) {
+        List<Integer> teams = new LinkedList<Integer>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT TeamId FROM TeamBelongsTo WHERE LeagueId = ?");
+            stmt.setInt(1, leagueID);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                teams.add(rs.getInt(1));
+            }
+        } catch (Exception e) {
+            return null;
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        return teams;
     }
 }
