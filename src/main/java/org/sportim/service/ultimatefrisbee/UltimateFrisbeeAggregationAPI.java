@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Path("/stats")
 public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
@@ -94,7 +95,7 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
         boolean success = false;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT teamID, SUM(pointsthrown), SUM(fouls), FROM UltimateStats " +
+            stmt = conn.prepareStatement("SELECT teamID, SUM(pointsthrown), SUM(fouls) FROM UltimateStats " +
                     "WHERE eventID = ? " +
                     "GROUP BY teamID");
             stmt.setInt(1, eventID);
@@ -300,5 +301,33 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
             }
         }
         return leagueStats;
+    }
+
+    @Override
+    public int getEventWinner(int eventID, Set<Integer> losers) {
+        losers.clear();
+
+        AggregateEventBean event = getEventStats(eventID);
+        if (event == null || !(event instanceof UltimateEventBean)) {
+            return -1;
+        }
+
+        UltimateEventBean eventStats = (UltimateEventBean)event;
+        int winner = -1;
+        int maxScore = -1;
+        losers.clear();
+        for (TeamStatsBean teamGen : eventStats.teamStats) {
+            UltimateTeamStatsBean team = (UltimateTeamStatsBean)teamGen;
+            if (team.pointsFor > maxScore) {
+                if (winner != -1) {
+                    losers.add(winner);
+                }
+                winner = team.teamID;
+                maxScore = team.pointsFor;
+            } else {
+                losers.add(team.teamID);
+            }
+        }
+        return winner;
     }
 }

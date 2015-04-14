@@ -1,10 +1,18 @@
 package org.sportim.service.util;
 
+import org.sportim.service.api.AggregationAPI;
+import org.sportim.service.beans.stats.AggregateEventBean;
+import org.sportim.service.beans.stats.TeamStatsBean;
+import org.sportim.service.soccer.beans.SoccerEventBean;
+import org.sportim.service.soccer.beans.SoccerTeamStatsBean;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utilities for the soccer stat tracking API.
@@ -68,5 +76,90 @@ public class StatUtil {
         }
 
         return teams;
+    }
+
+    public static boolean fillNextBracketEvent(int eventID, int winnerID, Set<Integer> losers) {
+        // Get the next bracket ID if any
+        int nextEventID = getNextEventID(eventID);
+        if (nextEventID < 1) {
+            return false;
+        }
+
+        if (!removeTeams(nextEventID, losers)) {
+            return false;
+        }
+
+        if (!addTeamToEvent(nextEventID, winnerID)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static int getNextEventID(int eventID) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int nextEventID = 0;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("SELECT NextEventId FROM Event WHERE EventId = ?");
+            stmt.setInt(1, eventID);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                nextEventID = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+        } finally {
+            APIUtils.closeResources(rs, stmt, conn);
+        }
+
+        return nextEventID;
+    }
+
+    private static boolean addTeamToEvent(int eventID, int teamID) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        int res = 0;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("INSERT IGNORE INTO TeamEvent (EventId, TeamId) VALUES (?,?)");
+            stmt.setInt(1, eventID);
+            stmt.setInt(2, teamID);
+            res = stmt.executeUpdate();
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            return false;
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+
+        return res > 0;
+    }
+
+    private static boolean removeTeams(int eventID, Set<Integer> teamIDs) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = provider.getConnection();
+            stmt = conn.prepareStatement("DELETE FROM TeamEvent WHERE EventId = ? AND TeamId = ?");
+            for (Integer id : teamIDs) {
+                stmt.setInt(1, eventID);
+                stmt.setInt(2, id);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        } catch (Exception e) {
+            // TODO log
+            e.printStackTrace();
+            return false;
+        } finally {
+            APIUtils.closeResources(stmt, conn);
+        }
+
+        return true;
     }
 }

@@ -36,8 +36,8 @@ public class StatAggregationAPI {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT Team.sport FROM Event INNER JOIN TeamEvent INNER JOIN Team " +
-                                         "WHERE Event.EventId = ?");
+            stmt = conn.prepareStatement("SELECT t.sport FROM Event e INNER JOIN TeamEvent te ON e.EventId = te.EventId " +
+                    "INNER JOIN Team t ON te.TeamId = t.TeamId WHERE e.EventId = ?");
             stmt.setInt(1, eventID);
             rs = stmt.executeQuery();
             if (rs.next()) {
@@ -181,7 +181,7 @@ public class StatAggregationAPI {
 
         AggregateEventBean stats = api.getEventStats(eventID);
         if (stats == null) {
-            return new ResponseBean(500, "Unable to delete event statistics");
+            return new ResponseBean(500, "Unable to retrieve event statistics");
         }
         ResponseBean resp = new ResponseBean(200, "");
         resp.setEventStats(stats);
@@ -229,7 +229,7 @@ public class StatAggregationAPI {
 
         TeamStatsBean stats = api.getTeamStats(teamID);
         if (stats == null) {
-            return new ResponseBean(500, "Unable to delete event statistics");
+            return new ResponseBean(500, "Unable to retrieve event statistics");
         }
         ResponseBean resp = new ResponseBean(200, "");
         resp.setTeamStats(stats);
@@ -251,7 +251,7 @@ public class StatAggregationAPI {
 
         LeagueStatsBean stats = api.getLeagueStats(leagueID);
         if (stats == null) {
-            return new ResponseBean(500, "Unable to delete event statistics");
+            return new ResponseBean(500, "Unable to retrieve event statistics");
         }
         ResponseBean resp = new ResponseBean(200, "");
         resp.setLeagueStats(stats);

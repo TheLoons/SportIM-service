@@ -5,6 +5,8 @@ import org.sportim.service.beans.stats.LeagueStatsBean;
 import org.sportim.service.beans.stats.PlayerStatsBean;
 import org.sportim.service.beans.stats.TeamStatsBean;
 
+import java.util.Set;
+
 public interface AggregationAPI {
     public boolean deleteEventStats(int eventID);
 
@@ -15,4 +17,6 @@ public interface AggregationAPI {
     public TeamStatsBean getTeamStats(int teamID);
 
     public LeagueStatsBean getLeagueStats(int leagueID);
+
+    public int getEventWinner(int eventID, Set<Integer> losers);
 }

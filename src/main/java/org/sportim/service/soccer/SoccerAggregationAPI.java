@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * API for getting aggregated stats
@@ -322,5 +323,32 @@ public class SoccerAggregationAPI implements AggregationAPI {
             }
         }
         return leagueStats;
+    }
+
+    @Override
+    public int getEventWinner(int eventID, Set<Integer> losers) {
+        AggregateEventBean event = getEventStats(eventID);
+        if (event == null || !(event instanceof SoccerEventBean)) {
+            return -1;
+        }
+
+        SoccerEventBean eventStats = (SoccerEventBean)event;
+        // Remove any non-winning teams from the next event, and add the winning team
+        int winner = -1;
+        int maxScore = -1;
+        losers.clear();
+        for (TeamStatsBean teamGen : eventStats.teamStats) {
+            SoccerTeamStatsBean team = (SoccerTeamStatsBean)teamGen;
+            if (team.goals > maxScore) {
+                if (winner != -1) {
+                    losers.add(winner);
+                }
+                winner = team.teamID;
+                maxScore = team.goals;
+            } else {
+                losers.add(team.teamID);
+            }
+        }
+        return winner;
     }
 }

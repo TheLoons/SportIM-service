@@ -14,7 +14,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * API for recording game and player time.
@@ -220,7 +222,11 @@ public class SoccerTimeAPI {
                 }
             }
 
-            fillNextBracketEvent(eventID);
+            Set<Integer> losers = new HashSet<Integer>();
+            int winner = soccerStatAPI.getEventWinner(eventID, losers);
+            if (winner != -1) {
+                StatUtil.fillNextBracketEvent(eventID, winner, losers);
+            }
         } catch (Exception e) {
             // TODO log
             e.printStackTrace();
@@ -317,120 +323,5 @@ public class SoccerTimeAPI {
     private int millisToMinutes(long millis) {
         // downcasting's ok here - we'll be small; ~90 minutes tops
         return (int)(millis / 60000);
-    }
-
-    private boolean fillNextBracketEvent(int eventID) {
-        AggregateEventBean eventStatsGen = soccerStatAPI.getEventStats(eventID);
-        if (eventStatsGen == null) {
-            return false;
-        }
-        SoccerEventBean eventStats = (SoccerEventBean)eventStatsGen;
-        if (eventStats.teamStats == null) {
-            return false;
-        }
-
-        // Get the next bracket ID if any
-        int nextEventID = getNextEventID(eventID);
-        if (nextEventID < 1) {
-            return false;
-        }
-
-        // Remove any non-winning teams from the next event, and add the winning team
-        int winner = -1;
-        int maxScore = -1;
-        List<Integer> losers = new ArrayList<Integer>(eventStats.teamStats.size() - 1);
-        for (TeamStatsBean teamGen : eventStats.teamStats) {
-            SoccerTeamStatsBean team = (SoccerTeamStatsBean)teamGen;
-            if (team.goals > maxScore) {
-                if (winner != -1) {
-                    losers.add(winner);
-                }
-                winner = team.teamID;
-                maxScore = team.goals;
-            } else {
-                losers.add(team.teamID);
-            }
-        }
-        if (winner == -1) {
-            return false;
-        }
-
-        if (!removeTeams(nextEventID, losers)) {
-            return false;
-        }
-
-        if (!addTeamToEvent(nextEventID, winner)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private int getNextEventID(int eventID) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int nextEventID = 0;
-        try {
-            conn = provider.getConnection();
-            stmt = conn.prepareStatement("SELECT NextEventId FROM Event WHERE EventId = ?");
-            stmt.setInt(1, eventID);
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                nextEventID = rs.getInt(1);
-            }
-        } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
-        } finally {
-            APIUtils.closeResources(rs, stmt, conn);
-        }
-
-        return nextEventID;
-    }
-
-    private boolean addTeamToEvent(int eventID, int teamID) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        int res = 0;
-        try {
-            conn = provider.getConnection();
-            stmt = conn.prepareStatement("INSERT IGNORE INTO TeamEvent (EventId, TeamId) VALUES (?,?)");
-            stmt.setInt(1, eventID);
-            stmt.setInt(2, teamID);
-            res = stmt.executeUpdate();
-        } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
-            return false;
-        } finally {
-            APIUtils.closeResources(stmt, conn);
-        }
-
-        return res > 0;
-    }
-
-    private boolean removeTeams(int eventID, List<Integer> teamIDs) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            conn = provider.getConnection();
-            stmt = conn.prepareStatement("DELETE FROM TeamEvent WHERE EventId = ? AND TeamId = ?");
-            for (Integer id : teamIDs) {
-                stmt.setInt(1, eventID);
-                stmt.setInt(2, id);
-                stmt.addBatch();
-            }
-            stmt.executeBatch();
-        } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
-            return false;
-        } finally {
-            APIUtils.closeResources(rs, stmt, conn);
-        }
-
-        return true;
     }
 }
