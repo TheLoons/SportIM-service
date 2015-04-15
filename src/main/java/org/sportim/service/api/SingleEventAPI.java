@@ -329,9 +329,16 @@ public class SingleEventAPI {
         List<PreparedStatement> stmts = new LinkedList<PreparedStatement>();
 
         // update event stmt
-        PreparedStatement stmt = conn.prepareStatement("UPDATE Event " +
-                "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, EventOwner = ?, NextEventId = ?, Location = ?, EventType = ? " +
-                "WHERE EventId = ?");
+        PreparedStatement stmt;
+        if (event.getOwner() != null) {
+            stmt = conn.prepareStatement("UPDATE Event " +
+                    "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, NextEventId = ?, Location = ?, EventType = ?, EventOwner = ? " +
+                    "WHERE EventId = ?");
+        } else {
+            stmt = conn.prepareStatement("UPDATE Event " +
+                    "SET EventName = ?, StartDate = ?, EndDate = ?, TournamentId = ?, NextEventId = ?, Location = ?, EventType = ? " +
+                    "WHERE EventId = ?");
+        }
         stmt.setString(1, event.getTitle());
         stmt.setLong(2, event.getStartMillis());
         stmt.setLong(3, event.getEndMillis());
@@ -340,15 +347,20 @@ public class SingleEventAPI {
         } else {
             stmt.setNull(4, Types.INTEGER);
         }
-        stmt.setString(5, event.getOwner());
         if (event.getNextEventID() > 0) {
-            stmt.setInt(6, event.getNextEventID());
+            stmt.setInt(5, event.getNextEventID());
         } else {
-            stmt.setNull(6, Types.INTEGER);
+            stmt.setNull(5, Types.INTEGER);
         }
-        stmt.setString(7, event.getLocation());
-        stmt.setString(8, event.getType());
-        stmt.setInt(9, event.getId());
+        stmt.setString(6, event.getLocation());
+        stmt.setString(7, event.getType());
+        if (event.getOwner() != null) {
+            stmt.setString(8, event.getOwner());
+            stmt.setInt(9, event.getId());
+        } else {
+            stmt.setInt(8, event.getId());
+        }
+
         stmt.addBatch();
         stmts.add(stmt);
 
@@ -400,7 +412,9 @@ public class SingleEventAPI {
         }
 
         if (status == 200 && players != null && !players.isEmpty()) {
-            players.add(event.getOwner());
+            if (event.getOwner() != null) {
+                players.add(event.getOwner());
+            }
             if (!verifyPlayers(players, conn)) {
                 status = 422;
                 message = "Non-existent player ID specified.";

@@ -23,7 +23,7 @@ public enum SportType {
         if (type.equalsIgnoreCase("soccer")) {
             return SportType.SOCCER;
         }
-        if (type.equalsIgnoreCase("ultimate frisbee")) {
+        if (type.equalsIgnoreCase("ultimate frisbee") || type.equalsIgnoreCase("ultimate_frisbee")) {
             return SportType.ULTIMATE_FRISBEE;
         }
         return SportType.UNKNOWN;
