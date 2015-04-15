@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.api.AggregationAPI;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.AggregateEventBean;
@@ -26,6 +27,7 @@ import java.util.Set;
  */
 @Path("stats")
 public class SoccerAggregationAPI implements AggregationAPI {
+    private static Logger logger = Logger.getLogger(SoccerAggregationAPI.class.getName());
     private ConnectionProvider provider;
 
     public SoccerAggregationAPI() {
@@ -63,8 +65,8 @@ public class SoccerAggregationAPI implements AggregationAPI {
             stmt.setInt(1, eventID);
             stmt.executeUpdate();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to delete soccer stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return false;
         } finally {
             APIUtils.closeResources(stmt, conn);
@@ -149,8 +151,8 @@ public class SoccerAggregationAPI implements AggregationAPI {
             }
             success = true;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get event soccer stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
@@ -218,8 +220,8 @@ public class SoccerAggregationAPI implements AggregationAPI {
                 playerStats.minutes = rs.getInt(11);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get player soccer stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             playerStats = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -269,8 +271,8 @@ public class SoccerAggregationAPI implements AggregationAPI {
                 teamStats.saves = rs.getInt(9);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get team soccer stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);

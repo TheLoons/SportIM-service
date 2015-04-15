@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.AggregateEventBean;
 import org.sportim.service.beans.stats.TeamStatsBean;
@@ -23,6 +24,7 @@ import java.util.Set;
  */
 @Path("/time")
 public class SoccerTimeAPI {
+    private static Logger logger = Logger.getLogger(SoccerTimeAPI.class.getName());
     private ConnectionProvider provider;
     private SoccerAggregationAPI soccerStatAPI;
 
@@ -68,8 +70,8 @@ public class SoccerTimeAPI {
             addStarterBatch(stmt, eventID, gameStart.starters2, gameStart.teamID2, gameStart.getTimestampMillis());
             stmt.executeBatch();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to start soccer game: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);
@@ -104,8 +106,8 @@ public class SoccerTimeAPI {
             stmt.setInt(2, eventID);
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to end soccer half: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);
@@ -140,8 +142,8 @@ public class SoccerTimeAPI {
             stmt.setInt(2, eventID);
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to start soccer half: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);
@@ -228,8 +230,8 @@ public class SoccerTimeAPI {
                 StatUtil.fillNextBracketEvent(eventID, winner, losers);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to end soccer game: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -299,8 +301,8 @@ public class SoccerTimeAPI {
             stmt.setLong(5, sub.getTimestampMillis());
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to post substitute: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);

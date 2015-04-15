@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.*;
 import org.sportim.service.soccer.SoccerAggregationAPI;
@@ -13,6 +14,7 @@ import java.util.*;
 
 @Path("/stats")
 public class StatAggregationAPI {
+    private static Logger logger = Logger.getLogger(StatAggregationAPI.class.getName());
     private ConnectionProvider provider;
     private StatAPIMapper apiMapper;
 
@@ -45,8 +47,8 @@ public class StatAggregationAPI {
             }
             return SportType.UNKNOWN;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting event sport: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return SportType.UNKNOWN;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -67,8 +69,8 @@ public class StatAggregationAPI {
             }
             return SportType.UNKNOWN;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting team sport: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return SportType.UNKNOWN;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -89,8 +91,8 @@ public class StatAggregationAPI {
             }
             return SportType.UNKNOWN;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting league sport: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return SportType.UNKNOWN;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -127,8 +129,8 @@ public class StatAggregationAPI {
                 sports.add(SportType.fromString(rs.getString(1)));
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting user sports: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }

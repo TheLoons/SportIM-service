@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.soccer.beans.SoccerShotBean;
 import org.sportim.service.util.*;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
  */
 @Path("/shot")
 public class SoccerShotAPI {
+    private static Logger logger = Logger.getLogger(SoccerShotAPI.class.getName());
     private ConnectionProvider provider;
 
     public SoccerShotAPI() {
@@ -71,8 +73,8 @@ public class SoccerShotAPI {
                 success = stmt.executeUpdate() > 0;
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to post shot: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);

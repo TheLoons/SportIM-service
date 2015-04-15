@@ -1,5 +1,6 @@
 package org.sportim.service.ultimatefrisbee;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.FoulBean;
 import org.sportim.service.soccer.beans.SoccerFoulBean;
@@ -11,6 +12,7 @@ import java.sql.PreparedStatement;
 
 @Path("/foul")
 public class UltimateFrisbeeFoulAPI {
+    private static Logger logger = Logger.getLogger(UltimateFrisbeeFoulAPI.class.getName());
     private ConnectionProvider provider;
 
     public UltimateFrisbeeFoulAPI() {
@@ -48,8 +50,8 @@ public class UltimateFrisbeeFoulAPI {
             stmt.setInt(4, 1);
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to post ultimate foul: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);

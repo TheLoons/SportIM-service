@@ -29,6 +29,8 @@ public class ServiceMain {
         directory.put("single events", "/rest/event");
         directory.put("teams", "/rest/team");
         directory.put("tournaments", "/rest/tournament");
+        directory.put("leagues", "/rest/league");
+        directory.put("stats", "/rest/stats");
 
         json.put("directory", directory);
 

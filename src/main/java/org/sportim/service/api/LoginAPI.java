@@ -1,8 +1,10 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.AuthenticationBean;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.UserBean;
+import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.AuthenticationUtil;
 
 import javax.ws.rs.*;
@@ -12,6 +14,7 @@ import javax.ws.rs.*;
  */
 @Path("/login")
 public class LoginAPI {
+    private static Logger logger = Logger.getLogger(LoginAPI.class.getName());
 
     @POST
     @Produces("application/json")
@@ -22,8 +25,8 @@ public class LoginAPI {
                 return new ResponseBean(401, "Bad username or password");
             }
         } catch (Exception e) {
-            // TODO log4j
-            e.printStackTrace();
+            logger.error("Error authenticating:" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return new ResponseBean(500, "Unable to generate auth token");
         }
         String token = AuthenticationUtil.generateToken(auth.getLogin());

@@ -1,5 +1,6 @@
 package org.sportim.service.ultimatefrisbee;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.api.AggregationAPI;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.AggregateEventBean;
@@ -22,6 +23,7 @@ import java.util.Set;
 
 @Path("/stats")
 public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
+    private static Logger logger = Logger.getLogger(UltimateFrisbeeAggregationAPI.class.getName());
     private ConnectionProvider provider;
 
     public UltimateFrisbeeAggregationAPI() {
@@ -60,8 +62,8 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
             stmt.setInt(1, eventID);
             stmt.executeUpdate();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to delete ultimate stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return false;
         } finally {
             APIUtils.closeResources(stmt, conn);
@@ -135,8 +137,8 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
             }
             success = true;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get ultimate event stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
@@ -196,8 +198,8 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
                 playerStats.fouls = rs.getInt(4);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get ultimate player stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             playerStats = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -250,8 +252,8 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
                 teamStats.pointsAgainst = rs.getInt(2);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get ultimate team stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);

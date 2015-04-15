@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.soccer.beans.SoccerFoulBean;
 import org.sportim.service.util.*;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
  */
 @Path("/foul")
 public class SoccerFoulAPI {
+    private static Logger logger = Logger.getLogger(SoccerFoulAPI.class.getName());
     private static final String UPDATE_QUERY_BASE = "INSERT INTO SoccerStats (eventID, teamID, player, fouls%s) VALUES " +
                                                     "(?, ?, ?, ?%s) ON DUPLICATE KEY UPDATE fouls = fouls + 1%s";
     private ConnectionProvider provider;
@@ -48,8 +50,8 @@ public class SoccerFoulAPI {
             stmt = createUpdateQuery(eventID, foul, conn);
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to post soccer foul: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);

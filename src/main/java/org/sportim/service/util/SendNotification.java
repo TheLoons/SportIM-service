@@ -14,6 +14,7 @@ import com.twilio.sdk.resource.factory.MessageFactory;
 import com.twilio.sdk.resource.instance.Message;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,6 +29,7 @@ import java.util.List;
 
 public class SendNotification
 {
+    private static Logger logger = Logger.getLogger(SendNotification.class.getName());
     private ConnectionProvider provider;
 
     public SendNotification() { provider = ConnectionManager.getInstance();}
@@ -44,8 +46,6 @@ public class SendNotification
     {
         String username = System.getenv("SENDGRID_USERNAME");
         String password = System.getenv("SENDGRID_PASSWORD");
-//        username = "app33243554@heroku.com";
-//        password = "caade2au";
 
         boolean sentEmail = true;
         SendGrid sendgrid = new SendGrid(username, password);
@@ -201,10 +201,10 @@ public class SendNotification
                 //Insert into Alerts Sent table
             }
         } catch (SQLException e) {
-            // TODO log actual error
-            e.printStackTrace();
             status = 500;
             message = "Issue with checking \"IsRunning\" query";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(res);
             APIUtils.closeResource(stmt);

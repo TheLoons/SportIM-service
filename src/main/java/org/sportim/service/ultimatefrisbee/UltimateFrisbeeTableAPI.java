@@ -1,5 +1,6 @@
 package org.sportim.service.ultimatefrisbee;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.api.TableAPI;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.AbstractTeamResultsBean;
@@ -18,6 +19,7 @@ import java.util.*;
 
 @Path("/table")
 public class UltimateFrisbeeTableAPI implements TableAPI {
+    private static Logger logger = Logger.getLogger(UltimateFrisbeeTableAPI.class.getName());
     private ConnectionProvider provider;
 
     public UltimateFrisbeeTableAPI() {
@@ -72,8 +74,8 @@ public class UltimateFrisbeeTableAPI implements TableAPI {
                 team.rank = ++rank;
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get ultimate table: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             table = null;
         }
         finally {
@@ -143,8 +145,8 @@ public class UltimateFrisbeeTableAPI implements TableAPI {
                 teamResults.put(team, teamRes);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get ultimate table: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt);
         }
@@ -217,8 +219,8 @@ public class UltimateFrisbeeTableAPI implements TableAPI {
                 allTeamsInTournament.add(allTeamsRs.getInt(1));
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to teams in tournament: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         } finally {
             APIUtils.closeResources(allTeamsRs, stmt, conn);

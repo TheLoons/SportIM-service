@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.util.APIUtils;
 import org.sportim.service.util.ConnectionManager;
@@ -17,6 +18,7 @@ import java.util.UUID;
  */
 @Path("/session")
 public class StatSessionAPI {
+    private static Logger logger = Logger.getLogger(StatSessionAPI.class.getName());
     private ConnectionProvider provider;
 
     public StatSessionAPI() {
@@ -40,7 +42,6 @@ public class StatSessionAPI {
 
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         int res = -1;
         try {
             conn = provider.getConnection();
@@ -49,12 +50,10 @@ public class StatSessionAPI {
             stmt.setString(2, sessionID);
             res = stmt.executeUpdate();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error starting stat session: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         ResponseBean resp;
@@ -82,7 +81,6 @@ public class StatSessionAPI {
 
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         int res = -1;
         try {
             conn = provider.getConnection();
@@ -93,12 +91,10 @@ public class StatSessionAPI {
             stmt.setString(3, sessionID);
             res = stmt.executeUpdate();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error restarting stat session: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         if (res < 1) {
@@ -121,7 +117,6 @@ public class StatSessionAPI {
 
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         int res = -1;
         try {
             conn = provider.getConnection();
@@ -130,12 +125,10 @@ public class StatSessionAPI {
             stmt.setString(2, session);
             res = stmt.executeUpdate();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error ending stat session: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         if (res < 1) {

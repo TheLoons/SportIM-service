@@ -1,5 +1,6 @@
 package org.sportim.service.util;
 
+import org.apache.log4j.Logger;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.sportim.service.beans.UserBean;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
  * @author Hannah Brock
  */
 public class AuthenticationUtil {
+    private static Logger logger = Logger.getLogger(AuthenticationUtil.class.getName());
     private static ConnectionProvider provider = ConnectionManager.getInstance();
 
     public static void setConnectionProvider(ConnectionProvider provider) {
@@ -68,11 +70,10 @@ public class AuthenticationUtil {
             stmt.setString(3, token);
             upCount = stmt.executeUpdate();
         } catch (SQLException e) {
-            // TODO: log4j this
-            e.printStackTrace();
+            logger.error("Unable to store user token: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(conn);
-            APIUtils.closeResource(stmt);
+            APIUtils.closeResources(stmt, conn);
         }
         return upCount > 0;
     }
@@ -126,12 +127,10 @@ public class AuthenticationUtil {
                 token = rs.getString(1);
             }
         } catch (SQLException e) {
-            // TODO: log4j
-            e.printStackTrace();
+            logger.error("Unable to get token for user: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(rs, stmt, conn);
         }
         return token;
     }
@@ -181,8 +180,8 @@ public class AuthenticationUtil {
             outputStream.write(salt);
             outputStream.write(pwd.getBytes("UTF-8"));
         } catch (IOException e) {
-            // TODO log4j this
-            e.printStackTrace();
+            logger.error("Unable to write hash bytes: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         }
 
@@ -191,8 +190,8 @@ public class AuthenticationUtil {
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            // TODO log4j this
-            e.printStackTrace();
+            logger.error("Unable to write hash bytes: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         }
 
@@ -228,9 +227,7 @@ public class AuthenticationUtil {
             user.setPassword(rs.getString(4));
             user.setSalt(rs.getString(5));
         }
-        APIUtils.closeResource(rs);
-        APIUtils.closeResource(stmt);
-        APIUtils.closeResource(conn);
+        APIUtils.closeResources(rs, stmt, conn);
         return user;
     }
 }

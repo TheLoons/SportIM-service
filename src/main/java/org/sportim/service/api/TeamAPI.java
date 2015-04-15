@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.*;
 import org.sportim.service.util.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
  */
 @Path("/team")
 public class TeamAPI {
+    private static Logger logger = Logger.getLogger(TeamAPI.class.getName());
     private ConnectionProvider provider;
 
     public TeamAPI() {
@@ -48,8 +50,8 @@ public class TeamAPI {
                 teams.add(team);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error starting getting teams for editing: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             status = 500;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -91,8 +93,8 @@ public class TeamAPI {
                 teams.add(team);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error starting getting teams for viewing: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             status = 500;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -149,20 +151,15 @@ public class TeamAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve team. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -210,20 +207,15 @@ public class TeamAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve team. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -263,17 +255,15 @@ public class TeamAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve teams. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -300,14 +290,14 @@ public class TeamAPI {
             stmt.setString(4, color.getTertiaryColor());
             int res = stmt.executeUpdate();
             if (res < 1) {
-                message = "Color with that login already exists.";
+                message = "Color with that team ID already exists.";
                 status = 400;
             }
         } catch (SQLException e) {
-            // TODO log4j this
-            e.printStackTrace();
             status = 500;
-            message = "Unable to add user. SQL error.";
+            message = "Unable to add color. SQL error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
@@ -365,13 +355,13 @@ public class TeamAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to add team. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(conn);
         }
@@ -407,53 +397,25 @@ public class TeamAPI {
         ResultSet rs = null;
         try {
             conn = provider.getConnection();
-
-
-            // now, create the event and add any lookups
-            conn.setAutoCommit(false);
-//            if (status == 200)
-//            {
-//                UserBean player = new UserBean();
-//                player.setLogin(playerLogin);
-//                if(!verifyPlayer(player, conn).isEmpty())
-//                {
-//                    message = "Player Not Found";
-//                    status = 404;
-//                }
-//            }
-            if(status == 200)
-            {
-                stmt = conn.prepareStatement("INSERT INTO PlaysFor(Login, TeamID) Values (?, ?)");
-                stmt.setString(1, playerLogin);
-                stmt.setInt(2, team.getId());
-                stmt.executeUpdate();
-              
-            }
-            if (status == 200) {
-                conn.commit();
-            }
+            stmt = conn.prepareStatement("INSERT INTO PlaysFor(Login, TeamID) Values (?, ?)");
+            stmt.setString(1, playerLogin);
+            stmt.setInt(2, team.getId());
+            stmt.executeUpdate();
         } catch (SQLException e) {
             status = 500;
             message = "Unable to add to team. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
-
-        ResponseBean resp = new ResponseBean(status, message);
-        return resp;
+        return new ResponseBean(status, message);
     }
 
     @PUT
@@ -479,7 +441,7 @@ public class TeamAPI {
         }
 
         int status = 200;
-        String message = "";
+        String message;
 
         if (team.getId() < 1) {
             status = 400;
@@ -512,13 +474,12 @@ public class TeamAPI {
             }
 
         } catch (SQLException e) {
-            // TODO log
-            e.printStackTrace();
             status = 500;
             message = "Unable to update team. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         return new ResponseBean(status, message);
@@ -535,7 +496,7 @@ public class TeamAPI {
         }
 
         int status = 200;
-        String message = "";
+        String message;
 
         if (color.getId() < 1) {
             status = 400;
@@ -552,24 +513,19 @@ public class TeamAPI {
         PreparedStatement stmt = null;
         try {
             conn = provider.getConnection();
-
-            if (status == 200) {
-                stmt = conn.prepareStatement("UPDATE TeamColors " +
-                        "SET PrimaryColor = ?, SecondaryColor = ?, TertiaryColor = ? " +
-                        "WHERE TeamId = ?");
-                stmt.setString(1, color.getPrimaryColor());
-                stmt.setString(2, color.getSecondaryColor());
-                stmt.setString(3, color.getTertiaryColor());
-                stmt.setInt(4, color.getId());
-                stmt.executeUpdate();
-
-            }
-
+            stmt = conn.prepareStatement("UPDATE TeamColors " +
+                    "SET PrimaryColor = ?, SecondaryColor = ?, TertiaryColor = ? " +
+                    "WHERE TeamId = ?");
+            stmt.setString(1, color.getPrimaryColor());
+            stmt.setString(2, color.getSecondaryColor());
+            stmt.setString(3, color.getTertiaryColor());
+            stmt.setInt(4, color.getId());
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            // TODO log
-            e.printStackTrace();
             status = 500;
             message = "Unable to update team colors. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
@@ -608,13 +564,12 @@ public class TeamAPI {
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
             status = 500;
             message =  "Unable to delete Team from League. SQL Error";
-
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
     }
@@ -630,7 +585,6 @@ public class TeamAPI {
         int status = 200;
         String message = "";
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -643,33 +597,15 @@ public class TeamAPI {
                 message = "Team with ID " + id + " does not exist.";
             }
         } catch (SQLException e) {
-            // TODO log actual error
-            e.printStackTrace();
             status = 500;
             message = "Unable to delete team. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
         }
         return new ResponseBean(status, message);
-    }
-
-    private static String verifyPlayer(UserBean player, Connection conn) throws SQLException
-    {
-        String message = null;
-
-
-        if(player.getLogin() != null && !player.getLogin().isEmpty())
-        {
-            PreparedStatement stmt = conn.prepareStatement("SELECT  COUNT (Login) FROM Player Where Login = ?");
-            stmt.setString(1, player.getLogin());
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next() && rs.getInt(1) != 1)
-            {
-                message = "Player not available";
-            }
-        }
-        return message;
     }
 
     private static String verifyTeamComponents(TeamBean team, Connection conn) throws SQLException {

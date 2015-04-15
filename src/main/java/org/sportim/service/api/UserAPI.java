@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.StatusBean;
 import org.sportim.service.beans.TeamBean;
@@ -16,11 +17,10 @@ import java.util.List;
 
 /**
  * API to handle user requests.
- *
- * Created by hannah on 11/18/14.
  */
 @Path("/user")
 public class UserAPI {
+    private static Logger logger = Logger.getLogger(UserAPI.class.getName());
     private ConnectionProvider provider;
 
     public UserAPI() {
@@ -64,8 +64,8 @@ public class UserAPI {
                 users.add(userb);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get users for viewing: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             status = 500;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -122,17 +122,15 @@ public class UserAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve events. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(rs);
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -194,13 +192,13 @@ public class UserAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve events. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -249,13 +247,12 @@ public class UserAPI {
                 status = 400;
             }
         } catch (SQLException e) {
-            // TODO log4j this
-            e.printStackTrace();
             status = 500;
             message = "Unable to add user. SQL error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         return new ResponseBean(status, message);
@@ -313,13 +310,12 @@ public class UserAPI {
                 message = "No change to user.";
             }
         } catch (SQLException e) {
-            // TODO log4j
-            e.printStackTrace();
             status = 500;
             message = "Unable to update user. SQL error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
 
@@ -376,13 +372,12 @@ public class UserAPI {
                 message = "No change to user.";
             }
         } catch (SQLException e) {
-            // TODO log4j
-            e.printStackTrace();
             status = 500;
             message = "Unable to update user. SQL error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
     }
@@ -410,13 +405,12 @@ public class UserAPI {
                 message = "User not found.";
             }
         } catch (SQLException e) {
-            // TODO log4j
-            e.printStackTrace();
             status = 500;
             message = "Unable to delete user. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
     }

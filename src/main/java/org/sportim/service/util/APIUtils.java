@@ -5,6 +5,8 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Connection;
 
 /**
@@ -99,5 +101,11 @@ public class APIUtils {
             params += "?";
         }
         return params;
+    }
+
+    public static String getStacktraceAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.PassBean;
 import org.sportim.service.beans.stats.PlayerPassingBean;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Path("/pass")
 public class PassingAPI {
+    private static Logger logger = Logger.getLogger(PassingAPI.class.getName());
     private ConnectionProvider provider;
 
     public PassingAPI() {
@@ -53,8 +55,8 @@ public class PassingAPI {
             stmt.setInt(4, 1);
             success = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error saving pass: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(stmt, conn);
         }
@@ -146,8 +148,8 @@ public class PassingAPI {
                 teamPasses.passes.add(pass);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting event passing stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             eventPasses = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -187,8 +189,8 @@ public class PassingAPI {
                 }
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting player passing stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             passes = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -221,8 +223,8 @@ public class PassingAPI {
                 passes.passes.add(pass);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting team passing stats: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             passes = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);

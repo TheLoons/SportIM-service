@@ -1,10 +1,9 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.*;
 import org.sportim.service.beans.stats.AbstractTeamResultsBean;
 import org.sportim.service.beans.stats.SportType;
-import org.sportim.service.soccer.SoccerTableAPI;
-import org.sportim.service.soccer.beans.SoccerTeamResultsBean;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -16,6 +15,7 @@ import java.util.*;
  */
 @Path("/league")
 public class LeagueAPI {
+    private static Logger logger = Logger.getLogger(LeagueAPI.class.getName());
     private ConnectionProvider provider;
     private StatAPIMapper apiMapper;
 
@@ -52,8 +52,8 @@ public class LeagueAPI {
                 leagues.add(new LeagueBean(rs));
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error getting leagues for current user:" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             status = 500;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -112,13 +112,13 @@ public class LeagueAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve league. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error("Error getting league:" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error("Unable to connect to datasource:" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -188,13 +188,13 @@ public class LeagueAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to add league. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error("Unable to add league" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error("Unable to add league" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(conn);
         }
@@ -236,14 +236,12 @@ public class LeagueAPI {
 
             // now, create the event and add any lookups
             conn.setAutoCommit(false);
-            if (status == 200)
+            if(!verifyTeam(teamId, conn))
             {
-                if(!verifyTeam(teamId, conn))
-                {
-                    message = "Team Not Found";
-                    status = 404;
-                }
+                message = "Team Not Found";
+                status = 404;
             }
+
             if(status == 200)
             {
                 if(!verifyLeague(leagueId, conn))
@@ -266,19 +264,15 @@ public class LeagueAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to add team. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error("Unable to add team" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error("Unable to add team" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            boolean ok = APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
     }
@@ -307,7 +301,7 @@ public class LeagueAPI {
         }
 
         int status = 200;
-        String message = "";
+        String message;
 
         if (league.getId() < 1) {
             status = 400;
@@ -340,13 +334,12 @@ public class LeagueAPI {
             }
 
         } catch (SQLException e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to update league" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             status = 500;
             message = "Unable to update league. SQL Error.";
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         return new ResponseBean(status, message);
@@ -375,13 +368,12 @@ public class LeagueAPI {
                 message = "League with ID " + id + " does not exist.";
             }
         } catch (SQLException e) {
-            // TODO log actual error
-            e.printStackTrace();
+            logger.error("Unable to delete league" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             status = 500;
             message = "Unable to delete league. SQL Error.";
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
     }
@@ -416,10 +408,10 @@ public class LeagueAPI {
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
             status = 500;
             message =  "Unable to delete Team from League. SQL Error";
-
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
@@ -452,8 +444,8 @@ public class LeagueAPI {
             stmt.setString(3, table.getDesc());
             ok = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to add league table" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(stmt, conn);
         }
@@ -494,8 +486,8 @@ public class LeagueAPI {
             }
             ok = true;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get league tables" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
@@ -541,8 +533,8 @@ public class LeagueAPI {
                 sport = "other";
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get sport for league" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             sport = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -591,8 +583,8 @@ public class LeagueAPI {
             stmt.setInt(2, tableId);
             ok = stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to delete league table" + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(stmt, conn);
         }
@@ -627,14 +619,12 @@ public class LeagueAPI {
     private static boolean verifyTeam(int teamId, Connection conn) throws SQLException
     {
         boolean res = true;
-        if(teamId > 0)
-        {
+        if(teamId > 0) {
             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(TeamId) FROM Team Where TeamId = ?");
             stmt.setInt(1, teamId);
             ResultSet rs = stmt.executeQuery();
-            if(rs.next() && rs.getInt(1) != 1)
-            {
-                res = true;
+            if(!rs.next() || rs.getInt(1) != 1) {
+                res = false;
             }
         }
         return res;

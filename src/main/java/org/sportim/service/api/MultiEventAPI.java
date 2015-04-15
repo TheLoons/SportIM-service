@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.sportim.service.beans.EventBean;
 import org.sportim.service.beans.ResponseBean;
@@ -19,6 +20,7 @@ import java.util.*;
  */
 @Path("/events")
 public class MultiEventAPI {
+    private static Logger logger = Logger.getLogger(MultiEventAPI.class.getName());
     private ConnectionProvider provider;
 
     public MultiEventAPI() {
@@ -128,13 +130,13 @@ public class MultiEventAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve events. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }

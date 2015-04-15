@@ -1,5 +1,7 @@
 package org.sportim.service.util;
 
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +10,7 @@ import java.sql.ResultSet;
  * Utilities for determining availability of actions to a user.
  */
 public class PrivilegeUtil {
+    private static Logger logger = Logger.getLogger(PrivilegeUtil.class.getName());
     private static ConnectionProvider provider = ConnectionManager.getInstance();
 
     public static void setConnectionProvider(ConnectionProvider provider) {
@@ -50,8 +53,8 @@ public class PrivilegeUtil {
             rs = stmt.executeQuery();
             ok = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            // TODO log4j
-            e.printStackTrace();
+            logger.error("Unable to check user view privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -96,8 +99,8 @@ public class PrivilegeUtil {
             rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check league update privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -130,8 +133,8 @@ public class PrivilegeUtil {
             rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check team update privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -177,8 +180,8 @@ public class PrivilegeUtil {
                 res = rs.next() && rs.getInt(1) > 0;
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check team view privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
@@ -211,8 +214,8 @@ public class PrivilegeUtil {
             rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check tournament update privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -271,8 +274,8 @@ public class PrivilegeUtil {
                 res = rs.next() && rs.getInt(1) > 0;
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check event view privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -305,8 +308,8 @@ public class PrivilegeUtil {
             rs = stmt.executeQuery();
             res = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check event update privilege: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);

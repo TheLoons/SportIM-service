@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.*;
 import org.sportim.service.util.*;
 
@@ -14,6 +15,7 @@ import java.util.*;
  */
 @Path("/event")
 public class SingleEventAPI {
+    private static Logger logger = Logger.getLogger(SingleEventAPI.class.getName());
     private ConnectionProvider provider;
 
     public SingleEventAPI() {
@@ -84,13 +86,13 @@ public class SingleEventAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve event. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(rs);
             APIUtils.closeResource(stmt);
@@ -173,10 +175,10 @@ public class SingleEventAPI {
             }
 
         } catch (SQLException e) {
-            // TODO log
-            e.printStackTrace();
             status = 500;
             message = "Unable to update event. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
@@ -207,10 +209,10 @@ public class SingleEventAPI {
                 message = "Event with ID " + id + " does not exist.";
             }
         } catch (SQLException e) {
-            // TODO log actual error
-            e.printStackTrace();
             status = 500;
             message = "Unable to delete event. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
@@ -302,13 +304,13 @@ public class SingleEventAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to add event. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.setAutoCommit(conn, true);
             APIUtils.closeResource(stmt);

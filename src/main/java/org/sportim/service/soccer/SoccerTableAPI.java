@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.api.TableAPI;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.AbstractTeamResultsBean;
@@ -21,6 +22,7 @@ import java.util.*;
  */
 @Path("table")
 public class SoccerTableAPI implements TableAPI {
+    private static Logger logger = Logger.getLogger(SoccerTableAPI.class.getName());
     private ConnectionProvider provider;
 
     public SoccerTableAPI() {
@@ -79,8 +81,8 @@ public class SoccerTableAPI implements TableAPI {
                 team.rank = ++rank;
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get soccer table results for events: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             table = null;
         }
         finally {

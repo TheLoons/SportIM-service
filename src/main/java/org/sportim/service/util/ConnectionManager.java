@@ -1,5 +1,7 @@
 package org.sportim.service.util;
 
+import org.apache.log4j.Logger;
+
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,6 +14,7 @@ import java.sql.Statement;
  * Created by hannah on 11/22/14.
  */
 public class ConnectionManager implements ConnectionProvider {
+    private static Logger logger = Logger.getLogger(ConnectionManager.class.getName());
     private static ConnectionManager instance = null;
     private DataSource ds;
 
@@ -20,8 +23,8 @@ public class ConnectionManager implements ConnectionProvider {
             InitialContext ctx = new InitialContext();
             ds = (DataSource) ctx.lookup("java:comp/env/jdbc/SportIMDB");
         } catch (Exception e) {
-            // TODO remove this - use log4j2
-            e.printStackTrace();
+            logger.error("Unable to get datasource: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         }
     }
 

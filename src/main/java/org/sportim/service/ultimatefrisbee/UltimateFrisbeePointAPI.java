@@ -1,5 +1,6 @@
 package org.sportim.service.ultimatefrisbee;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.ultimatefrisbee.beans.UltimateScoreBean;
 import org.sportim.service.util.*;
@@ -10,6 +11,7 @@ import java.sql.PreparedStatement;
 
 @Path("/point")
 public class UltimateFrisbeePointAPI {
+    private static Logger logger = Logger.getLogger(UltimateFrisbeePointAPI.class.getName());
     private ConnectionProvider provider;
 
     public UltimateFrisbeePointAPI() {
@@ -64,8 +66,8 @@ public class UltimateFrisbeePointAPI {
             stmt.setInt(3, 1);
             success = success && (stmt.executeUpdate() > 0);
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to post ultimate point: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);

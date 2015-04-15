@@ -1,5 +1,6 @@
 package org.sportim.service.api;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.*;
 import org.sportim.service.util.*;
 
@@ -9,10 +10,8 @@ import java.sql.*;
 import java.util.*;
 
 @Path("/tournament")
-/**
- * Created by Doug on 12/4/14.
- */
 public class TournamentAPI {
+    private static Logger logger = Logger.getLogger(TournamentAPI.class.getName());
     private ConnectionProvider provider;
 
     public TournamentAPI() {
@@ -34,7 +33,6 @@ public class TournamentAPI {
         int status = 200;
         String message = "";
         TournamentBean tournament = null;
-        // TODO only return authorized tournaments via auth token
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -55,20 +53,15 @@ public class TournamentAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to retrieve tournament. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
             message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResources(rs, stmt, conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -141,8 +134,8 @@ public class TournamentAPI {
                 events.add(rs.getInt(1));
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get events for tournament: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             events = null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -173,8 +166,6 @@ public class TournamentAPI {
         }
 
         Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         int tournamentID = -1;
         try {
             conn = provider.getConnection();
@@ -199,20 +190,14 @@ public class TournamentAPI {
         } catch (SQLException e) {
             status = 500;
             message = "Unable to add tournament. SQL error.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } catch (NullPointerException e) {
             status = 500;
-            message = "Unable to connect to datasource.";
-            // TODO log4j 2 log this
-            e.printStackTrace();
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            boolean ok = APIUtils.closeResource(rs);
-            ok = ok && APIUtils.closeResource(stmt);
-            ok = ok && APIUtils.closeResource(conn);
-            if (!ok) {
-                // TODO implement Log4j 2 and log out error
-            }
+            APIUtils.closeResource(conn);
         }
 
         ResponseBean resp = new ResponseBean(status, message);
@@ -252,7 +237,6 @@ public class TournamentAPI {
             return new ResponseBean(status, message);
         }
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -273,13 +257,12 @@ public class TournamentAPI {
             }
 
         } catch (SQLException e) {
-            // TODO log
-            e.printStackTrace();
             status = 500;
             message = "Unable to update tournament. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
 
         return new ResponseBean(status, message);
@@ -296,7 +279,6 @@ public class TournamentAPI {
         int status = 200;
         String message = "";
 
-        // TODO AUTHENTICATE
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -309,13 +291,12 @@ public class TournamentAPI {
                 message = "Tournament with ID " + id + " does not exist.";
             }
         } catch (SQLException e) {
-            // TODO log actual error
-            e.printStackTrace();
             status = 500;
             message = "Unable to delete tournament. SQL Error.";
+            logger.error(message + ": " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
-            APIUtils.closeResource(stmt);
-            APIUtils.closeResource(conn);
+            APIUtils.closeResources(stmt, conn);
         }
         return new ResponseBean(status, message);
     }
@@ -344,10 +325,8 @@ public class TournamentAPI {
     private static String verifyTournamentComponents(TournamentBean tournament, Connection conn) throws SQLException {
 
         String message = null;
-        int status = 200;
-        if (status == 200 && tournament.getLeagueId() > 0) {
+        if (tournament.getLeagueId() > 0) {
             if (!verifyLeague(tournament.getLeagueId(), conn)) {
-                status = 422;
                 message = "Non-existent league ID specified.";
             }
         }

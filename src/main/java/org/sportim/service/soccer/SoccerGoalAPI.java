@@ -1,5 +1,6 @@
 package org.sportim.service.soccer;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.soccer.beans.SoccerScoreBean;
 import org.sportim.service.util.*;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
  */
 @Path("/goal")
 public class SoccerGoalAPI {
+    private static Logger logger = Logger.getLogger(SoccerGoalAPI.class.getName());
     private ConnectionProvider provider;
 
     public SoccerGoalAPI() {
@@ -72,8 +74,8 @@ public class SoccerGoalAPI {
             stmt.setInt(4, 1);
             success = success && (stmt.executeUpdate() > 0);
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to post goal: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             success = false;
         } finally {
             APIUtils.closeResources(stmt, conn);

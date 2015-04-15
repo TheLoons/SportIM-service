@@ -1,5 +1,6 @@
 package org.sportim.service.util;
 
+import org.apache.log4j.Logger;
 import org.sportim.service.api.AggregationAPI;
 import org.sportim.service.beans.stats.AggregateEventBean;
 import org.sportim.service.beans.stats.TeamStatsBean;
@@ -18,6 +19,7 @@ import java.util.Set;
  * Utilities for the soccer stat tracking API.
  */
 public class StatUtil {
+    private static Logger logger = Logger.getLogger(StatUtil.class.getName());
     private static ConnectionProvider provider = ConnectionManager.getInstance();
 
     public static void setConnectionProvider(ConnectionProvider provider) {
@@ -48,8 +50,8 @@ public class StatUtil {
             rs = stmt.executeQuery();
             valid = rs.next() && rs.getInt(1) > 0;
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to check session validity: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
@@ -70,6 +72,8 @@ public class StatUtil {
                 teams.add(rs.getInt(1));
             }
         } catch (Exception e) {
+            logger.error("Unable to get teams in league: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
@@ -110,8 +114,8 @@ public class StatUtil {
                 nextEventID = rs.getInt(1);
             }
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to get next event ID: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
@@ -130,8 +134,8 @@ public class StatUtil {
             stmt.setInt(2, teamID);
             res = stmt.executeUpdate();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to add team to event: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return false;
         } finally {
             APIUtils.closeResources(stmt, conn);
@@ -153,8 +157,8 @@ public class StatUtil {
             }
             stmt.executeBatch();
         } catch (Exception e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Unable to remove teams from event: " + e.getMessage());
+            logger.debug(APIUtils.getStacktraceAsString(e));
             return false;
         } finally {
             APIUtils.closeResources(stmt, conn);
