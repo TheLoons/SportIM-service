@@ -275,7 +275,12 @@ public class TeamAPI {
     @Path("{id}/colors")
     @Produces("application/json")
     @Consumes("application/json")
-    public ResponseBean createColors(ColorBean color) {
+    public ResponseBean createColors(ColorBean color, @PathParam("id") final int teamID,
+                                     @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasTeamUpdate(token, teamID)) {
+            return new ResponseBean(401, "Not authorized");
+        }
+
         int status = 200;
         String message = "";
         Connection conn = null;
@@ -284,7 +289,7 @@ public class TeamAPI {
             conn = provider.getConnection();
             stmt = conn.prepareStatement("INSERT IGNORE INTO TeamColors (TeamId, PrimaryColor, SecondaryColor, TertiaryColor) " +
                     "VALUES (?,?,?,?)");
-            stmt.setInt(1, color.getId());
+            stmt.setInt(1, teamID);
             stmt.setString(2, color.getPrimaryColor());
             stmt.setString(3, color.getSecondaryColor());
             stmt.setString(4, color.getTertiaryColor());
@@ -489,9 +494,9 @@ public class TeamAPI {
     @Path("{id}/colors")
     @Consumes("application/json")
     @Produces("application/json")
-    public ResponseBean updateTeamColors(ColorBean color, @HeaderParam("token") final String token) {
-        String user = AuthenticationUtil.validateToken(token);
-        if (!PrivilegeUtil.hasTeamUpdate(token, color.getId())) {
+    public ResponseBean updateTeamColors(ColorBean color, @PathParam("id") final int teamID,
+                                         @HeaderParam("token") final String token) {
+        if (!PrivilegeUtil.hasTeamUpdate(token, teamID)) {
             return new ResponseBean(401, "Not authorized");
         }
 
@@ -519,7 +524,7 @@ public class TeamAPI {
             stmt.setString(1, color.getPrimaryColor());
             stmt.setString(2, color.getSecondaryColor());
             stmt.setString(3, color.getTertiaryColor());
-            stmt.setInt(4, color.getId());
+            stmt.setInt(4, teamID);
             stmt.executeUpdate();
         } catch (SQLException e) {
             status = 500;
