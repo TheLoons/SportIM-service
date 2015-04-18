@@ -227,8 +227,8 @@ public class SendNotification implements Job
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//        emailAlerts();
-        System.out.println("Test Job");
+        emailAlerts();
+//        System.out.println("Test Job");
 //        sendText("8016948286", "3853991636", "body test");
 //        sendEmail("valnir1@gmail.com", "doug.hitchcock@aruplab.com", "Test Send Grid", "This is a test email from SendGrid");
     }

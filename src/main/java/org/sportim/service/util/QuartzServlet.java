@@ -33,7 +33,7 @@ public class QuartzServlet extends HttpServlet {
 
             CronTrigger trigger = new CronTrigger();
             trigger.setName("TriggerName");
-            trigger.setCronExpression("*/5 * * * * ?");
+            trigger.setCronExpression("* *` */1 * * ?");
 
             Scheduler scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
