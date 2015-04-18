@@ -1,7 +1,5 @@
 package org.sportim.service.util;
 
-
-
 /**
  * Created by Doug on 2/16/15.
  */
@@ -14,8 +12,11 @@ import com.twilio.sdk.resource.factory.MessageFactory;
 import com.twilio.sdk.resource.instance.Message;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,17 +28,17 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SendNotification
+public class SendNotification implements Job
 {
     private static Logger logger = Logger.getLogger(SendNotification.class.getName());
     private ConnectionProvider provider;
 
     public SendNotification() { provider = ConnectionManager.getInstance();}
 
-    public static void main(String[] args)
-    {
-        System.out.println(sendEmail("valnir1@gmail.com", "doug.hitchcock@aruplab.com", "Test Send Grid", "This is a test email from SendGrid"));
-    }
+//    public static void main(String[] args)
+//    {
+//        System.out.println(sendEmail("valnir1@gmail.com", "doug.hitchcock@aruplab.com", "Test Send Grid", "This is a test email from SendGrid"));
+//    }
 
     /*
         Simple function to send email and return true if it successfully tried to send an email
@@ -139,46 +140,58 @@ public class SendNotification
                 else
                 {
                     long millisPerHour = 3600000;
-                    stmt = conn.prepareStatement("select test3.Login, test3.GameAlert, test3.TeamId, test3.EventId, test3.StartDate, test3.EventName from " +
-                            "(select test2.Login, test2.GameAlert, test2.TeamId, test2.EventId, e.StartDate, e.EventName from " +
-                            "(select test.Login, test.GameAlert, test.PracticeAlert, test.MeetingAlert, test.OtherAlert, test.TeamId, te.EventId from " +
-                            "(select p.Login, p.GameAlert, p.PracticeAlert, p.MeetingAlert, p.OtherAlert, pf.TeamId " +
+                    stmt = conn.prepareStatement("select test3.Login, test3.GameAlert, test3.PracticeAlert, test3.MeetingAlert, test3.OtherAlert, test3.ReceiveEmail, test3.ReceiveText, test3.TeamId, test3.EventId, test3.StartDate, test3.EventName, test3.Location, test3.EventType  from " +
+                            "(select test2.Login, test2.GameAlert, test2.PracticeAlert, test2.MeetingAlert, test2.OtherAlert, test2.ReceiveEmail, test2.ReceiveText, test2.TeamId, test2.EventId, e.StartDate, e.EventName, e.Location, e.EventType from " +
+                            "(select test.Login, test.GameAlert, test.PracticeAlert, test.MeetingAlert, test.OtherAlert, test.ReceiveEmail, test.ReceiveText, test.TeamId, te.EventId from " +
+                            "(select p.Login, p.GameAlert, p.PracticeAlert, p.MeetingAlert, p.OtherAlert, p.ReceiveEmail, p.ReceiveText, pf.TeamId " +
                             "from Player p join PlaysFor pf where p.Login = pf.Login) as test " +
                             "join TeamEvent te where te.TeamId = test.TeamId) as test2 " +
                             "join Event e where e.EventId = test2.EventId AND e.StartDate >= ?) as test3");
                     stmt.setLong(1, currentTime);
                     res = stmt.executeQuery();
                     List<PreparedStatement> stmts = new LinkedList<PreparedStatement>();
+                    boolean receiveText;
+                    boolean receiveEmail;
+                    boolean game;
+                    boolean practice;
+                    boolean meeting;
+                    boolean other;
                     while(res.next())
                     {
-
-                        if(res.getLong("test3.StartDate") < (res.getLong("test3.GameAlert") + currentTime + millisPerHour ) )
+                        receiveText = (res.getInt("test3.ReceiveText") == 1);
+                        receiveEmail = (res.getInt("test3.ReceiveText") == 1);
+                        game = ((res.getLong("test3.StartDate") < (res.getLong("test3.GameAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Game")));
+                        practice = ((res.getLong("test3.StartDate") < (res.getLong("test3.PracticeAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Practice")));
+                        meeting = ((res.getLong("test3.StartDate") < (res.getLong("test3.MeetingAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Meeting")));
+                        other = ((res.getLong("test3.StartDate") < (res.getLong("test3.OtherAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Other")));
+                        if(game || practice || meeting || other)
                         {
                             String login = res.getString("test3.Login");
                             Date eventDate = new Date(res.getLong("test3.StartDate"));
 
                             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                             String body = "This is your notification for Event: " + res.getString("test3.EventName") + " on " + dateFormat.format(eventDate);
-                            if(sendEmail(res.getString("test3.Login"), "theloons.sportim@gmail.com", res.getString("test3.EventName"), body))
-                            {
-                                stmt = conn.prepareStatement("INSERT INTO alertssent (eventId, login, start) VALUES (?,?,?)");
-                                stmt.setInt(1, res.getInt("test3.eventId"));
-                                stmt.setString(2, login);
-                                stmt.setLong(3, currentTime);
-                                stmt.addBatch();
-                                stmts.add(stmt);
+                            if(receiveEmail) {
+                                if (sendEmail(res.getString("test3.Login"), "theloons.sportim@gmail.com", res.getString("test3.EventName"), body)) {
+                                    stmt = conn.prepareStatement("INSERT INTO alertssent (eventId, login, start) VALUES (?,?,?)");
+                                    stmt.setInt(1, res.getInt("test3.eventId"));
+                                    stmt.setString(2, login);
+                                    stmt.setLong(3, currentTime);
+                                    stmt.addBatch();
+                                    stmts.add(stmt);
 
+                                }
                             }
-                            String fromNumber = "3853991636";
-                            if(sendText(res.getString("test3.Phone"), fromNumber, body))
-                            {
-                                //TODO Update AlertSent Table
-                                stmt = conn.prepareStatement("INSERT INTO alertssent (eventId, login, start) VALUES (?,?,?)");
-                                stmt.setInt(1, res.getInt("test3.eventId"));
-                                stmt.setString(2, login);
-                                stmt.setLong(3, currentTime);
-                                stmt.addBatch();
-                                stmts.add(stmt);
+                            if(receiveText) {
+                                String fromNumber = "3853991636";
+                                if (sendText(res.getString("test3.Phone"), fromNumber, body)) {
+                                    stmt = conn.prepareStatement("INSERT INTO alertssent (eventId, login, start) VALUES (?,?,?)");
+                                    stmt.setInt(1, res.getInt("test3.eventId"));
+                                    stmt.setString(2, login);
+                                    stmt.setLong(3, currentTime);
+                                    stmt.addBatch();
+                                    stmts.add(stmt);
+                                }
                             }
 
                         }
@@ -210,6 +223,14 @@ public class SendNotification
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
         }
+    }
+
+    @Override
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+//        emailAlerts();
+        System.out.println("Test Job");
+//        sendText("8016948286", "3853991636", "body test");
+//        sendEmail("valnir1@gmail.com", "doug.hitchcock@aruplab.com", "Test Send Grid", "This is a test email from SendGrid");
     }
 }
 

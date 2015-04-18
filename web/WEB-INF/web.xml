@@ -43,6 +43,15 @@
         <servlet-name>SportIM Service</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>QuartzServlet</servlet-name>
+        <servlet-class>org.sportim.service.util.QuartzServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>QuartzServlet</servlet-name>
+        <url-pattern>/quartz/*</url-pattern>
+    </servlet-mapping>
     
     <filter>
         <filter-name>cross-origin</filter-name>
