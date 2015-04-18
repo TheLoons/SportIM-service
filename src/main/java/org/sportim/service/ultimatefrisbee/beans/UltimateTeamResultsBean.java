@@ -1,7 +1,7 @@
 package org.sportim.service.ultimatefrisbee.beans;
 
 import org.sportim.service.beans.stats.AbstractTeamResultsBean;
-import org.sportim.service.beans.stats.SportType;
+import org.sportim.service.util.SportType;
 
 public class UltimateTeamResultsBean extends AbstractTeamResultsBean {
     public int pointsFor = 0;

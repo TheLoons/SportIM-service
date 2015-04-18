@@ -58,7 +58,7 @@ public class SingleEventAPI {
                 event = new EventBean(rs);
                 event.setLocation(rs.getString("e.Location"));
                 event.setType(rs.getString("e.EventType"));
-                event.setSport(rs.getString("t.Sport"));
+                event.setSport(SportType.fromString(rs.getString("t.Sport")));
                 if (PrivilegeUtil.hasEventUpdate(token, id)) {
                     event.setEditable(true);
                 }

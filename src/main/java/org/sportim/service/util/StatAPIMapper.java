@@ -2,7 +2,6 @@ package org.sportim.service.util;
 
 import org.sportim.service.api.AggregationAPI;
 import org.sportim.service.api.TableAPI;
-import org.sportim.service.beans.stats.SportType;
 import org.sportim.service.soccer.SoccerAggregationAPI;
 import org.sportim.service.soccer.SoccerTableAPI;
 import org.sportim.service.ultimatefrisbee.UltimateFrisbeeAggregationAPI;

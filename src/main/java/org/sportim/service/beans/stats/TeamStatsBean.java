@@ -2,7 +2,7 @@ package org.sportim.service.beans.stats;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.sportim.service.soccer.beans.SoccerPlayerStatsBean;
+import org.sportim.service.util.SportType;
 
 import java.util.List;
 

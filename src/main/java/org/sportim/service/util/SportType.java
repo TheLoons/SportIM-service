@@ -1,9 +1,9 @@
-package org.sportim.service.beans.stats;
+package org.sportim.service.util;
 
 public enum SportType {
     SOCCER("Soccer"),
     ULTIMATE_FRISBEE("Ultimate Frisbee"),
-    UNKNOWN("unknown");
+    UNKNOWN("Unknown");
 
     private final String type;
 

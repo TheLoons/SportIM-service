@@ -3,7 +3,7 @@ package org.sportim.service.api;
 import org.apache.log4j.Logger;
 import org.sportim.service.beans.*;
 import org.sportim.service.beans.stats.AbstractTeamResultsBean;
-import org.sportim.service.beans.stats.SportType;
+import org.sportim.service.util.SportType;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;
@@ -530,7 +530,7 @@ public class LeagueAPI {
             if (rs.next()) {
                 sport = rs.getString(1);
             } else {
-                sport = "other";
+                sport = "Unknown";
             }
         } catch (Exception e) {
             logger.error("Unable to get sport for league" + e.getMessage());
@@ -609,7 +609,7 @@ public class LeagueAPI {
                 "WHERE LeagueId = ?");
         stmt.setString(1, league.getName());
         stmt.setString(2, league.getOwner());
-        stmt.setString(3, league.getSport());
+        stmt.setString(3, league.getSport() != null ? league.getSport().name().toLowerCase() : null);
         stmt.setInt(4, league.getId());
         stmt.addBatch();
         stmts.add(stmt);
@@ -685,7 +685,7 @@ public class LeagueAPI {
                 "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, league.getName());
         stmt.setString(2, league.getOwner());
-        stmt.setString(3, league.getSport());
+        stmt.setString(3, league.getSport() != null ? league.getSport().name().toLowerCase() : null);
 
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();

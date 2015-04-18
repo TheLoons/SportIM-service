@@ -656,7 +656,7 @@ public class TeamAPI {
                 "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, team.getName());
         stmt.setString(2, team.getOwner());
-        stmt.setString(3, team.getSport());
+        stmt.setString(3, team.getSport() != null ? team.getSport().name().toLowerCase() : null);
         stmt.executeUpdate();
         ResultSet rs = stmt.getGeneratedKeys();
 
@@ -683,7 +683,7 @@ public class TeamAPI {
                 "WHERE TeamId = ?");
         stmt.setString(1, team.getName());
         stmt.setString(2, team.getOwner());
-        stmt.setString(3, team.getSport());
+        stmt.setString(3, team.getSport() != null ? team.getSport().name().toLowerCase() : null);
         stmt.setInt(4, team.getId());
         stmt.addBatch();
         stmts.add(stmt);

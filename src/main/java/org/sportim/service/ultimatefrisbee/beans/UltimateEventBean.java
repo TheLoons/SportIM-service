@@ -3,7 +3,7 @@ package org.sportim.service.ultimatefrisbee.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.beans.stats.AggregateEventBean;
-import org.sportim.service.beans.stats.SportType;
+import org.sportim.service.util.SportType;
 
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)

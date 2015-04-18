@@ -3,9 +3,7 @@ package org.sportim.service.soccer.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.beans.stats.AggregateEventBean;
-import org.sportim.service.beans.stats.SportType;
-
-import java.util.List;
+import org.sportim.service.util.SportType;
 
 /**
  * Bean for returning stats for an event

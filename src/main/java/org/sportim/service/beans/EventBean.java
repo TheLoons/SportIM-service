@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.util.APIUtils;
+import org.sportim.service.util.SportType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +18,7 @@ import java.util.List;
 public class EventBean {
     private String title;
     private String owner;
-    private String sport;
+    private SportType sport;
     private long start;
     private long end;
     private List<Integer> teamIDs;
@@ -171,11 +172,11 @@ public class EventBean {
 
     public void setType(String type) {this.type = type;}
 
-    public String getSport() {
+    public SportType getSport() {
         return sport;
     }
 
-    public void setSport(String sport) {
+    public void setSport(SportType sport) {
         this.sport = sport;
     }
 }

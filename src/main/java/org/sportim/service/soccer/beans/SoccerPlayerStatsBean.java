@@ -3,7 +3,7 @@ package org.sportim.service.soccer.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.beans.stats.PlayerStatsBean;
-import org.sportim.service.beans.stats.SportType;
+import org.sportim.service.util.SportType;
 
 /**
  * Bean for player stats

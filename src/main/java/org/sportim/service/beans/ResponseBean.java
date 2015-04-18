@@ -2,9 +2,9 @@ package org.sportim.service.beans;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sportim.service.beans.stats.*;
-import org.sportim.service.soccer.beans.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 /**
@@ -36,7 +36,7 @@ public class ResponseBean {
     private SortedSet<AbstractTeamResultsBean> tournamentResults;
     private List<TournamentBean> tables;
     private ColorBean colors;
-    private List<String> sports;
+    private List<Map<String, String>> sports;
 
     public ResponseBean(){
     }
@@ -228,11 +228,11 @@ public class ResponseBean {
         this.leagueStats = leagueStats;
     }
 
-    public List<String> getSports() {
+    public List<Map<String, String>> getSports() {
         return sports;
     }
 
-    public void setSports(List<String> sports) {
+    public void setSports(List<Map<String, String>> sports) {
         this.sports = sports;
     }
 }

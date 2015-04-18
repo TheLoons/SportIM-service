@@ -3,7 +3,6 @@ package org.sportim.service.api;
 import org.apache.log4j.Logger;
 import org.sportim.service.beans.ResponseBean;
 import org.sportim.service.beans.stats.*;
-import org.sportim.service.soccer.SoccerAggregationAPI;
 import org.sportim.service.util.*;
 
 import javax.ws.rs.*;

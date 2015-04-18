@@ -1,7 +1,7 @@
 package org.sportim.service.ultimatefrisbee.beans;
 
 import org.sportim.service.beans.stats.LeagueStatsBean;
-import org.sportim.service.beans.stats.SportType;
+import org.sportim.service.util.SportType;
 
 /**
  * Created by hannah on 4/13/15.

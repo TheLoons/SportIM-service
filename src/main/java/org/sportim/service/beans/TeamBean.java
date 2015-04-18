@@ -2,6 +2,7 @@ package org.sportim.service.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.sportim.service.util.SportType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +18,7 @@ public class TeamBean {
     private String name;
     private String owner;
     private List<UserBean> players;
-    private String sport;
+    private SportType sport;
 
     public TeamBean(){
     }
@@ -26,7 +27,7 @@ public class TeamBean {
         id = rs.getInt("t1.TeamId");
         name = rs.getString(2);
         owner = rs.getString(3);
-        sport = rs.getString(4);
+        sport = SportType.fromString(rs.getString(4));
     }
 
     @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
@@ -66,11 +67,11 @@ public class TeamBean {
         return "";
     }
 
-    public String getSport() {
+    public SportType getSport() {
         return sport;
     }
 
-    public void setSport(String sport) {
+    public void setSport(SportType sport) {
         this.sport = sport;
     }
 }
