@@ -109,6 +109,7 @@ public class SendNotification implements Job
     public void emailAlerts()
     {
         int status = 200;
+        int alertTotal = 0;
         String message = "";
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -156,14 +157,15 @@ public class SendNotification implements Job
                     boolean practice;
                     boolean meeting;
                     boolean other;
+
                     while(res.next())
                     {
                         receiveText = (res.getInt("test3.ReceiveText") == 1);
                         receiveEmail = (res.getInt("test3.ReceiveText") == 1);
-                        game = ((res.getLong("test3.StartDate") < (res.getLong("test3.GameAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Game")));
-                        practice = ((res.getLong("test3.StartDate") < (res.getLong("test3.PracticeAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Practice")));
-                        meeting = ((res.getLong("test3.StartDate") < (res.getLong("test3.MeetingAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Meeting")));
-                        other = ((res.getLong("test3.StartDate") < (res.getLong("test3.OtherAlert") + currentTime + millisPerHour ) && res.getString("test3.Type").equals("Other")));
+                        game = ((res.getLong("test3.StartDate") < (res.getLong("test3.GameAlert") + currentTime + millisPerHour ) && res.getString("test3.EventType").equals("Game")));
+                        practice = ((res.getLong("test3.StartDate") < (res.getLong("test3.PracticeAlert") + currentTime + millisPerHour ) && res.getString("test3.EventType").equals("Practice")));
+                        meeting = ((res.getLong("test3.StartDate") < (res.getLong("test3.MeetingAlert") + currentTime + millisPerHour ) && res.getString("test3.EventType").equals("Meeting")));
+                        other = ((res.getLong("test3.StartDate") < (res.getLong("test3.OtherAlert") + currentTime + millisPerHour ) && res.getString("test3.EventType").equals("Other")));
                         if(game || practice || meeting || other)
                         {
                             String login = res.getString("test3.Login");
@@ -195,12 +197,14 @@ public class SendNotification implements Job
                             }
 
                         }
+                        alertTotal++;
                     }
                     for(PreparedStatement s : stmts)
                     {
                         stmt = s;
                         s.executeBatch();
                     }
+
                 }
 
             }
@@ -223,6 +227,7 @@ public class SendNotification implements Job
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
         }
+        System.out.println("Total Alerts sent: " + alertTotal);
     }
 
     @Override
