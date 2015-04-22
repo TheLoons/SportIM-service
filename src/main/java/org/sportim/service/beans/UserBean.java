@@ -22,8 +22,8 @@ public class UserBean {
     private long practiceAlert = -1;
     private long meetingAlert = -1;
     private long otherAlert = -1;
-    private int receiveEmail = 0;
-    private int receiveText = 0;
+    private int receiveEmail = -1;
+    private int receiveText = -1;
 
 
     /**
