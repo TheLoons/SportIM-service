@@ -1,5 +1,8 @@
 package org.sportim.service.util;
 
+/**
+ * Enum of supported sports for statistics plugins.
+ */
 public enum SportType {
     SOCCER("Soccer"),
     ULTIMATE_FRISBEE("Ultimate Frisbee"),

@@ -15,6 +15,8 @@ import java.util.UUID;
 
 /**
  * API for starting a stat tracking session for a soccer event.
+ *
+ * This is a deprecated API. Use {@link org.sportim.service.api.StatSessionAPI} instead.
  */
 @Path("/session")
 public class SoccerSessionAPI {
@@ -31,6 +33,7 @@ public class SoccerSessionAPI {
     @GET
     @Path("{eventID}")
     @Produces("application/json")
+    @Deprecated
     public ResponseBean startEventSession(@PathParam("eventID") final int eventID,
                                           @HeaderParam("token") final String token) {
         return statSessionAPI.startEventSession(eventID, token);
@@ -39,6 +42,7 @@ public class SoccerSessionAPI {
     @GET
     @Path("/reset/{eventID}")
     @Produces("application/json")
+    @Deprecated
     public ResponseBean restartEventSession(@PathParam("eventID") final int eventID,
                                             @HeaderParam("token") final String token) {
         return statSessionAPI.restartEventSession(eventID, token);
@@ -47,6 +51,7 @@ public class SoccerSessionAPI {
     @DELETE
     @Path("{eventID}")
     @Produces("application/json")
+    @Deprecated
     public ResponseBean endEventSession(@PathParam("eventID") final int eventID,
                                         @HeaderParam("token") final String token,
                                         @HeaderParam("session") final String session) {

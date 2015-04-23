@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Utilities for the soccer stat tracking API.
+ * Utilities for the stats tracking APIs.
  */
 public class StatUtil {
     private static Logger logger = Logger.getLogger(StatUtil.class.getName());
@@ -58,6 +58,11 @@ public class StatUtil {
         return valid;
     }
 
+    /**
+     * Find all of the teams in a given league
+     * @param leagueID the league ID
+     * @return a list of team IDs that are in the league
+     */
     public static List<Integer> getAllTeamsInLeague(int leagueID) {
         List<Integer> teams = new LinkedList<Integer>();
         Connection conn = null;
@@ -82,6 +87,15 @@ public class StatUtil {
         return teams;
     }
 
+    /**
+     * Add the winner of a match to the required participants in the next event
+     * in the bracket, if necessary.
+     *
+     * @param eventID the event ID
+     * @param winnerID the team ID of the winning team
+     * @param losers list of any other team IDs in the match
+     * @return true if the next bracket was filled
+     */
     public static boolean fillNextBracketEvent(int eventID, int winnerID, Set<Integer> losers) {
         // Get the next bracket ID if any
         int nextEventID = getNextEventID(eventID);
@@ -100,6 +114,11 @@ public class StatUtil {
         return true;
     }
 
+    /**
+     * Get the next event ID in a bracket
+     * @param eventID the current event ID
+     * @return the ID of the next event that follows in a bracket, or 0 if no next event found
+     */
     private static int getNextEventID(int eventID) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -123,6 +142,13 @@ public class StatUtil {
         return nextEventID;
     }
 
+    /**
+     * Add a team as a required participant to an event.
+     *
+     * @param eventID the event ID
+     * @param teamID the team ID
+     * @return true if successful, false otherwise
+     */
     private static boolean addTeamToEvent(int eventID, int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -144,6 +170,12 @@ public class StatUtil {
         return res > 0;
     }
 
+    /**
+     * Remove teams as required participants for an event
+     * @param eventID the event ID
+     * @param teamIDs the list of team IDs to remove
+     * @return true if successful, false otherwise
+     */
     private static boolean removeTeams(int eventID, Set<Integer> teamIDs) {
         Connection conn = null;
         PreparedStatement stmt = null;

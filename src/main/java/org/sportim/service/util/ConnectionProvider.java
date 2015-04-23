@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Interface for SQL sconnection providers.
+ * Interface for SQL connection providers.
  */
 public interface ConnectionProvider {
     public Connection getConnection() throws SQLException;

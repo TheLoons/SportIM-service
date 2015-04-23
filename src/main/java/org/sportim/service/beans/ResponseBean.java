@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.SortedSet;
 
 /**
- * Catch-all response bean - includes status
+ * Catch-all response bean to return for requests - includes status
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class ResponseBean {

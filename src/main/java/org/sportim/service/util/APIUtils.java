@@ -12,7 +12,7 @@ import java.sql.Connection;
 /**
  * Utility functions for the SportIM APIs.
  *
- * Created by hannah on 11/24/14.
+ * @Author Hannah Brock
  */
 public class APIUtils {
 
@@ -60,6 +60,12 @@ public class APIUtils {
         }
     }
 
+    /**
+     * Set auto commit on a connection
+     * @param conn the connection
+     * @param autoCommit whether to autocommit or not
+     * @return true if successful, false otherwise
+     */
     public static boolean setAutoCommit(Connection conn, boolean autoCommit) {
         if (conn == null) {
             return true;
@@ -92,6 +98,11 @@ public class APIUtils {
         return dt.toString();
     }
 
+    /**
+     * Create a parameter string for a SQL query
+     * @param numParams the number of parameters
+     * @return A string of ?s, comma separated
+     */
     public static String createParamString(int numParams) {
         String params = "";
         for (int i = 0; i < numParams; i++) {
@@ -103,6 +114,11 @@ public class APIUtils {
         return params;
     }
 
+    /**
+     * Get a stack trace as a plain ol' string
+     * @param e the exception with the trace
+     * @return The exception's stacktrace as a String
+     */
     public static String getStacktraceAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));

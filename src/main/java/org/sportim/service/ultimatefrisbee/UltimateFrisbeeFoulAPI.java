@@ -10,6 +10,9 @@ import javax.ws.rs.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+/**
+ * API for tracking ultimate frisbee fouls
+ */
 @Path("/foul")
 public class UltimateFrisbeeFoulAPI {
     private static Logger logger = Logger.getLogger(UltimateFrisbeeFoulAPI.class.getName());
@@ -23,6 +26,14 @@ public class UltimateFrisbeeFoulAPI {
         this.provider = provider;
     }
 
+    /**
+     * Record a foul
+     * @param foul body param, contains foul info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Path("{eventID}")
     @Consumes("application/json")

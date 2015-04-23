@@ -10,6 +10,9 @@ import org.sportim.service.ultimatefrisbee.UltimateFrisbeeTableAPI;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Mapper class for retrieving the correct APIs for a given sport.
+ */
 public class StatAPIMapper {
     private Map<SportType, AggregationAPI> mainAPIMap = new HashMap<SportType, AggregationAPI>();
     private Map<SportType, TableAPI> tableAPIMap = new HashMap<SportType, TableAPI>();
@@ -28,10 +31,20 @@ public class StatAPIMapper {
         tableAPIMap.put(SportType.ULTIMATE_FRISBEE, frisbeeTableAPI);
     }
 
+    /**
+     * Get the sport's table (league standings) API
+     * @param sport the sport
+     * @return the TableAPI for the sport or null if no API found
+     */
     public TableAPI getTableAPI(SportType sport) {
         return tableAPIMap.get(sport);
     }
 
+    /**
+     * Get the sport's statistics aggregation API
+     * @param sport the sport
+     * @return the AggregationAPI for the sport or null if no API found
+     */
     public AggregationAPI getMainAPI(SportType sport) {
         return mainAPIMap.get(sport);
     }

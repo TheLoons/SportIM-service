@@ -9,15 +9,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Connection management for the SportIM APIs.
+ * Connection management for the SportIM APIs. Uses the initial context JNDI for connection
+ * information.
  *
- * Created by hannah on 11/22/14.
+ * @Author Hannah Brock
  */
 public class ConnectionManager implements ConnectionProvider {
     private static Logger logger = Logger.getLogger(ConnectionManager.class.getName());
     private static ConnectionManager instance = null;
     private DataSource ds;
 
+    /**
+     * Create a new connection manager using the connection information for
+     * the jndi connection java:comp/env/jdbc/SportIMDB
+     *
+     * This method is used by getInstance() to generate the singleton ConnectionManager
+     */
     private ConnectionManager() {
         try {
             InitialContext ctx = new InitialContext();
@@ -28,6 +35,11 @@ public class ConnectionManager implements ConnectionProvider {
         }
     }
 
+    /**
+     * Get a connection from the pool
+     * @return a Connection
+     * @throws SQLException if a connection cannot be retrieved
+     */
     public Connection getConnection() throws SQLException {
         // Set the timezone on the connection
         if (ds == null)
@@ -39,6 +51,10 @@ public class ConnectionManager implements ConnectionProvider {
         return conn;
     }
 
+    /**
+     * Use this method to get ConnectionManager instance
+     * @return the ConnectionManager
+     */
     public static ConnectionManager getInstance() {
         if (instance == null) {
             instance = new ConnectionManager();

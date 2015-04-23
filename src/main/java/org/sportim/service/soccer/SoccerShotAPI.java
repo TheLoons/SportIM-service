@@ -25,6 +25,14 @@ public class SoccerShotAPI {
         this.provider = provider;
     }
 
+    /**
+     * Record a shot
+     * @param shot body param, contains shot info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Path("{eventID}")
     @Consumes("application/json")

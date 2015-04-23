@@ -18,7 +18,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * API for grabbing table results
+ * The table (league standings) API for soccer.
+ *
+ * See {@link org.sportim.service.api.TableAPI} for additional info.
  */
 @Path("table")
 public class SoccerTableAPI implements TableAPI {
@@ -33,6 +35,13 @@ public class SoccerTableAPI implements TableAPI {
         this.provider = provider;
     }
 
+    /**
+     * Direct REST call for getting table results.
+     *
+     * @param events body param, list of event IDs
+     * @param token header param, the user's authentication token
+     * @return the ResponseBean containing the results and status
+     */
     @GET
     @Produces("application/json")
     public ResponseBean getTableForEvents(@BeanParam List<Integer> events, @HeaderParam("token") final String token) {
@@ -104,6 +113,14 @@ public class SoccerTableAPI implements TableAPI {
         return stmt;
     }
 
+    /**
+     * Collate the results of all of the events
+     * @param eventResults map from event ID to event winners (will be filled)
+     * @param teamResults map from team ID to team results beans (will be filled)
+     * @param rs the result set from the event result query
+     * @param events the list of event IDs
+     * @throws Exception
+     */
     private void collectResults(Map<Integer, Map<Integer,Integer>> eventResults, Map<Integer, SoccerTeamResultsBean> teamResults,
                                 ResultSet rs, List<Integer> events) throws Exception {
         // Get all teams so we can fill in with zeros if needed
@@ -170,6 +187,11 @@ public class SoccerTableAPI implements TableAPI {
         }
     }
 
+    /**
+     * Calculate the table rankings
+     * @param eventResults the map from event IDs to event winners (team IDs)
+     * @param teamResults the map from team IDs to team result beans
+     */
     private void calculatePoints(Map<Integer, Map<Integer, Integer>> eventResults, Map<Integer, SoccerTeamResultsBean> teamResults) {
         for (Map<Integer, Integer> event : eventResults.values()) {
             Set<Integer> maxTeams = new HashSet<Integer>();

@@ -9,6 +9,9 @@ import javax.ws.rs.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+/**
+ * API for tracking ultimate frisbee points
+ */
 @Path("/point")
 public class UltimateFrisbeePointAPI {
     private static Logger logger = Logger.getLogger(UltimateFrisbeePointAPI.class.getName());
@@ -22,6 +25,14 @@ public class UltimateFrisbeePointAPI {
         this.provider = provider;
     }
 
+    /**
+     * Record a point
+     * @param score body param, contains point info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Path("{eventID}")
     @Consumes("application/json")

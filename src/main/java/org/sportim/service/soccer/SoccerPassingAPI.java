@@ -17,6 +17,8 @@ import java.util.List;
 
 /**
  * API for tracking passes in soccer events.
+ *
+ * This is a deprecated API. Use {@link org.sportim.service.api.PassingAPI} instead!
  */
 @Path("/pass")
 public class SoccerPassingAPI {
@@ -37,6 +39,7 @@ public class SoccerPassingAPI {
     @Path("{eventID}")
     @Consumes("application/json")
     @Produces("application/json")
+    @Deprecated
     public ResponseBean postPass(final PassBean pass, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
         return passingAPI.postPass(pass, eventID, token, session);
@@ -44,6 +47,7 @@ public class SoccerPassingAPI {
 
     @GET
     @Produces("application/json")
+    @Deprecated
     public ResponseBean getPassingStats(@QueryParam("player") final String player, @QueryParam("teamID") final int teamID,
                                         @QueryParam("eventID") final int eventID, @HeaderParam("token") final String token) {
         return passingAPI.getPassingStats(player, teamID, eventID, token);

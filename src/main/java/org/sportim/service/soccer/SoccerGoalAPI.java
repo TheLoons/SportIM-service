@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 /**
- * API for goal tracking
+ * API for soccer goal tracking
  */
 @Path("/goal")
 public class SoccerGoalAPI {
@@ -25,6 +25,14 @@ public class SoccerGoalAPI {
         this.provider = provider;
     }
 
+    /**
+     * Record a goal
+     * @param score body param, contains goal info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Path("{eventID}")
     @Consumes("application/json")

@@ -11,6 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 
+/**
+ * Gateway API to get at recorded statistics
+ */
 @Path("/stats")
 public class StatAggregationAPI {
     private static Logger logger = Logger.getLogger(StatAggregationAPI.class.getName());
@@ -31,6 +34,11 @@ public class StatAggregationAPI {
         apiMapper = new StatAPIMapper(provider);
     }
 
+    /**
+     * Get the sport for an event
+     * @param eventID the event ID
+     * @return the SportType for the event
+     */
     private SportType getEventSport(int eventID) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -54,6 +62,11 @@ public class StatAggregationAPI {
         }
     }
 
+    /**
+     * Get the sport for a team
+     * @param teamID the team ID
+     * @return the SportType for the team
+     */
     private SportType getTeamSport(int teamID) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -76,6 +89,11 @@ public class StatAggregationAPI {
         }
     }
 
+    /**
+     * Get the sport for a league
+     * @param leagueID the league ID
+     * @return the SportType for the league
+     */
     private SportType getLeagueSport(int leagueID) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -148,6 +166,12 @@ public class StatAggregationAPI {
         return apis;
     }
 
+    /**
+     * Delete an event's statistics
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @return ResponseBean with the status of the request
+     */
     @DELETE
     @Produces("application/json")
     @Path("event/{eventID}")
@@ -167,6 +191,12 @@ public class StatAggregationAPI {
         return new ResponseBean(500, "Unable to delete event statistics");
     }
 
+    /**
+     * Get an event's statistics
+     * @param eventID path param,the event ID
+     * @param token header param, the user's authentication token
+     * @return ResponseBean with the status of the request
+     */
     @GET
     @Produces("application/json")
     @Path("event/{eventID}")
@@ -189,6 +219,13 @@ public class StatAggregationAPI {
         return resp;
     }
 
+    /**
+     * Get a player's statistics
+     * @param login query param, the player's login
+     * @param teamID optional team ID to constrain results (get player's stats for only that team)
+     * @param token header param, the user's authentication token
+     * @return ResponseBean with the status of the request
+     */
     @GET
     @Produces("application/json")
     @Path("player")
@@ -215,6 +252,12 @@ public class StatAggregationAPI {
         return resp;
     }
 
+    /**
+     * Get a team's statistics
+     * @param teamID the team ID
+     * @param token header param, the user's authentication token
+     * @return ResponseBean with the status of the request
+     */
     @GET
     @Produces("application/json")
     @Path("team/{teamID}")
@@ -237,6 +280,12 @@ public class StatAggregationAPI {
         return resp;
     }
 
+    /**
+     * Get a league's statistics
+     * @param leagueID path param, the league ID
+     * @param token header param, the user's authentication token
+     * @return ResponseBean with the status of the request
+     */
     @GET
     @Produces("application/json")
     @Path("league/{leagueID}")

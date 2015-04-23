@@ -10,6 +10,9 @@ import javax.ws.rs.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * API used to finalize ultimate frisbee event results
+ */
 @Path("finalize")
 public class UltimateFrisbeeFinalizeAPI {
     private ConnectionProvider provider;
@@ -25,6 +28,13 @@ public class UltimateFrisbeeFinalizeAPI {
         ultimateStatAPI = new UltimateFrisbeeAggregationAPI(provider);
     }
 
+    /**
+     * Finalize the event (triggers bracket calculations)
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stats tracking session ID
+     * @return a ResponseBean with the result status
+     */
     @POST
     @Path("{eventID}")
     @Produces("application/json")

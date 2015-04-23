@@ -9,9 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * API to get supported sports
+ */
 @Path("/sports")
 public class SportAPI {
 
+    /**
+     * Get the supported sports in the system
+     * @return ResponseBean with the status and list of supported sports
+     */
     @GET
     @Produces("application/json")
     public ResponseBean getAvailableSports() {

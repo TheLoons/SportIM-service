@@ -29,6 +29,12 @@ public class StatSessionAPI {
         this.provider = provider;
     }
 
+    /**
+     * Start a session for an event
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @return a ResponseBean with the session ID and status of the request
+     */
     @GET
     @Path("{eventID}")
     @Produces("application/json")
@@ -68,6 +74,12 @@ public class StatSessionAPI {
         return resp;
     }
 
+    /**
+     * Get a new session ID for an event, kicking out all other sessions
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @return ResponseBean with the new session ID and status
+     */
     @GET
     @Path("/reset/{eventID}")
     @Produces("application/json")
@@ -105,6 +117,13 @@ public class StatSessionAPI {
         return resp;
     }
 
+    /**
+     * End an event session
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the session ID
+     * @return ResponseBean with the status
+     */
     @DELETE
     @Path("{eventID}")
     @Produces("application/json")

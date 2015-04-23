@@ -21,6 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The statistics aggregation API for Ultimate Frisbee.
+ *
+ * See {@link org.sportim.service.api.AggregationAPI} for additional info.
+ */
 @Path("/stats")
 public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
     private static Logger logger = Logger.getLogger(UltimateFrisbeeAggregationAPI.class.getName());
@@ -34,6 +39,14 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
         this.provider = provider;
     }
 
+    /**
+     * Direct REST call for deleting event statistics.
+     *
+     * See {@link org.sportim.service.api.AggregationAPI#deleteEventStats} for more info.
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @return a ResponseBean containing the status
+     */
     @DELETE
     @Produces("application/json")
     @Path("event/{eventID}")
@@ -71,6 +84,14 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
         return true;
     }
 
+    /**
+     * Direct REST call for getting event statistics.
+     *
+     * See {@link org.sportim.service.api.AggregationAPI#getEventStats} for more info.
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @return a ResponseBean containing the status and event results
+     */
     @GET
     @Produces("application/json")
     @Path("event/{eventID}")
@@ -149,6 +170,15 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
         return null;
     }
 
+    /**
+     * Direct REST call for getting player statistics.
+     *
+     * See {@link org.sportim.service.api.AggregationAPI#getPlayerStats} for more info.
+     * @param login query param, the player's login
+     * @param token header param, the user's authentication token
+     * @param teamID query param, the team ID
+     * @return a ResponseBean containing the status and player results
+     */
     @GET
     @Produces("application/json")
     @Path("player")
@@ -207,6 +237,14 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
         return playerStats;
     }
 
+    /**
+     * Direct REST call for getting team statistics.
+     *
+     * See {@link org.sportim.service.api.AggregationAPI#getTeamStats} for more info.
+     * @param teamID path param, the team ID
+     * @param token header param, the user's authentication token
+     * @return a ResponseBean containing the status and team results
+     */
     @GET
     @Produces("application/json")
     @Path("team/{teamID}")
@@ -262,6 +300,14 @@ public class UltimateFrisbeeAggregationAPI implements AggregationAPI {
         return teamStats;
     }
 
+    /**
+     * Direct REST call for getting league statistics.
+     *
+     * See {@link org.sportim.service.api.AggregationAPI#getPlayerStats} for more info.
+     * @param leagueID path param, the league ID
+     * @param token header param, the user's authentication token
+     * @return a ResponseBean containing the status and league results
+     */
     @GET
     @Produces("application/json")
     @Path("league/{leagueID}")

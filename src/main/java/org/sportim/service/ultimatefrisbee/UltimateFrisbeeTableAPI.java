@@ -17,6 +17,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * The table (league standings) API for Ultimate Frisbee.
+ *
+ * See {@link org.sportim.service.api.TableAPI} for additional info.
+ */
 @Path("/table")
 public class UltimateFrisbeeTableAPI implements TableAPI {
     private static Logger logger = Logger.getLogger(UltimateFrisbeeTableAPI.class.getName());
@@ -97,6 +102,11 @@ public class UltimateFrisbeeTableAPI implements TableAPI {
         return stmt;
     }
 
+    /**
+     * Calculate the table rankings
+     * @param eventResults the map from event IDs to event winners (team IDs)
+     * @param teamResults the map from team IDs to team result beans
+     */
     private void collectPointResults(Map<Integer, UltimateTeamResultsBean> teamResults,
                                      Map<Integer, Map<Integer, Integer>> eventResults, List<Integer> events,
                                      Connection conn) {
@@ -152,6 +162,14 @@ public class UltimateFrisbeeTableAPI implements TableAPI {
         }
     }
 
+    /**
+     * Collate the results of all of the events
+     * @param eventResults map from event ID to event winners (will be filled)
+     * @param teamResults map from team ID to team results beans (will be filled)
+     * @param rs the result set from the event result query
+     * @param events the list of event IDs
+     * @throws Exception
+     */
     private void transferEventResults(Map<Integer, UltimateTeamResultsBean> teamResults,
                                       Map<Integer, Map<Integer, Integer>> eventResults) {
         for (Map<Integer, Integer> eventResult : eventResults.values()) {
@@ -219,7 +237,7 @@ public class UltimateFrisbeeTableAPI implements TableAPI {
                 allTeamsInTournament.add(allTeamsRs.getInt(1));
             }
         } catch (Exception e) {
-            logger.error("Unable to teams in tournament: " + e.getMessage());
+            logger.error("Unable to get teams in tournament: " + e.getMessage());
             logger.debug(APIUtils.getStacktraceAsString(e));
             return null;
         } finally {

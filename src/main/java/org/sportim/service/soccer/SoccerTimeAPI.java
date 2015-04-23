@@ -38,6 +38,14 @@ public class SoccerTimeAPI {
         soccerStatAPI = new SoccerAggregationAPI(provider);
     }
 
+    /**
+     * Record the start of a game
+     * @param gameStart body param, contains game info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Produces("application/json")
     @Path("start/{eventID}")
@@ -83,6 +91,14 @@ public class SoccerTimeAPI {
         return new ResponseBean(500, "Unable to start game");
     }
 
+    /**
+     * Record the end of the first half
+     * @param halfEnd body param, contains half info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Produces("application/json")
     @Path("halfend/{eventID}")
@@ -119,6 +135,14 @@ public class SoccerTimeAPI {
         return new ResponseBean(500, "Unable to end half. Make sure the game was started.");
     }
 
+    /**
+     * Record the start of the second half
+     * @param halfStart body param, contains half info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Produces("application/json")
     @Path("halfstart/{eventID}")
@@ -166,6 +190,14 @@ public class SoccerTimeAPI {
         }
     }
 
+    /**
+     * Record the end of the game
+     * @param gameEnd body param, contains game end info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Produces("application/json")
     @Path("end/{eventID}")
@@ -243,6 +275,14 @@ public class SoccerTimeAPI {
         return new ResponseBean(500, "Unable to end game");
     }
 
+    /**
+     * Record a substitution
+     * @param sub body param, contains the sub's info
+     * @param eventID path param, the event ID
+     * @param token header param, the user's authentication token
+     * @param session header param, the user's stat tracking session ID
+     * @return a ResponseBean containing the result status
+     */
     @POST
     @Produces("application/json")
     @Path("sub/{eventID}")

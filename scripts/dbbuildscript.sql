@@ -144,3 +144,13 @@ CREATE TABLE IF NOT EXISTS LeagueTable (
   Description VARCHAR(255),
   PRIMARY KEY (LeagueId, TournamentId)
 );
+
+CREATE TABLE `TeamColors` (
+  `TeamId` int(11) NOT NULL,
+  `PrimaryColor` varchar(8) NOT NULL,
+  `SecondaryColor` varchar(8) NOT NULL,
+  `TertiaryColor` varchar(8) NOT NULL,
+  PRIMARY KEY (`TeamId`),
+  UNIQUE KEY `TeamId_UNIQUE` (`TeamId`),
+  CONSTRAINT `TeamId` FOREIGN KEY (`TeamId`) REFERENCES `team` (`TeamId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ;
