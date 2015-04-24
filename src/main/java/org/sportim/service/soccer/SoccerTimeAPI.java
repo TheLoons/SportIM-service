@@ -56,7 +56,7 @@ public class SoccerTimeAPI {
         }
 
         if (!StatUtil.isValidSession(session, eventID)) {
-            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         boolean success = false;
@@ -109,7 +109,7 @@ public class SoccerTimeAPI {
         }
 
         if (!StatUtil.isValidSession(session, eventID)) {
-            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         boolean success = false;
@@ -153,7 +153,7 @@ public class SoccerTimeAPI {
         }
 
         if (!StatUtil.isValidSession(session, eventID)) {
-            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         boolean success = false;
@@ -208,7 +208,7 @@ public class SoccerTimeAPI {
         }
 
         if (!StatUtil.isValidSession(session, eventID)) {
-            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         boolean success = false;
@@ -293,7 +293,7 @@ public class SoccerTimeAPI {
         }
 
         if (!StatUtil.isValidSession(session, eventID)) {
-            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         boolean success = true;

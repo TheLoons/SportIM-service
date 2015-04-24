@@ -42,8 +42,12 @@ public class SoccerFoulAPI {
     @Produces("application/json")
     public ResponseBean postFoul(final SoccerFoulBean foul, @PathParam("eventID") final int eventID,
                                  @HeaderParam("token") final String token, @HeaderParam("session") final String session) {
-        if (AuthenticationUtil.validateToken(token) == null || !StatUtil.isValidSession(session, eventID)) {
+        if (AuthenticationUtil.validateToken(token) == null) {
             return new ResponseBean(401, "Not authorized");
+        }
+
+        if (!StatUtil.isValidSession(session, eventID)) {
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         if (!foul.validate()) {

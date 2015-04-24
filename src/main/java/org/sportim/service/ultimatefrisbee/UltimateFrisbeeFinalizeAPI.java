@@ -45,7 +45,7 @@ public class UltimateFrisbeeFinalizeAPI {
         }
 
         if (!StatUtil.isValidSession(session, eventID)) {
-            return new ResponseBean(409, "Invalid session. Someone may have taken control of this statistics tracking session.");
+            return new ResponseBean(400, "You must start a session before tracking any statistics");
         }
 
         Set<Integer> losers = new HashSet<Integer>();
