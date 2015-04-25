@@ -22,6 +22,12 @@ public class TournamentAPI {
         this.provider = provider;
     }
 
+    /**
+     * GET request for getting a tournament
+     * @param tournamentId
+     * @param token
+     * @return
+     */
     @GET
     @Path("{id}")
     @Produces("application/json")
@@ -74,6 +80,12 @@ public class TournamentAPI {
         return resp;
     }
 
+    /**
+     * Helper metho for getting the full event list for a particular tournament
+     * @param tournamentId
+     * @return List of Events in Event Beans
+     * @throws SQLException
+     */
     public List<EventBean> getFullEventsForTournament(final int tournamentId) throws SQLException {
         Connection conn = provider.getConnection();
         // get events
@@ -119,6 +131,11 @@ public class TournamentAPI {
         return events;
     }
 
+    /**
+     * Method for returning event IDs for a given tournament
+     * @param tournamentID
+     * @return
+     */
     public List<Integer> getEventsForTournament(final int tournamentID) {
         List<Integer> events = new ArrayList<Integer>();
 
@@ -143,6 +160,12 @@ public class TournamentAPI {
         return events;
     }
 
+    /**
+     * Create a tournament
+     * @param tournament
+     * @param token
+     * @return
+     */
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -205,6 +228,13 @@ public class TournamentAPI {
         return resp;
     }
 
+    /**
+     * Update a tournament
+     * @param tournament
+     * @param id
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{id}")
     @Consumes("application/json")
@@ -215,6 +245,12 @@ public class TournamentAPI {
         return updateTournament(tournament, token);
     }
 
+    /**
+     * Update a tournament with a Tournament Bean
+     * @param tournament
+     * @param token
+     * @return
+     */
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
@@ -268,6 +304,12 @@ public class TournamentAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * Delete a tournament
+     * @param id
+     * @param token
+     * @return
+     */
     @DELETE
     @Path("{id}")
     @Produces("application/json")
@@ -322,6 +364,13 @@ public class TournamentAPI {
         return stmts;
     }
 
+    /**
+     * Verify tournament components prior to building/referencing a tournament
+     * @param tournament
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private static String verifyTournamentComponents(TournamentBean tournament, Connection conn) throws SQLException {
 
         String message = null;

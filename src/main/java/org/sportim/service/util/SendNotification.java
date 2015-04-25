@@ -34,11 +34,7 @@ public class SendNotification implements Job
     private ConnectionProvider provider;
 
     public SendNotification() { provider = ConnectionManager.getInstance();}
-
-//    public static void main(String[] args)
-//    {
-//        System.out.println(sendEmail("valnir1@gmail.com", "doug.hitchcock@aruplab.com", "Test Send Grid", "This is a test email from SendGrid"));
-//    }
+    
 
     /*
         Simple function to send email and return true if it successfully tried to send an email
@@ -98,7 +94,7 @@ public class SendNotification implements Job
         return sentText;
     }
 
-    /*
+    /**
     1. Make sure job isn't running (AlertJob table (Column "isRunning" (true/false?))) (bail out if running)
     2. Grab Events from now to 24 hours + participants + preferences (from teams/participants) (AKA Nasty Join)
     3. Make sure not already fired (via Alerts Table (Columns: eventId, login, start))
@@ -227,15 +223,12 @@ public class SendNotification implements Job
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
         }
-        System.out.println("Total Alerts sent: " + alertTotal);
+//        System.out.println("Total Alerts sent: " + alertTotal);
     }
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         emailAlerts();
-//        System.out.println("Test Job");
-//        sendText("8016948286", "3853991636", "body test");
-//        sendEmail("valnir1@gmail.com", "doug.hitchcock@aruplab.com", "Test Send Grid", "This is a test email from SendGrid");
     }
 }
 

@@ -29,6 +29,11 @@ public class LeagueAPI {
         apiMapper = new StatAPIMapper(provider);
     }
 
+    /**
+     * GET request for getting the Leagues for a current user
+     * @param token
+     * @return
+     */
     @GET
     @Produces("application/json")
     public ResponseBean getLeaguesForCurrentUser(@HeaderParam("token") final String token) {
@@ -67,6 +72,12 @@ public class LeagueAPI {
         return resp;
     }
 
+    /**
+     * Get a league, given a league ID
+     * @param leagueId
+     * @param token
+     * @return
+     */
     @GET
     @Path("{id}")
     @Produces("application/json")
@@ -138,6 +149,12 @@ public class LeagueAPI {
         return resp;
     }
 
+    /**
+     * Create a league (redirects to createDBLeague method)
+     * @param league
+     * @param token
+     * @return
+     */
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -204,6 +221,13 @@ public class LeagueAPI {
         return resp;
     }
 
+    /**
+     * Put method to add a team to a league
+     * @param teamId
+     * @param leagueId
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{leagueId}/add")
     @Produces("application/json")
@@ -277,6 +301,13 @@ public class LeagueAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * Update a league
+     * @param league
+     * @param id
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{id}")
     @Consumes("application/json")
@@ -287,6 +318,12 @@ public class LeagueAPI {
         return updateLeague(league, token);
     }
 
+    /**
+     * Update a league given league bean
+     * @param league
+     * @param token
+     * @return
+     */
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
@@ -345,6 +382,12 @@ public class LeagueAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * Delete League
+     * @param id
+     * @param token
+     * @return
+     */
     @DELETE
     @Path("{id}")
     @Produces("application/json")
@@ -378,6 +421,13 @@ public class LeagueAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * Remove team from league
+     * @param leagueId
+     * @param teamId
+     * @param token
+     * @return
+     */
     @DELETE
     @Produces("application/json")
     public ResponseBean removeTeamFromLeague(@QueryParam("leagueId") final int leagueId,
@@ -419,6 +469,13 @@ public class LeagueAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * When creating schedule, create league on league table
+     * @param table
+     * @param leagueId
+     * @param token
+     * @return
+     */
     @POST
     @Path("{id}/table")
     @Consumes("application/json")
@@ -456,6 +513,12 @@ public class LeagueAPI {
         return new ResponseBean(200, "");
     }
 
+    /**
+     * Get League Table
+     * @param leagueId
+     * @param token
+     * @return
+     */
     @GET
     @Path("{id}/table")
     @Produces("application/json")
@@ -501,6 +564,13 @@ public class LeagueAPI {
         return resp;
     }
 
+    /**
+     * Get League Results to display on table
+     * @param leagueID
+     * @param tableID
+     * @param token
+     * @return
+     */
     @GET
     @Path("{leagueID}/table/{tableID}")
     @Produces("application/json")
@@ -561,6 +631,13 @@ public class LeagueAPI {
         return resp;
     }
 
+    /**
+     * Delete League Table
+     * @param leagueId
+     * @param tableId
+     * @param token
+     * @return
+     */
     @DELETE
     @Path("{id}/table")
     @Produces("application/json")
@@ -616,6 +693,13 @@ public class LeagueAPI {
         return stmts;
     }
 
+    /**
+     * Verify team information, prior to adding to a league
+     * @param teamId
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private static boolean verifyTeam(int teamId, Connection conn) throws SQLException
     {
         boolean res = true;
@@ -630,6 +714,13 @@ public class LeagueAPI {
         return res;
     }
 
+    /**
+     * Verify League Components prior to creating/updating a league
+     * @param league
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private static String verifyLeagueComponents(LeagueBean league, Connection conn) throws SQLException {
         String message = null;
         if (league.getId() > 0) {
@@ -663,6 +754,13 @@ public class LeagueAPI {
         return res;
     }
 
+    /**
+     * Verify owner exists in system
+     * @param owner
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private static boolean verifyOwner(String owner, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(Login) FROM Player WHERE Login = ?");
         stmt.setString(1, owner);

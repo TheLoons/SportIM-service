@@ -26,6 +26,12 @@ public class SingleEventAPI {
         this.provider = provider;
     }
 
+    /**
+     * GET request to return the information of an event and associated information
+     * @param id
+     * @param token
+     * @return
+     */
     @GET
     @Path("{id}")
     @Produces("application/json")
@@ -111,6 +117,12 @@ public class SingleEventAPI {
         return resp;
     }
 
+    /**
+     * POST request to create an event. Redirects to createDBEvent method
+     * @param event
+     * @param token
+     * @return
+     */
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -123,6 +135,13 @@ public class SingleEventAPI {
         return createDBEvent(event, provider);
     }
 
+    /**
+     * PUT request for updating event (driver method when ID is provided)
+     * @param event
+     * @param id
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{id}")
     @Consumes("application/json")
@@ -133,6 +152,12 @@ public class SingleEventAPI {
         return updateEvent(event, token);
     }
 
+    /**
+     * PUT request for updating an event when an event bean is provided
+     * @param event
+     * @param token
+     * @return
+     */
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
@@ -187,6 +212,12 @@ public class SingleEventAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * Delete request for deleting events
+     * @param id
+     * @param token
+     * @return
+     */
     @DELETE
     @Path("{id}")
     @Produces("application/json")

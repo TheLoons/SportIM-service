@@ -70,6 +70,13 @@ public class MultiEventAPI {
         return resp;
     }
 
+    /**
+     * Get request for events with a date range
+     * @param start
+     * @param end
+     * @param token
+     * @return
+     */
     @GET
     @Produces("application/json")
     public ResponseBean getEventsForRange(@QueryParam(value = "start") final String start,
@@ -158,6 +165,11 @@ public class MultiEventAPI {
         return conn.prepareStatement(query);
     }
 
+    /**
+     * Helper method for building event query
+     * @param numParams
+     * @return
+     */
     private static String params(int numParams) {
         String ret = "";
         for (int i = 0; i < numParams; i++) {
@@ -169,6 +181,13 @@ public class MultiEventAPI {
         return ret;
     }
 
+    /**
+     * Get Teams a player plays for
+     * @param user
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private static Set<Integer> getTeamsForUser(String user, Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT TeamId FROM PlaysFor WHERE Login = ?");
         stmt.setString(1, user);

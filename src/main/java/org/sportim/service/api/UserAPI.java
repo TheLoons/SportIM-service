@@ -30,7 +30,7 @@ public class UserAPI {
     public UserAPI(ConnectionProvider provider) {
         this.provider = provider;
     }
-
+    /* Get request to grab a View version of a user */
     @GET
     @Path("view")
     @Produces("application/json")
@@ -78,43 +78,48 @@ public class UserAPI {
         resp.setUsers(users);
         return resp;
     }
-
+    /* Driver method to get the user page for individual display */
     @GET
     @Path("{login}")
     @Produces("application/json")
     public ResponseBean getUser(@PathParam("login") final String login, @HeaderParam("token") final String token) {
         return getUserQuery(login, token);
     }
-
+    /* Main method for getting user information
+     * @QueryParam login - Login of the player you are trying to grab
+     * @HeaderParam token - Token needed to determine if user is eligible to view the player
+     */
     @GET
     @Produces("application/json")
     public ResponseBean getUserQuery(@QueryParam("login") final String login,
                                      @HeaderParam("token") final String token) {
         int status = 200;
         String message = "";
-
+        // Check if login is displayed
         if (login == null) {
             return new ResponseBean(400, "Missing login parameter");
         }
-
+        // See if user is authorized to access the player
         if (!PrivilegeUtil.hasUserView(token, login)) {
             return new ResponseBean(401, "Not authorized");
         }
-
+        // Build Connection variables
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         UserBean user = null;
         try {
+            // Get connection from connection manager
             conn = provider.getConnection();
             stmt = conn.prepareStatement("SELECT FirstName, LastName, Phone FROM Player " +
                                          "WHERE Login = ?");
             stmt.setString(1, login);
             rs = stmt.executeQuery();
-
+            // Get result if found
             if (rs.next()) {
                 user = new UserBean(rs, login);
             }
+            // Indicate user not found if not found
             else {
                 status = 404;
                 message = "User " + login + " not found.";
@@ -132,7 +137,7 @@ public class UserAPI {
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
-
+        // Build response to send back
         ResponseBean resp = new ResponseBean(status, message);
         if (user != null) {
             resp.setUser(user);
@@ -143,6 +148,10 @@ public class UserAPI {
         return resp;
     }
 
+    /* Get user with all information, used for Setting page
+      @QueryParam login - Login of the player your are trying to get
+      @HeaderParam token - Authorization token
+     */
     @GET
     @Path("/alert")
     @Produces("application/json")
@@ -153,18 +162,19 @@ public class UserAPI {
         String message = "";
 
         String login = qlogin;
+        // If login is null, go grab login based off of token
         if (login == null) {
             login = AuthenticationUtil.validateToken(token);
         }
-
+        // If login is still null, notify caller that login is missing
         if (login == null) {
             return new ResponseBean(400, "Missing login parameter");
         }
-
+        // Check if token is allowed to edit user
         if (!PrivilegeUtil.hasUserView(token, login)) {
             return new ResponseBean(401, "Not authorized");
         }
-
+        // Build Connection variables
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -175,7 +185,7 @@ public class UserAPI {
                     "WHERE Login = ?");
             stmt.setString(1, login);
             rs = stmt.executeQuery();
-
+            // Build User bean for response
             if (rs.next()) {
                 user = new UserBean(rs, login);
                 user.setGameAlert(rs.getLong(4) / millisPerHour);
@@ -185,6 +195,7 @@ public class UserAPI {
                 user.setReceiveEmail(rs.getInt(8));
                 user.setReceiveText(rs.getInt(9));
             }
+            // User not found
             else {
                 status = 404;
                 message = "User " + login + " not found.";
@@ -204,7 +215,7 @@ public class UserAPI {
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
         }
-
+        // Build Response Bean
         ResponseBean resp = new ResponseBean(status, message);
         if (user != null) {
             resp.setUser(user);
@@ -215,6 +226,10 @@ public class UserAPI {
         return resp;
     }
 
+    /*
+    Post call to create user
+    @Param user - User bean with needed information to create user
+     */
     @POST
     @Produces("application/json")
     @Consumes("application/json")
@@ -226,9 +241,12 @@ public class UserAPI {
         }
 
         message = "";
+        // Get Salt for password hashing
         byte[] salt = AuthenticationUtil.getSalt();
+        // Salt hash password, so password isn't in plain text
         byte[] hash = AuthenticationUtil.saltHashPassword(salt, user.getPassword());
 
+        // Build Connection and submit user
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -254,7 +272,7 @@ public class UserAPI {
         } finally {
             APIUtils.closeResources(stmt, conn);
         }
-
+        // Return response
         return new ResponseBean(status, message);
     }
 
@@ -266,7 +284,7 @@ public class UserAPI {
         long millisPerHour = 3600000;
         int status = 200;
         String message = "";
-
+        // Validate Login
         if (user.getLogin() == null) {
             user.setLogin(AuthenticationUtil.validateToken(token));
         }
@@ -275,18 +293,23 @@ public class UserAPI {
             status = 400;
             return new ResponseBean(status, message);
         }
-
+        // Authenticate user
         if (!PrivilegeUtil.hasUserUpdate(token, user.getLogin())) {
             return new ResponseBean(401, "Not authorized");
         }
+
+        // Build connection
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
             conn = provider.getConnection();
+            // If player is already in there with hashed password, only insert relevant elements
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ?, ReceiveEmail = ?, ReceiveText = ? WHERE Login = ?");
                 stmt.setString(10, user.getLogin());
-            } else {
+            }
+            // Otherwise, hash/salt password and insert
+            else {
                 stmt = conn.prepareStatement("UPDATE Player SET FirstName = ?, LastName = ?, Phone = ?, GameAlert = ?, PracticeAlert = ?, MeetingAlert = ?, OtherAlert = ?, ReceiveEmail = ?, ReceiveText = ?, Password = ?, Salt = ? " +
                         "WHERE Login = ?");
                 byte[] salt = AuthenticationUtil.getSalt();
@@ -320,7 +343,7 @@ public class UserAPI {
         return new ResponseBean(status, message);
 
     }
-
+    // Put command for updating user without alerts
     @PUT
     @Path("{login}")
     @Produces("application/json")
@@ -331,6 +354,7 @@ public class UserAPI {
         return updateUser(user, token);
     }
 
+    // Put command to update user without alert information
     @PUT
     @Produces("application/json")
     @Consumes("application/json")
@@ -381,14 +405,18 @@ public class UserAPI {
         }
         return new ResponseBean(status, message);
     }
-
+    /*
+        Delete user from system
+        @PathParam login - Login of player to be deleted
+        @HeaderParam token - Authentication Token
+     */
     @DELETE
     @Path("{login}")
     @Produces("application/json")
     public ResponseBean deleteUser(@PathParam("login") final String login, @HeaderParam("token") final String token) {
         String message = "";
         int status = 200;
-
+        // Check if user is allowed to delete the player
         if (!PrivilegeUtil.hasUserUpdate(token, login)) {
             return new ResponseBean(401, "Not authorized");
         }
@@ -400,6 +428,8 @@ public class UserAPI {
             stmt = conn.prepareStatement("DELETE FROM Player WHERE Login = ?");
             stmt.setString(1, login);
             int res = stmt.executeUpdate();
+
+            // If not found, update status and message for response
             if (res < 1) {
                 status = 404;
                 message = "User not found.";

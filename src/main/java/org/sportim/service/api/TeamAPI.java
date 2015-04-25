@@ -25,7 +25,10 @@ public class TeamAPI {
     public TeamAPI(ConnectionProvider provider) {
         this.provider = provider;
     }
-
+    /*
+    GET request to edit the team
+    @HeaderParam token - Used for authentication
+     */
     @GET
     @Path("edit")
     @Produces("application/json")
@@ -35,6 +38,7 @@ public class TeamAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
+        // Build Connection
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -45,6 +49,7 @@ public class TeamAPI {
             stmt = conn.prepareStatement("SELECT t1.TeamId, t1.TeamName, t1.TeamOwner, t1.Sport FROM Team t1 WHERE TeamOwner = ?");
             stmt.setString(1, user);
             rs = stmt.executeQuery();
+            // Get list of teams and build list to return back from call
             while (rs.next()) {
                 TeamBean team = new TeamBean(rs);
                 teams.add(team);
@@ -60,11 +65,16 @@ public class TeamAPI {
         if (status != 200) {
             return new ResponseBean(status, "Unable to retrieve teams.");
         }
+        // Build Response
         ResponseBean resp = new ResponseBean(status, "");
         resp.setTeams(teams);
         return resp;
     }
+    /*
+        Get Request for Viewing teams
+        @HeaderParam token - Used for authentication
 
+     */
     @GET
     @Path("view")
     @Produces("application/json")
@@ -74,6 +84,7 @@ public class TeamAPI {
             return new ResponseBean(401, "Not authorized");
         }
 
+        // Build Connection
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -108,6 +119,12 @@ public class TeamAPI {
         return resp;
     }
 
+    /**
+     * GET request to team information for a single team
+     * @param teamId - Team Id of the team you are trying to see
+     * @param token - Authentication token
+     * @return
+     */
     @GET
     @Path("{id}")
     @Produces("application/json")
@@ -121,6 +138,8 @@ public class TeamAPI {
         List<UserBean> players = new LinkedList<UserBean>();
         String message = "";
         TeamBean team = null;
+
+        // Build Team
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -130,16 +149,18 @@ public class TeamAPI {
                     "WHERE t1.TeamId = ?");
             stmt.setInt(1, teamId);
             rs = stmt.executeQuery();
-
+            // If team found, build TeamBean to send back to call in response
             if (rs.next()) {
                 team = new TeamBean(rs);
             }
+            // Team not found
             else
             {
                 status = 404;
                 message = "Team not found";
             }
 
+            // Get players for that team
             stmt = conn.prepareStatement("SELECT p1.Login, p1.FirstName, p1.LastName from Player p1, PlaysFor pf WHERE pf.TeamID = ? AND p1.Login = pf.Login");
             stmt.setInt(1, teamId);
             rs = stmt.executeQuery();
@@ -161,7 +182,7 @@ public class TeamAPI {
         } finally {
             APIUtils.closeResources(rs, stmt, conn);
         }
-
+        // Build response with team information and players on the team
         ResponseBean resp = new ResponseBean(status, message);
         if (team != null) {
             team.setPlayers(players);
@@ -173,6 +194,12 @@ public class TeamAPI {
         return resp;
     }
 
+    /**
+     * GET request for getting team colors
+     * @param teamId
+     * @param token
+     * @return
+     */
     @GET
     @Path("{id}/colors")
     @Produces("application/json")
@@ -228,6 +255,12 @@ public class TeamAPI {
         return resp;
     }
 
+    /**
+     * GET request to get teams in the league
+     * @param leagueID
+     * @param token
+     * @return
+     */
     @GET
     @Produces("application/json")
     public ResponseBean getTeams(@QueryParam(value="league") final int leagueID, @HeaderParam("token") final String token)
@@ -271,6 +304,13 @@ public class TeamAPI {
         return resp;
     }
 
+    /**
+     * Post request to insert the color scheme for a team
+     * @param color
+     * @param teamID
+     * @param token
+     * @return
+     */
     @POST
     @Path("{id}/colors")
     @Produces("application/json")
@@ -311,6 +351,12 @@ public class TeamAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * POST request to create team, redirects to createDBTeam for main functionality
+     * @param team
+     * @param token
+     * @return
+     */
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -376,6 +422,13 @@ public class TeamAPI {
         return resp;
     }
 
+    /**
+     * PUT request for adding a player to a team
+     * @param id
+     * @param playerLogin
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{teamid}/add")
     @Produces("application/json")
@@ -423,6 +476,13 @@ public class TeamAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * PUT request for updating a team (driver method)
+     * @param team
+     * @param id
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{id}")
     @Consumes("application/json")
@@ -432,6 +492,12 @@ public class TeamAPI {
         return updateTeam(team, token);
     }
 
+    /**
+     * PUT request for updating teams without ID, and instead having a Team Bean with information
+     * @param team
+     * @param token
+     * @return
+     */
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
@@ -490,6 +556,13 @@ public class TeamAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * PUT request for updating team colors
+     * @param color
+     * @param teamID
+     * @param token
+     * @return
+     */
     @PUT
     @Path("{id}/colors")
     @Consumes("application/json")
@@ -539,6 +612,13 @@ public class TeamAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * DELETE request for removing a player from a team
+     * @param login
+     * @param teamId
+     * @param token
+     * @return
+     */
     @DELETE
     @Produces("application/json")
     public ResponseBean removePlayerFromTeam(@QueryParam("login") final String login, @QueryParam("teamId") final int teamId,
@@ -579,6 +659,12 @@ public class TeamAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * DELETE request for deleting a team
+     * @param id
+     * @param token
+     * @return
+     */
     @DELETE
     @Path("{id}")
     @Produces("application/json")
@@ -613,6 +699,13 @@ public class TeamAPI {
         return new ResponseBean(status, message);
     }
 
+    /**
+     * Helper method for verifying team owner of a team
+     * @param team
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private static String verifyTeamComponents(TeamBean team, Connection conn) throws SQLException {
         String message = null;
         if (team.getOwner() != null) {
