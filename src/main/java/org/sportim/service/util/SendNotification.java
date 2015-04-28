@@ -188,6 +188,7 @@ public class SendNotification implements Job
                                     stmt.setLong(3, currentTime);
                                     stmt.addBatch();
                                     stmts.add(stmt);
+                                    alertTotal++;
 
                                 }
                             }
@@ -201,11 +202,12 @@ public class SendNotification implements Job
                                     stmt.setLong(3, currentTime);
                                     stmt.addBatch();
                                     stmts.add(stmt);
+                                    alertTotal++;
                                 }
                             }
 
                         }
-                        alertTotal++;
+
                     }
                     for(PreparedStatement s : stmts)
                     {
@@ -235,7 +237,7 @@ public class SendNotification implements Job
             APIUtils.closeResource(stmt);
             APIUtils.closeResource(conn);
         }
-//        System.out.println("Total Alerts sent: " + alertTotal);
+        System.out.println("Total Alerts sent: " + alertTotal);
     }
 
     @Override
